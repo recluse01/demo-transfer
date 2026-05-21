@@ -1,0 +1,49 @@
+#java
+*.class
+*.classpath
+
+#package file
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+#maven ignore
+target/
+build/
+
+#eclipse ignore
+.settings/
+.project
+.classpatch
+bin/
+
+#Intellij idea
+.idea/
+/idea/
+*.ipr
+*.iml
+*.iws
+
+# temp file
+*.log
+*.cache
+*.diff
+*.patch
+*.tmp
+
+# system ignore
+.DS_Store
+Thumbs.db
+
+#cursor ignore
+.vscode/
+.cursor/
+.cursorrules
+.moc/
+
+.agents/
+.codex-backups/
+.claude/
+.agents
+openspec/
