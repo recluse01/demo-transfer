@@ -1,0 +1,14 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: account-a-service
+  datasource:
+    url: ${ACCOUNT_A_DB_URL:jdbc:mysql://localhost:3306/account_a?useSSL=false&serverTimezone=UTC&characterEncoding=utf8}
+    username: ${ACCOUNT_A_DB_USERNAME:root}
+    password: ${ACCOUNT_A_DB_PASSWORD:root}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
