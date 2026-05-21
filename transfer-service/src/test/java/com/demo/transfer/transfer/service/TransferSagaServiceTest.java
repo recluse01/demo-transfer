@@ -22,9 +22,12 @@ import com.demo.transfer.transfer.web.ReviewTransferRequest;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -32,6 +35,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 @DataJpaTest
 @ContextConfiguration(classes = TransferSagaServiceTest.SagaConfig.class)
+@ExtendWith(OutputCaptureExtension.class)
 class TransferSagaServiceTest {
     @Autowired
     private TransferSagaService sagaService;
@@ -58,13 +62,19 @@ class TransferSagaServiceTest {
     }
 
     @Test
-    void createsAToBManualTransferAndFreezesAccountA() {
+    void createsAToBManualTransferAndFreezesAccountA(CapturedOutput output) {
         TransferOrder order = sagaService.createTransfer(request(TransferDirection.A_TO_B, TransferMode.MANUAL_REVIEW));
 
         assertThat(order.getStatus()).isEqualTo(TransferStatus.WAIT_REVIEW);
         assertThat(order.getSourceAccountType()).isEqualTo(AccountType.ACCOUNT_A);
         assertThat(order.getTargetAccountType()).isEqualTo(AccountType.ACCOUNT_B);
         verify(accountAClient).freeze(any());
+        assertThat(output).contains("开始创建转账")
+                .contains("转账冻结成功")
+                .contains("transferId=" + order.getTransferId())
+                .contains("userId=user-1")
+                .contains("direction=A_TO_B")
+                .contains("amount=10.00");
     }
 
     @Test
@@ -77,7 +87,7 @@ class TransferSagaServiceTest {
     }
 
     @Test
-    void approvalConfirmsSourceDebitCreditsTargetAndSucceeds() {
+    void approvalConfirmsSourceDebitCreditsTargetAndSucceeds(CapturedOutput output) {
         TransferOrder order = sagaService.createTransfer(request(TransferDirection.A_TO_B, TransferMode.MANUAL_REVIEW));
 
         TransferOrder reviewed = sagaService.review(new ReviewTransferRequest(order.getTransferId(), true, "approved"));
@@ -85,6 +95,24 @@ class TransferSagaServiceTest {
         assertThat(reviewed.getStatus()).isEqualTo(TransferStatus.SUCCESS);
         verify(accountAClient).confirmDebit(any());
         verify(accountBClient).credit(any());
+        assertThat(output).contains("开始审核转账")
+                .contains("审核通过，开始确认扣减")
+                .contains("源账户扣减确认成功")
+                .contains("目标账户入账成功，转账完成")
+                .contains("transferId=" + order.getTransferId());
+    }
+
+    @Test
+    void logsFreezeFailureWithErrorMessage(CapturedOutput output) {
+        when(accountAClient.freeze(any())).thenReturn(ApiResponse.fail("BALANCE_NOT_ENOUGH", "余额不足"));
+
+        TransferOrder order = sagaService.createTransfer(request(TransferDirection.A_TO_B, TransferMode.MANUAL_REVIEW));
+
+        assertThat(order.getStatus()).isEqualTo(TransferStatus.FREEZE_FAILED);
+        assertThat(output).contains("转账冻结失败")
+                .contains("transferId=" + order.getTransferId())
+                .contains("errorCode=BALANCE_NOT_ENOUGH")
+                .contains("errorMessage=余额不足");
     }
 
     @Test
