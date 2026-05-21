@@ -4,6 +4,8 @@ import com.demo.transfer.account.service.AccountAssetService;
 import com.demo.transfer.common.ApiResponse;
 import com.demo.transfer.common.AssetOperationRequest;
 import com.demo.transfer.common.AssetOperationResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p>仅供转账服务等内部系统调用，不面向终端用户直接开放。
  */
+@Tag(name = "Account Asset API", description = "账户资产内部操作接口")
 @RestController
 @RequestMapping("/internal/accounts/assets")
 public class AccountAssetController {
@@ -26,39 +29,43 @@ public class AccountAssetController {
     }
 
     /** 冻结可用余额。 */
+    @Operation(summary = "冻结资产", description = "将可用余额转入冻结余额。")
     @PostMapping("/freeze")
     public ApiResponse<AssetOperationResponse> freeze(@Valid @RequestBody AssetOperationRequest request) {
         return execute(() -> service.freeze(request));
     }
 
     /** 确认扣减冻结余额。 */
+    @Operation(summary = "确认扣减", description = "将冻结余额确认为实际扣减。")
     @PostMapping("/confirm-debit")
     public ApiResponse<AssetOperationResponse> confirmDebit(@Valid @RequestBody AssetOperationRequest request) {
         return execute(() -> service.confirmDebit(request));
     }
 
     /** 取消冻结。 */
+    @Operation(summary = "取消冻结", description = "将冻结余额恢复到可用余额。")
     @PostMapping("/cancel-freeze")
     public ApiResponse<AssetOperationResponse> cancelFreeze(@Valid @RequestBody AssetOperationRequest request) {
         return execute(() -> service.cancelFreeze(request));
     }
 
     /** 向目标账户入账。 */
+    @Operation(summary = "目标账户入账", description = "向目标账户增加可用余额。")
     @PostMapping("/credit")
     public ApiResponse<AssetOperationResponse> credit(@Valid @RequestBody AssetOperationRequest request) {
         return execute(() -> service.credit(request));
     }
 
-    private ApiResponse<AssetOperationResponse> execute(Operation operation) {
+    private ApiResponse<AssetOperationResponse> execute(Handler handler) {
         try {
-            return ApiResponse.ok(operation.apply());
+            return ApiResponse.ok(handler.apply());
         } catch (IllegalStateException ex) {
             return ApiResponse.fail("ACCOUNT_OPERATION_FAILED", ex.getMessage());
         }
     }
 
     /** 控制器内部统一执行模板。 */
-    private interface Operation {
+    private interface Handler {
         AssetOperationResponse apply();
     }
 }

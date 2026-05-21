@@ -18,3 +18,7 @@ account:
     url: ${ACCOUNT_A_URL:http://localhost:8081}
   b:
     url: ${ACCOUNT_B_URL:http://localhost:8082}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
