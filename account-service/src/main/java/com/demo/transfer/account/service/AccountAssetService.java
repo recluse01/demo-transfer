@@ -13,10 +13,19 @@ import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 账户资产操作服务。
+ *
+ * <p>负责执行冻结、确认扣减、取消冻结、入账四类原子操作，
+ * 并同步落操作幂等记录和资金流水。
+ */
 @Service
 public class AccountAssetService {
+    /** 账户余额仓储，提供行级锁读取能力。 */
     private final AccountBalanceRepository balanceRepository;
+    /** 资产操作仓储，用于幂等去重。 */
     private final AssetOperationRepository operationRepository;
+    /** 资金流水仓储，用于审计余额变化。 */
     private final FinanceLedgerRepository ledgerRepository;
 
     public AccountAssetService(AccountBalanceRepository balanceRepository, AssetOperationRepository operationRepository,
@@ -46,11 +55,20 @@ public class AccountAssetService {
         return apply(request, OperationType.CREDIT);
     }
 
+    /**
+     * 执行单个资产操作。
+     *
+     * <p>处理顺序：
+     * 1. 根据 transferId + operationType 做幂等检查。
+     * 2. 锁定余额记录并完成金额变更。
+     * 3. 写入资金流水和操作记录。
+     */
     private AssetOperationResponse apply(AssetOperationRequest request, OperationType operationType) {
         AssetOperation existing = operationRepository
                 .findByTransferIdAndOperationType(request.getTransferId(), operationType)
                 .orElse(null);
         if (existing != null) {
+            // 幂等命中时不重复扣改余额，直接返回已有处理结果。
             return new AssetOperationResponse(request.getTransferId(), operationType, false,
                     existing.getResponseMessage());
         }
@@ -68,6 +86,11 @@ public class AccountAssetService {
         return new AssetOperationResponse(request.getTransferId(), operationType, true, operationType.name() + " success");
     }
 
+    /**
+     * 根据操作类型修改余额。
+     *
+     * <p>availableDelta 和 frozenDelta 描述本次操作对两个余额桶的影响，用于记账。
+     */
     private BalanceDelta mutate(AccountBalance balance, OperationType operationType, BigDecimal amount) {
         if (OperationType.FREEZE == operationType) {
             requireEnough(balance.getAvailableAmount(), amount, "insufficient available balance");
@@ -89,13 +112,17 @@ public class AccountAssetService {
     }
 
     private void requireEnough(BigDecimal balance, BigDecimal amount, String message) {
+        // 余额校验统一放在服务层，避免领域对象静默失败。
         if (balance.compareTo(amount) < 0) {
             throw new IllegalStateException(message);
         }
     }
 
+    /** 单次资产操作对可用余额和冻结余额的变化量。 */
     private static class BalanceDelta {
+        /** 可用余额变化量，负数表示扣减，正数表示增加。 */
         private final BigDecimal availableDelta;
+        /** 冻结余额变化量，负数表示减少，正数表示增加。 */
         private final BigDecimal frozenDelta;
 
         private BalanceDelta(BigDecimal availableDelta, BigDecimal frozenDelta) {

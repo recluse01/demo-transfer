@@ -7,20 +7,26 @@ import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+/** 创建转账请求。 */
 public class CreateTransferRequest {
+    /** 发起转账的用户。 */
     @NotBlank
     private String userId;
 
+    /** 转账资产编码。 */
     @NotBlank
     private String assetCode;
 
+    /** 转账金额。 */
     @NotNull
     @DecimalMin("0.00000001")
     private BigDecimal amount;
 
+    /** 转账方向。 */
     @NotNull
     private TransferDirection direction;
 
+    /** 转账模式。 */
     @NotNull
     private TransferMode mode;
 

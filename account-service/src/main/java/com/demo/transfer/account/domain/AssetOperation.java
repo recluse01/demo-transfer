@@ -19,43 +19,60 @@ import javax.persistence.UniqueConstraint;
 @Table(name = "asset_operation", uniqueConstraints = {
         @UniqueConstraint(name = "uk_asset_operation_transfer_type", columnNames = {"transfer_id", "operation_type"})
 })
+/**
+ * 资产操作幂等记录。
+ *
+ * <p>每个 transferId 在同一种操作类型下只允许成功落库一次，
+ * 用于保护账户侧接口的幂等性。
+ */
 public class AssetOperation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** 关联的业务转账号。 */
     @Column(name = "transfer_id", nullable = false, length = 64)
     private String transferId;
 
+    /** 资产操作类型。 */
     @Enumerated(EnumType.STRING)
     @Column(name = "operation_type", nullable = false, length = 32)
     private OperationType operationType;
 
+    /** 用户标识。 */
     @Column(name = "user_id", nullable = false, length = 64)
     private String userId;
 
+    /** 资产编码。 */
     @Column(name = "asset_code", nullable = false, length = 32)
     private String assetCode;
 
+    /** 本次操作处理金额。 */
     @Column(name = "amount", nullable = false, precision = 32, scale = 8)
     private BigDecimal amount;
 
+    /** 操作处理状态。 */
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 16)
     private OperationStatus status;
 
+    /** 响应码，示例中成功固定为 OK。 */
     @Column(name = "response_code", nullable = false, length = 32)
     private String responseCode;
 
+    /** 响应说明。 */
     @Column(name = "response_message", nullable = false, length = 255)
     private String responseMessage;
 
+    /** 创建时间。 */
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    /** 更新时间。 */
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    /** 构造成功的资产操作记录。 */
     public static AssetOperation success(String transferId, OperationType operationType, String userId, String assetCode,
             BigDecimal amount, String message) {
         AssetOperation operation = new AssetOperation();

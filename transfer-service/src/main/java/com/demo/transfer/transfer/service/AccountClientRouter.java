@@ -7,9 +7,16 @@ import com.demo.transfer.transfer.client.AccountBClient;
 import com.demo.transfer.transfer.client.AccountOperationsClient;
 import org.springframework.stereotype.Component;
 
+/**
+ * 账户客户端路由器。
+ *
+ * <p>负责在转账方向、账户类型和具体客户端实现之间做映射。
+ */
 @Component
 public class AccountClientRouter {
+    /** A 账户服务客户端。 */
     private final AccountAClient accountAClient;
+    /** B 账户服务客户端。 */
     private final AccountBClient accountBClient;
 
     public AccountClientRouter(AccountAClient accountAClient, AccountBClient accountBClient) {

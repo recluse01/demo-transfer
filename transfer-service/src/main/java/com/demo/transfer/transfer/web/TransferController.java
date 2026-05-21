@@ -12,10 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 转账领域对外接口。
+ *
+ * <p>提供创建转账、人工审核、提现结果回调、失败重试和详情查询能力。
+ */
 @RestController
 @RequestMapping("/transfers")
 public class TransferController {
+    /** Saga 主流程服务。 */
     private final TransferSagaService sagaService;
+    /** 失败重试服务。 */
     private final TransferRetryService retryService;
 
     public TransferController(TransferSagaService sagaService, TransferRetryService retryService) {
@@ -23,11 +30,13 @@ public class TransferController {
         this.retryService = retryService;
     }
 
+    /** 创建一笔新的跨账户转账。 */
     @PostMapping
     public ApiResponse<TransferOrder> create(@Valid @RequestBody CreateTransferRequest request) {
         return execute(() -> sagaService.createTransfer(request));
     }
 
+    /** 处理人工审核结果。 */
     @PostMapping("/{transferId}/review")
     public ApiResponse<TransferOrder> review(@PathVariable String transferId,
             @RequestBody ReviewTransferRequest request) {
@@ -35,17 +44,20 @@ public class TransferController {
                 request.getMessage())));
     }
 
+    /** 接收自动提现结果回调。 */
     @PostMapping("/{transferId}/withdraw-result")
     public ApiResponse<TransferOrder> withdrawResult(@PathVariable String transferId,
             @RequestBody WithdrawResultRequest request) {
         return execute(() -> sagaService.handleWithdrawResult(transferId, request.isSuccess(), request.getMessage()));
     }
 
+    /** 对可重试失败状态发起一次手动重试。 */
     @PostMapping("/{transferId}/retry")
     public ApiResponse<TransferOrder> retry(@PathVariable String transferId) {
         return execute(() -> retryService.retryOne(transferId));
     }
 
+    /** 查询转账主单详情。 */
     @GetMapping("/{transferId}")
     public ApiResponse<TransferOrder> get(@PathVariable String transferId) {
         return execute(() -> sagaService.get(transferId));
@@ -59,6 +71,7 @@ public class TransferController {
         }
     }
 
+    /** 控制器内部统一执行模板。 */
     private interface Operation {
         TransferOrder apply();
     }

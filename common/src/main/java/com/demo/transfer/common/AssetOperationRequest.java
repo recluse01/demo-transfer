@@ -5,20 +5,30 @@ import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+/**
+ * 账户资产操作请求。
+ *
+ * <p>由转账服务发给账户服务，描述某笔转账在账户侧需要执行的单个动作。
+ */
 public class AssetOperationRequest {
+    /** 业务转账号，也是账户侧幂等主键的一部分。 */
     @NotBlank
     private String transferId;
 
+    /** 用户标识。 */
     @NotBlank
     private String userId;
 
+    /** 资产编码。 */
     @NotBlank
     private String assetCode;
 
+    /** 本次操作金额，最小精度为 0.00000001。 */
     @NotNull
     @DecimalMin("0.00000001")
     private BigDecimal amount;
 
+    /** 转账方向，便于账户服务按上下文做审计或分流。 */
     @NotNull
     private TransferDirection direction;
 
