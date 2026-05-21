@@ -58,15 +58,15 @@ docker compose ps
 如果本机 `3306` 已被占用，可以换一个宿主机端口：
 
 ```bash
-MYSQL_PORT=13306 docker compose up -d mysql
+MYSQL_PORT=3306 docker compose up -d mysql
 ```
 
 同时启动 Java 服务前需要指定数据库连接：
 
 ```bash
-export TRANSFER_DB_URL='jdbc:mysql://localhost:13306/transfer?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
-export ACCOUNT_A_DB_URL='jdbc:mysql://localhost:13306/account_a?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
-export ACCOUNT_B_DB_URL='jdbc:mysql://localhost:13306/account_b?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
+export TRANSFER_DB_URL='jdbc:mysql://localhost:3306/transfer?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
+export ACCOUNT_A_DB_URL='jdbc:mysql://localhost:3306/account_a?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
+export ACCOUNT_B_DB_URL='jdbc:mysql://localhost:3306/account_b?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
 ```
 
 ### 2.2 自动初始化说明
