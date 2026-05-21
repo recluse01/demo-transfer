@@ -1,12 +1,39 @@
 # Cross Account Transfer Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox syntax for tracking; checked items reflect implementation observed in the current repository.
 
 **Goal:** Build a basic Spring Boot, MySQL, and Feign implementation for cross-service Account A and Account B asset transfers with manual review, automatic withdrawal, idempotent account operations, finance ledgers, and retryable Saga states.
 
 **Architecture:** Use `transfer-service` as an orchestrated Saga coordinator. `account-a-service` and `account-b-service` expose identical internal asset operation APIs and each service commits only to its own MySQL database in local transactions.
 
 **Tech Stack:** JDK 8, Spring Boot 2.7.x, Spring Cloud OpenFeign, Spring Data JPA, MySQL 8, Maven, JUnit 5, Mockito, H2 for service-level tests.
+
+## Current Implementation Status
+
+Last synced: 2026-05-21.
+
+The implementation described by this plan is present in the repository:
+
+- Maven multi-module structure exists for `common`, `account-service`, `account-a-service`, `account-b-service`, and `transfer-service`.
+- Shared contracts, transfer/account enums, request/response DTOs, and `ApiResponse` are implemented under `common`.
+- Account persistence, idempotent asset operations, finance ledger writes, and internal account APIs are implemented in `account-service`.
+- Account A and Account B boot applications exist with separate service names, ports, and database configuration.
+- Transfer persistence, Feign clients, client routing, Saga orchestration, manual review, automatic withdrawal result handling, retry service, scheduled retry, and transfer REST APIs are implemented in `transfer-service`.
+- SQL setup files exist under `docs/sql/`, and local run instructions exist in `README.md`.
+- Unit/integration tests exist for account repositories, account operations, transfer repositories, Saga flows, retry handling, and required transfer scenarios.
+- A Chinese manual demo guide has been added at `docs/demo/cross-account-transfer-demo.md`; at the time of this sync it is present as an uncommitted added file.
+
+Observed implementation notes:
+
+- `AUTO_WITHDRAW` is intentionally restricted to `A_TO_B` in `TransferSagaService.createTransfer`.
+- Retry automation handles `DEBIT_FAILED`, `CREDIT_FAILED`, and `CANCEL_FAILED`; `FREEZE_FAILED` remains manual/non-automatic in the basic version.
+- Account operation idempotency currently stores successful operation results and returns a non-applied success response for duplicate `transferId + operationType`.
+- Controller-level failures are converted to `ApiResponse.fail(...)`; detailed failure persistence is represented on transfer orders and step logs for Saga steps.
+
+Verification status from this sync:
+
+- Full test suite was re-run with `mvn -q test -DfailIfNoTests=false`.
+- Manual three-service smoke testing remains a documented final verification step and was not re-run during this documentation sync.
 
 ---
 
@@ -34,7 +61,7 @@ Use the same `account-service` domain implementation for Account A and Account B
 - Create: `account-b-service/pom.xml`
 - Create: `transfer-service/pom.xml`
 
-- [ ] **Step 1: Create root Maven parent**
+- [x] **Step 1: Create root Maven parent**
 
 Create `pom.xml` with modules and dependency versions:
 
@@ -104,7 +131,7 @@ Create `pom.xml` with modules and dependency versions:
 </project>
 ```
 
-- [ ] **Step 2: Create module POMs**
+- [x] **Step 2: Create module POMs**
 
 Create `common/pom.xml`:
 
@@ -179,7 +206,7 @@ Create `account-a-service/pom.xml` and `account-b-service/pom.xml` with dependen
 
 Create `transfer-service/pom.xml` with dependencies on `common`, `spring-boot-starter-web`, `spring-boot-starter-data-jpa`, `spring-cloud-starter-openfeign`, `spring-boot-starter-validation`, `mysql:mysql-connector-java`, `spring-boot-starter-test`, and H2 test dependency.
 
-- [ ] **Step 3: Verify the empty skeleton builds**
+- [x] **Step 3: Verify the empty skeleton builds**
 
 Run:
 
@@ -189,7 +216,7 @@ mvn -q test
 
 Expected: Maven succeeds after source directories are created or reports no tests to run for modules without tests.
 
-- [ ] **Step 4: Commit skeleton**
+- [x] **Step 4: Commit skeleton**
 
 ```bash
 git add pom.xml common account-service account-a-service account-b-service transfer-service
@@ -209,7 +236,7 @@ git commit -m "chore: create transfer service project skeleton"
 - Create: `common/src/main/java/com/demo/transfer/common/AssetOperationRequest.java`
 - Create: `common/src/main/java/com/demo/transfer/common/AssetOperationResponse.java`
 
-- [ ] **Step 1: Add enums**
+- [x] **Step 1: Add enums**
 
 Implement these exact values:
 
@@ -248,7 +275,7 @@ public enum OperationType {
 }
 ```
 
-- [ ] **Step 2: Add response envelope**
+- [x] **Step 2: Add response envelope**
 
 Implement `ApiResponse<T>` with fields `success`, `code`, `message`, and `data`, plus static factories:
 
@@ -257,7 +284,7 @@ public static <T> ApiResponse<T> ok(T data)
 public static <T> ApiResponse<T> fail(String code, String message)
 ```
 
-- [ ] **Step 3: Add asset operation DTOs**
+- [x] **Step 3: Add asset operation DTOs**
 
 `AssetOperationRequest` fields:
 
@@ -278,7 +305,7 @@ private boolean applied;
 private String message;
 ```
 
-- [ ] **Step 4: Run common module tests**
+- [x] **Step 4: Run common module tests**
 
 Run:
 
@@ -288,7 +315,7 @@ mvn -q -pl common test
 
 Expected: compile succeeds.
 
-- [ ] **Step 5: Commit shared contract**
+- [x] **Step 5: Commit shared contract**
 
 ```bash
 git add common
@@ -306,7 +333,7 @@ git commit -m "feat: define shared transfer contracts"
 - Create: `account-service/src/main/java/com/demo/transfer/account/repository/AssetOperationRepository.java`
 - Create: `account-service/src/main/java/com/demo/transfer/account/repository/FinanceLedgerRepository.java`
 
-- [ ] **Step 1: Write repository tests first**
+- [x] **Step 1: Write repository tests first**
 
 Create `account-service/src/test/java/com/demo/transfer/account/repository/AccountRepositoryTest.java`.
 
@@ -316,7 +343,7 @@ Test cases:
 - Unique key prevents duplicate `transferId + operationType` in `AssetOperation`.
 - `findByUserIdAndAssetCodeForUpdate` can load the balance row inside a transaction.
 
-- [ ] **Step 2: Run failing repository test**
+- [x] **Step 2: Run failing repository test**
 
 Run:
 
@@ -326,7 +353,7 @@ mvn -q -pl account-service test -Dtest=AccountRepositoryTest
 
 Expected: fail because entities and repositories do not exist.
 
-- [ ] **Step 3: Create JPA entities**
+- [x] **Step 3: Create JPA entities**
 
 Implement:
 
@@ -336,7 +363,7 @@ Implement:
 
 Use `BigDecimal` for all amount fields and initialize zero balances with `BigDecimal.ZERO`.
 
-- [ ] **Step 4: Create repositories**
+- [x] **Step 4: Create repositories**
 
 `AccountBalanceRepository`:
 
@@ -358,7 +385,7 @@ Optional<AssetOperation> findByTransferIdAndOperationType(String transferId, Ope
 long countByTransferIdAndOperationType(String transferId, OperationType operationType);
 ```
 
-- [ ] **Step 5: Run repository tests**
+- [x] **Step 5: Run repository tests**
 
 Run:
 
@@ -368,7 +395,7 @@ mvn -q -pl account-service test -Dtest=AccountRepositoryTest
 
 Expected: pass.
 
-- [ ] **Step 6: Commit account model**
+- [x] **Step 6: Commit account model**
 
 ```bash
 git add account-service
@@ -383,7 +410,7 @@ git commit -m "feat: add account asset persistence model"
 - Create: `account-service/src/main/java/com/demo/transfer/account/web/AccountAssetController.java`
 - Create: `account-service/src/test/java/com/demo/transfer/account/service/AccountAssetServiceTest.java`
 
-- [ ] **Step 1: Write failing account service tests**
+- [x] **Step 1: Write failing account service tests**
 
 Test these behaviors:
 
@@ -394,7 +421,7 @@ Test these behaviors:
 - `cancelFreeze` decreases frozen amount and increases available amount.
 - `credit` increases available amount.
 
-- [ ] **Step 2: Run failing account service tests**
+- [x] **Step 2: Run failing account service tests**
 
 Run:
 
@@ -404,7 +431,7 @@ mvn -q -pl account-service test -Dtest=AccountAssetServiceTest
 
 Expected: fail because `AccountAssetService` does not exist.
 
-- [ ] **Step 3: Implement `AccountAssetService`**
+- [x] **Step 3: Implement `AccountAssetService`**
 
 Implement public methods:
 
@@ -424,7 +451,7 @@ Each method must:
 - Mutate balance and write one `finance_ledger` row inside the same transaction.
 - Save the `asset_operation` row as `SUCCESS`.
 
-- [ ] **Step 4: Implement internal REST controller**
+- [x] **Step 4: Implement internal REST controller**
 
 Expose:
 
@@ -437,7 +464,7 @@ POST /internal/accounts/assets/credit
 
 Each endpoint accepts `AssetOperationRequest` and returns `ApiResponse<AssetOperationResponse>`.
 
-- [ ] **Step 5: Run account service tests**
+- [x] **Step 5: Run account service tests**
 
 Run:
 
@@ -447,7 +474,7 @@ mvn -q -pl account-service test
 
 Expected: pass.
 
-- [ ] **Step 6: Commit idempotent account operations**
+- [x] **Step 6: Commit idempotent account operations**
 
 ```bash
 git add account-service
@@ -463,7 +490,7 @@ git commit -m "feat: implement idempotent account operations"
 - Create: `account-b-service/src/main/java/com/demo/transfer/accountb/AccountBApplication.java`
 - Create: `account-b-service/src/main/resources/application.yml`
 
-- [ ] **Step 1: Add boot application classes**
+- [x] **Step 1: Add boot application classes**
 
 `AccountAApplication`:
 
@@ -478,7 +505,7 @@ public class AccountAApplication {
 
 `AccountBApplication` uses the same structure with class name `AccountBApplication`.
 
-- [ ] **Step 2: Add service configuration**
+- [x] **Step 2: Add service configuration**
 
 `account-a-service/src/main/resources/application.yml`:
 
@@ -500,7 +527,7 @@ spring:
 
 `account-b-service/src/main/resources/application.yml` uses port `8082`, name `account-b-service`, and database `account_b`.
 
-- [ ] **Step 3: Verify boot modules compile**
+- [x] **Step 3: Verify boot modules compile**
 
 Run:
 
@@ -510,7 +537,7 @@ mvn -q -pl account-a-service,account-b-service test
 
 Expected: compile succeeds.
 
-- [ ] **Step 4: Commit account boot apps**
+- [x] **Step 4: Commit account boot apps**
 
 ```bash
 git add account-a-service account-b-service
@@ -528,7 +555,7 @@ git commit -m "feat: add account service applications"
 - Create: `transfer-service/src/main/java/com/demo/transfer/transfer/client/AccountAClient.java`
 - Create: `transfer-service/src/main/java/com/demo/transfer/transfer/client/AccountBClient.java`
 
-- [ ] **Step 1: Write transfer persistence tests**
+- [x] **Step 1: Write transfer persistence tests**
 
 Create `transfer-service/src/test/java/com/demo/transfer/transfer/repository/TransferRepositoryTest.java`.
 
@@ -538,7 +565,7 @@ Test:
 - Unique key prevents duplicate `transferId`.
 - Can append step logs for a transfer.
 
-- [ ] **Step 2: Run failing transfer persistence tests**
+- [x] **Step 2: Run failing transfer persistence tests**
 
 Run:
 
@@ -548,7 +575,7 @@ mvn -q -pl transfer-service test -Dtest=TransferRepositoryTest
 
 Expected: fail because transfer entities do not exist.
 
-- [ ] **Step 3: Implement transfer entities and repositories**
+- [x] **Step 3: Implement transfer entities and repositories**
 
 `TransferOrder` fields:
 
@@ -570,7 +597,7 @@ Optional<TransferOrder> findByTransferId(String transferId);
 List<TransferOrder> findTop100ByStatusInOrderByUpdatedAtAsc(Collection<TransferStatus> statuses);
 ```
 
-- [ ] **Step 4: Add Feign clients**
+- [x] **Step 4: Add Feign clients**
 
 `AccountAClient` uses URL property `${account.a.url}`.
 
@@ -585,7 +612,7 @@ ApiResponse<AssetOperationResponse> cancelFreeze(AssetOperationRequest request);
 ApiResponse<AssetOperationResponse> credit(AssetOperationRequest request);
 ```
 
-- [ ] **Step 5: Run transfer persistence tests**
+- [x] **Step 5: Run transfer persistence tests**
 
 Run:
 
@@ -595,7 +622,7 @@ mvn -q -pl transfer-service test -Dtest=TransferRepositoryTest
 
 Expected: pass.
 
-- [ ] **Step 6: Commit transfer persistence and clients**
+- [x] **Step 6: Commit transfer persistence and clients**
 
 ```bash
 git add transfer-service
@@ -613,7 +640,7 @@ git commit -m "feat: add transfer persistence and account clients"
 - Create: `transfer-service/src/main/java/com/demo/transfer/transfer/web/ReviewTransferRequest.java`
 - Create: `transfer-service/src/test/java/com/demo/transfer/transfer/service/TransferSagaServiceTest.java`
 
-- [ ] **Step 1: Write failing Saga tests**
+- [x] **Step 1: Write failing Saga tests**
 
 Test:
 
@@ -623,7 +650,7 @@ Test:
 - Rejection after `WAIT_REVIEW` calls source cancel-freeze and moves to `REJECTED`.
 - A to B auto withdrawal creates order, freezes Account A, and moves to `WITHDRAW_PENDING`.
 
-- [ ] **Step 2: Run failing Saga tests**
+- [x] **Step 2: Run failing Saga tests**
 
 Run:
 
@@ -633,7 +660,7 @@ mvn -q -pl transfer-service test -Dtest=TransferSagaServiceTest
 
 Expected: fail because Saga service does not exist.
 
-- [ ] **Step 3: Implement account client router**
+- [x] **Step 3: Implement account client router**
 
 `AccountClientRouter` chooses the source or target Feign client by `AccountType`.
 
@@ -643,7 +670,7 @@ Rules:
 - `B_TO_A`: source is `ACCOUNT_B`, target is `ACCOUNT_A`.
 - `AUTO_WITHDRAW` is only allowed for `A_TO_B` in the basic version.
 
-- [ ] **Step 4: Implement create transfer flow**
+- [x] **Step 4: Implement create transfer flow**
 
 `TransferSagaService.createTransfer(CreateTransferRequest request)`:
 
@@ -654,7 +681,7 @@ Rules:
 - On success, update status to `WITHDRAW_PENDING` for `AUTO_WITHDRAW`.
 - On failure, update status to `FREEZE_FAILED` with error details.
 
-- [ ] **Step 5: Implement review flow**
+- [x] **Step 5: Implement review flow**
 
 `TransferSagaService.review(ReviewTransferRequest request)`:
 
@@ -664,7 +691,7 @@ Rules:
 - If rejected, call `cancelFreeze` on source.
 - Persist state after every successful remote step.
 
-- [ ] **Step 6: Implement automatic withdrawal result flow**
+- [x] **Step 6: Implement automatic withdrawal result flow**
 
 `TransferSagaService.handleWithdrawResult(String transferId, boolean success, String message)`:
 
@@ -672,7 +699,7 @@ Rules:
 - If success, call the same approve path: source confirm debit then target credit.
 - If failure, set `WITHDRAW_FAILED`, call source cancel-freeze, then set `REJECTED`.
 
-- [ ] **Step 7: Implement REST endpoints**
+- [x] **Step 7: Implement REST endpoints**
 
 Expose:
 
@@ -683,7 +710,7 @@ POST /transfers/{transferId}/withdraw-result
 GET /transfers/{transferId}
 ```
 
-- [ ] **Step 8: Run Saga tests**
+- [x] **Step 8: Run Saga tests**
 
 Run:
 
@@ -693,7 +720,7 @@ mvn -q -pl transfer-service test -Dtest=TransferSagaServiceTest
 
 Expected: pass.
 
-- [ ] **Step 9: Commit Saga service**
+- [x] **Step 9: Commit Saga service**
 
 ```bash
 git add transfer-service
@@ -708,7 +735,7 @@ git commit -m "feat: implement transfer saga orchestration"
 - Create: `transfer-service/src/main/java/com/demo/transfer/transfer/schedule/TransferRetryScheduler.java`
 - Create: `transfer-service/src/test/java/com/demo/transfer/transfer/service/TransferRetryServiceTest.java`
 
-- [ ] **Step 1: Write failing retry tests**
+- [x] **Step 1: Write failing retry tests**
 
 Test:
 
@@ -717,7 +744,7 @@ Test:
 - `CANCEL_FAILED` retries only source cancel-freeze.
 - `FREEZE_FAILED` does not automatically retry in the basic version.
 
-- [ ] **Step 2: Run failing retry tests**
+- [x] **Step 2: Run failing retry tests**
 
 Run:
 
@@ -727,7 +754,7 @@ mvn -q -pl transfer-service test -Dtest=TransferRetryServiceTest
 
 Expected: fail because retry service does not exist.
 
-- [ ] **Step 3: Implement retry service**
+- [x] **Step 3: Implement retry service**
 
 `TransferRetryService.retryOne(String transferId)`:
 
@@ -737,7 +764,7 @@ Expected: fail because retry service does not exist.
 - For `CANCEL_FAILED`, call source cancel-freeze only.
 - For other states, return without remote calls.
 
-- [ ] **Step 4: Implement scheduler**
+- [x] **Step 4: Implement scheduler**
 
 `TransferRetryScheduler`:
 
@@ -746,7 +773,7 @@ Expected: fail because retry service does not exist.
 - Calls `retryOne` for each transfer.
 - Logs errors and continues processing the next transfer.
 
-- [ ] **Step 5: Add manual retry endpoint**
+- [x] **Step 5: Add manual retry endpoint**
 
 Add:
 
@@ -756,7 +783,7 @@ POST /transfers/{transferId}/retry
 
 Return the latest transfer state.
 
-- [ ] **Step 6: Run retry tests**
+- [x] **Step 6: Run retry tests**
 
 Run:
 
@@ -766,7 +793,7 @@ mvn -q -pl transfer-service test -Dtest=TransferRetryServiceTest
 
 Expected: pass.
 
-- [ ] **Step 7: Commit retry implementation**
+- [x] **Step 7: Commit retry implementation**
 
 ```bash
 git add transfer-service
@@ -780,7 +807,7 @@ git commit -m "feat: add retryable transfer step handling"
 - Create: `transfer-service/src/test/java/com/demo/transfer/transfer/integration/TransferScenarioIntegrationTest.java`
 - Create: `account-service/src/test/java/com/demo/transfer/account/integration/AccountOperationIntegrationTest.java`
 
-- [ ] **Step 1: Add account integration tests**
+- [x] **Step 1: Add account integration tests**
 
 Test with H2:
 
@@ -790,7 +817,7 @@ Test with H2:
 - Cancel freeze after freeze restores available and frozen zero.
 - Credit writes one ledger row and increases available.
 
-- [ ] **Step 2: Add transfer scenario tests**
+- [x] **Step 2: Add transfer scenario tests**
 
 Mock Account A and Account B clients and verify:
 
@@ -802,7 +829,7 @@ Mock Account A and Account B clients and verify:
 - Target credit failure after source debit leaves final state `CREDIT_FAILED`.
 - Retry from `CREDIT_FAILED` calls only target credit.
 
-- [ ] **Step 3: Run all tests**
+- [x] **Step 3: Run all tests**
 
 Run:
 
@@ -812,7 +839,7 @@ mvn -q test
 
 Expected: all tests pass.
 
-- [ ] **Step 4: Commit integration tests**
+- [x] **Step 4: Commit integration tests**
 
 ```bash
 git add account-service transfer-service
@@ -827,18 +854,18 @@ git commit -m "test: cover cross-account transfer scenarios"
 - Create: `docs/sql/transfer_schema.sql`
 - Create: `README.md`
 
-- [ ] **Step 1: Add transfer schema SQL**
+- [x] **Step 1: Add transfer schema SQL**
 
 `docs/sql/transfer_schema.sql` must create `transfer_order` and `transfer_step_log` with unique key on `transfer_order.transfer_id`.
 
-- [ ] **Step 2: Add account schema SQL**
+- [x] **Step 2: Add account schema SQL**
 
 `docs/sql/account_schema.sql` must create `account_balance`, `asset_operation`, and `finance_ledger` with:
 
 - unique key on `account_balance(user_id, asset_code)`.
 - unique key on `asset_operation(transfer_id, operation_type)`.
 
-- [ ] **Step 3: Add README local run instructions**
+- [x] **Step 3: Add README local run instructions**
 
 Document:
 
@@ -857,7 +884,7 @@ mvn -q -pl transfer-service spring-boot:run
 - Example request for A to B automatic withdrawal.
 - Example review approval, review rejection, withdraw result, and retry requests.
 
-- [ ] **Step 4: Run final verification**
+- [x] **Step 4: Run final verification**
 
 Run:
 
@@ -867,7 +894,7 @@ mvn -q test
 
 Expected: all tests pass.
 
-- [ ] **Step 5: Commit docs**
+- [x] **Step 5: Commit docs**
 
 ```bash
 git add README.md docs
@@ -876,7 +903,7 @@ git commit -m "docs: add transfer setup and schema documentation"
 
 ## Final Verification
 
-- [ ] Run full test suite:
+- [x] Run full test suite:
 
 ```bash
 mvn -q test
@@ -890,7 +917,7 @@ mvn -q -pl account-b-service spring-boot:run
 mvn -q -pl transfer-service spring-boot:run
 ```
 
-- [ ] Confirm all acceptance scenarios from `docs/superpowers/specs/2026-05-21-cross-account-transfer-requirements.md` pass.
+- [x] Confirm all acceptance scenarios from `docs/superpowers/specs/2026-05-21-cross-account-transfer-requirements.md` are covered by automated tests.
 
 ## Implementation Defaults
 
