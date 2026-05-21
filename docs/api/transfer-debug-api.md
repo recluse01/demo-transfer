@@ -14,6 +14,18 @@
 - `account-a-service`: `http://localhost:8081`
 - `account-b-service`: `http://localhost:8082`
 
+Swagger UI 入口：
+
+- `transfer-service`: `http://localhost:8080/swagger-ui.html`
+- `account-a-service`: `http://localhost:8081/swagger-ui.html`
+- `account-b-service`: `http://localhost:8082/swagger-ui.html`
+
+OpenAPI JSON：
+
+- `transfer-service`: `http://localhost:8080/v3/api-docs`
+- `account-a-service`: `http://localhost:8081/v3/api-docs`
+- `account-b-service`: `http://localhost:8082/v3/api-docs`
+
 ## 1. 统一响应结构
 
 所有接口都返回统一结构：

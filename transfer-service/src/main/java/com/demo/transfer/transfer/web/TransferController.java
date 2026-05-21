@@ -4,6 +4,9 @@ import com.demo.transfer.common.ApiResponse;
 import com.demo.transfer.transfer.domain.TransferOrder;
 import com.demo.transfer.transfer.service.TransferRetryService;
 import com.demo.transfer.transfer.service.TransferSagaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p>提供创建转账、人工审核、提现结果回调、失败重试和详情查询能力。
  */
+@Tag(name = "Transfer API", description = "跨账户转账主流程接口")
 @RestController
 @RequestMapping("/transfers")
 public class TransferController {
@@ -31,48 +35,57 @@ public class TransferController {
     }
 
     /** 创建一笔新的跨账户转账。 */
+    @Operation(summary = "创建转账", description = "创建转账单并立即触发源账户冻结。")
     @PostMapping
     public ApiResponse<TransferOrder> create(@Valid @RequestBody CreateTransferRequest request) {
         return execute(() -> sagaService.createTransfer(request));
     }
 
     /** 处理人工审核结果。 */
+    @Operation(summary = "人工审核", description = "对待审核转账执行通过或驳回。")
     @PostMapping("/{transferId}/review")
-    public ApiResponse<TransferOrder> review(@PathVariable String transferId,
+    public ApiResponse<TransferOrder> review(
+            @Parameter(description = "转账唯一标识", required = true) @PathVariable String transferId,
             @RequestBody ReviewTransferRequest request) {
         return execute(() -> sagaService.review(new ReviewTransferRequest(transferId, request.isApproved(),
                 request.getMessage())));
     }
 
     /** 接收自动提现结果回调。 */
+    @Operation(summary = "提现结果回调", description = "处理自动提现模式下的成功或失败回调。")
     @PostMapping("/{transferId}/withdraw-result")
-    public ApiResponse<TransferOrder> withdrawResult(@PathVariable String transferId,
+    public ApiResponse<TransferOrder> withdrawResult(
+            @Parameter(description = "转账唯一标识", required = true) @PathVariable String transferId,
             @RequestBody WithdrawResultRequest request) {
         return execute(() -> sagaService.handleWithdrawResult(transferId, request.isSuccess(), request.getMessage()));
     }
 
     /** 对可重试失败状态发起一次手动重试。 */
+    @Operation(summary = "重试失败步骤", description = "对 DEBIT_FAILED、CREDIT_FAILED、CANCEL_FAILED 状态执行重试。")
     @PostMapping("/{transferId}/retry")
-    public ApiResponse<TransferOrder> retry(@PathVariable String transferId) {
+    public ApiResponse<TransferOrder> retry(
+            @Parameter(description = "转账唯一标识", required = true) @PathVariable String transferId) {
         return execute(() -> retryService.retryOne(transferId));
     }
 
     /** 查询转账主单详情。 */
+    @Operation(summary = "查询转账单", description = "查询转账当前状态、金额、模式和最近一次错误信息。")
     @GetMapping("/{transferId}")
-    public ApiResponse<TransferOrder> get(@PathVariable String transferId) {
+    public ApiResponse<TransferOrder> get(
+            @Parameter(description = "转账唯一标识", required = true) @PathVariable String transferId) {
         return execute(() -> sagaService.get(transferId));
     }
 
-    private ApiResponse<TransferOrder> execute(Operation operation) {
+    private ApiResponse<TransferOrder> execute(Handler handler) {
         try {
-            return ApiResponse.ok(operation.apply());
+            return ApiResponse.ok(handler.apply());
         } catch (RuntimeException ex) {
             return ApiResponse.fail("TRANSFER_OPERATION_FAILED", ex.getMessage());
         }
     }
 
     /** 控制器内部统一执行模板。 */
-    private interface Operation {
+    private interface Handler {
         TransferOrder apply();
     }
 }
