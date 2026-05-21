@@ -20,12 +20,23 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 跨账户转账的 Saga 编排服务。
+ *
+ * <p>职责包括：
+ * 1. 创建转账单并冻结源账户资产。
+ * 2. 根据转账模式推进人工审核或提现回调后的后续步骤。
+ * 3. 串联源账户扣减、目标账户入账、失败回滚等流程。
+ */
 @Service
 public class TransferSagaService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransferSagaService.class);
 
+    /** 转账主单持久化仓储。 */
     private final TransferOrderRepository orderRepository;
+    /** Saga 步骤日志仓储，用于审计和排障。 */
     private final TransferStepLogRepository stepLogRepository;
+    /** 账户客户端路由器，用于按账户类型选择实际调用方。 */
     private final AccountClientRouter router;
 
     public TransferSagaService(TransferOrderRepository orderRepository, TransferStepLogRepository stepLogRepository,
@@ -37,6 +48,7 @@ public class TransferSagaService {
 
     @Transactional
     public TransferOrder createTransfer(CreateTransferRequest request) {
+        // 基础版自动提现只支持 A 到 B，避免进入未实现分支。
         if (TransferMode.AUTO_WITHDRAW == request.getMode() && TransferDirection.A_TO_B != request.getDirection()) {
             throw new IllegalArgumentException("AUTO_WITHDRAW only supports A_TO_B in the basic version");
         }
@@ -49,10 +61,12 @@ public class TransferSagaService {
                 order.getAmount(), order.getTransferMode());
         orderRepository.save(order);
 
+        // Saga 第一步：先冻结源账户可用余额，确保后续流程具备幂等和资金约束。
         LOGGER.info("开始冻结源账户资产，transferId={}, userId={}, sourceAccount={}, assetCode={}, amount={}",
                 order.getTransferId(), order.getUserId(), source, order.getAssetCode(), order.getAmount());
         ApiResponse<AssetOperationResponse> response = router.client(source).freeze(assetRequest(order, direction(order)));
         if (response.isSuccess()) {
+            // 冻结成功后，根据模式进入人工审核或等待提现结果两个分支。
             order.markStatus(TransferMode.MANUAL_REVIEW == request.getMode() ? TransferStatus.WAIT_REVIEW
                     : TransferStatus.WITHDRAW_PENDING);
             log(order, "FREEZE", "SUCCESS", null);
@@ -70,6 +84,7 @@ public class TransferSagaService {
 
     @Transactional
     public TransferOrder review(ReviewTransferRequest request) {
+        // 人工审核只允许在待审核状态下推进。
         TransferOrder order = load(request.getTransferId());
         requireStatus(order, TransferStatus.WAIT_REVIEW);
         LOGGER.info("开始审核转账，transferId={}, userId={}, approved={}, currentStatus={}",
@@ -86,6 +101,7 @@ public class TransferSagaService {
 
     @Transactional
     public TransferOrder handleWithdrawResult(String transferId, boolean success, String message) {
+        // 自动提现模式下，提现结果决定继续扣减还是执行取消冻结。
         TransferOrder order = load(transferId);
         requireStatus(order, TransferStatus.WITHDRAW_PENDING);
         LOGGER.info("收到提现结果，transferId={}, userId={}, success={}, message={}",
@@ -107,6 +123,11 @@ public class TransferSagaService {
         return load(transferId);
     }
 
+    /**
+     * Saga 第二步：确认扣减源账户冻结余额。
+     *
+     * <p>只有在冻结成功后才能进入该步骤，失败时保留失败状态，等待重试或人工处理。
+     */
     TransferOrder approve(TransferOrder order) {
         LOGGER.info("调用源账户确认扣减，transferId={}, userId={}, sourceAccount={}, assetCode={}, amount={}",
                 order.getTransferId(), order.getUserId(), order.getSourceAccountType(), order.getAssetCode(),
@@ -128,6 +149,11 @@ public class TransferSagaService {
         return creditTarget(order);
     }
 
+    /**
+     * Saga 第三步：向目标账户入账。
+     *
+     * <p>该步骤成功后整笔转账结束；失败时进入可重试状态。
+     */
     TransferOrder creditTarget(TransferOrder order) {
         LOGGER.info("调用目标账户入账，transferId={}, userId={}, targetAccount={}, assetCode={}, amount={}",
                 order.getTransferId(), order.getUserId(), order.getTargetAccountType(), order.getAssetCode(),
@@ -148,6 +174,11 @@ public class TransferSagaService {
         return orderRepository.saveAndFlush(order);
     }
 
+    /**
+     * 回滚步骤：取消源账户冻结。
+     *
+     * <p>用于审核拒绝、提现失败或其他需要终止流程的场景。
+     */
     TransferOrder cancel(TransferOrder order) {
         LOGGER.info("调用源账户取消冻结，transferId={}, userId={}, sourceAccount={}, assetCode={}, amount={}",
                 order.getTransferId(), order.getUserId(), order.getSourceAccountType(), order.getAssetCode(),
@@ -182,6 +213,7 @@ public class TransferSagaService {
     }
 
     private AssetOperationRequest assetRequest(TransferOrder order, TransferDirection direction) {
+        // 统一构造账户服务请求，保证所有步骤使用同一组业务主键和资产信息。
         return new AssetOperationRequest(order.getTransferId(), order.getUserId(), order.getAssetCode(),
                 order.getAmount(), direction);
     }
@@ -194,12 +226,14 @@ public class TransferSagaService {
     }
 
     private void requireStatus(TransferOrder order, TransferStatus status) {
+        // 状态机保护，避免重复推进或跳步执行。
         if (order.getStatus() != status) {
             throw new IllegalStateException("transfer status must be " + status);
         }
     }
 
     private void log(TransferOrder order, String step, String status, String error) {
+        // 当前示例只记录步骤结果，保留 request/response 字段以便后续扩展更细的审计明细。
         stepLogRepository.save(TransferStepLog.of(order.getTransferId(), step, status, null, null, error));
     }
 }
