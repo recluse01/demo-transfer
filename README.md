@@ -10,6 +10,10 @@ Basic cross-service account transfer demo using Spring Boot, Feign, MySQL, and a
 - `account-service`: shared account asset implementation used by both account applications.
 - `common`: shared DTOs and enums.
 
+## Design
+
+- [Service implementation overview](docs/design/service-implementation-overview.md)
+
 ## Requirements
 
 - JDK 8 compatible runtime.
