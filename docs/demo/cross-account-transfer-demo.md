@@ -35,7 +35,70 @@ transfer-service :8080
 
 ## 2. 演示准备
 
-### 2.1 创建数据库
+### 2.1 启动 MySQL 中间件
+
+项目提供了 `docker-compose.yml`，用于启动演示所需的 MySQL 8。
+
+```bash
+docker compose up -d mysql
+```
+
+查看容器状态：
+
+```bash
+docker compose ps
+```
+
+预期：
+
+- `demo-transfer-mysql` 状态为 `healthy`。
+- 本机 `3306` 端口可以连接 MySQL。
+- 默认 root 密码是 `root`。
+
+如果本机 `3306` 已被占用，可以换一个宿主机端口：
+
+```bash
+MYSQL_PORT=13306 docker compose up -d mysql
+```
+
+同时启动 Java 服务前需要指定数据库连接：
+
+```bash
+export TRANSFER_DB_URL='jdbc:mysql://localhost:13306/transfer?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
+export ACCOUNT_A_DB_URL='jdbc:mysql://localhost:13306/account_a?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
+export ACCOUNT_B_DB_URL='jdbc:mysql://localhost:13306/account_b?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
+```
+
+### 2.2 自动初始化说明
+
+第一次启动 MySQL 容器时，Docker 会执行：
+
+```text
+docker/mysql/init/01-demo-transfer.sql
+```
+
+该脚本会自动完成：
+
+- 创建 `transfer`、`account_a`、`account_b` 三个数据库。
+- 创建转账单、步骤日志、账户余额、幂等操作记录、财务流水表。
+- 给 `user-1` 初始化 A 账户 `1000 USDT`，B 账户 `500 USDT`。
+
+连接 MySQL 检查：
+
+```bash
+docker compose exec mysql mysql -uroot -proot -e "SHOW DATABASES;"
+```
+
+如果需要彻底重建 MySQL 数据和重新执行初始化脚本：
+
+```bash
+docker compose down -v
+docker compose up -d mysql
+```
+
+### 2.3 手动创建数据库
+
+如果不用 Docker Compose，也可以手动创建数据库。
 
 ```sql
 CREATE DATABASE IF NOT EXISTS transfer DEFAULT CHARACTER SET utf8mb4;
@@ -43,7 +106,7 @@ CREATE DATABASE IF NOT EXISTS account_a DEFAULT CHARACTER SET utf8mb4;
 CREATE DATABASE IF NOT EXISTS account_b DEFAULT CHARACTER SET utf8mb4;
 ```
 
-### 2.2 初始化表
+### 2.4 手动初始化表
 
 ```bash
 mysql -uroot -proot transfer < docs/sql/transfer_schema.sql
@@ -51,35 +114,40 @@ mysql -uroot -proot account_a < docs/sql/account_schema.sql
 mysql -uroot -proot account_b < docs/sql/account_schema.sql
 ```
 
-### 2.3 初始化演示余额
+### 2.5 重置演示余额
 
 为了让每个场景互不影响，可以在每次演示前重置数据。
 
-```sql
--- transfer 库
+使用 Docker Compose 启动的 MySQL 时，可以直接执行：
+
+```bash
+docker compose exec mysql mysql -uroot -proot <<'SQL'
+SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE transfer.transfer_step_log;
 TRUNCATE TABLE transfer.transfer_order;
 
--- account_a 库
 TRUNCATE TABLE account_a.finance_ledger;
 TRUNCATE TABLE account_a.asset_operation;
 TRUNCATE TABLE account_a.account_balance;
+
+TRUNCATE TABLE account_b.finance_ledger;
+TRUNCATE TABLE account_b.asset_operation;
+TRUNCATE TABLE account_b.account_balance;
+SET FOREIGN_KEY_CHECKS = 1;
+
 INSERT INTO account_a.account_balance
     (user_id, asset_code, available_amount, frozen_amount, version, created_at, updated_at)
 VALUES
     ('user-1', 'USDT', 1000.00000000, 0.00000000, 0, NOW(), NOW());
 
--- account_b 库
-TRUNCATE TABLE account_b.finance_ledger;
-TRUNCATE TABLE account_b.asset_operation;
-TRUNCATE TABLE account_b.account_balance;
 INSERT INTO account_b.account_balance
     (user_id, asset_code, available_amount, frozen_amount, version, created_at, updated_at)
 VALUES
     ('user-1', 'USDT', 500.00000000, 0.00000000, 0, NOW(), NOW());
+SQL
 ```
 
-### 2.4 启动服务
+### 2.6 启动服务
 
 三个终端分别启动：
 
@@ -95,47 +163,57 @@ mvn -q -pl account-b-service spring-boot:run
 mvn -q -pl transfer-service spring-boot:run
 ```
 
-### 2.5 查询辅助 SQL
+### 2.7 查询辅助 SQL
 
 查询转账单：
 
-```sql
+```bash
+docker compose exec mysql mysql -uroot -proot -e "
 SELECT transfer_id, user_id, source_account_type, target_account_type,
        amount, transfer_mode, status, last_error_code, last_error_message
 FROM transfer.transfer_order
-ORDER BY id DESC;
+ORDER BY id DESC;"
 ```
 
 查询步骤日志：
 
-```sql
+```bash
+docker compose exec mysql mysql -uroot -proot -e "
 SELECT transfer_id, step_name, step_status, error_message, created_at
 FROM transfer.transfer_step_log
-ORDER BY id;
+ORDER BY id;"
 ```
 
 查询 A 账户余额和流水：
 
-```sql
+```bash
+docker compose exec mysql mysql -uroot -proot -e "
 SELECT user_id, asset_code, available_amount, frozen_amount
-FROM account_a.account_balance;
+FROM account_a.account_balance;"
+```
 
+```bash
+docker compose exec mysql mysql -uroot -proot -e "
 SELECT transfer_id, operation_type, available_delta, frozen_delta,
        available_after, frozen_after
 FROM account_a.finance_ledger
-ORDER BY id;
+ORDER BY id;"
 ```
 
 查询 B 账户余额和流水：
 
-```sql
+```bash
+docker compose exec mysql mysql -uroot -proot -e "
 SELECT user_id, asset_code, available_amount, frozen_amount
-FROM account_b.account_balance;
+FROM account_b.account_balance;"
+```
 
+```bash
+docker compose exec mysql mysql -uroot -proot -e "
 SELECT transfer_id, operation_type, available_delta, frozen_delta,
        available_after, frozen_after
 FROM account_b.finance_ledger
-ORDER BY id;
+ORDER BY id;"
 ```
 
 ## 3. 场景一：A 转 B，人工审核通过
