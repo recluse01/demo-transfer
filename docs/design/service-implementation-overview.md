@@ -23,7 +23,7 @@ transfer-service
 | `account-service` | 账户资产核心实现：余额、冻结、扣减、解冻、入账、流水、幂等。 |
 | `account-a-service` | A 账户启动应用，复用 `account-service`，连接 `account_a` 库。 |
 | `account-b-service` | B 账户启动应用，复用 `account-service`，连接 `account_b` 库。 |
-| `transfer-service` | 转账入口、状态机、Feign 调用、审核/自动提币结果处理、失败重试。 |
+| `transfer-service` | 转账入口、状态机、Feign 调用、人工审核、站内自动完成、失败重试。 |
 
 A/B 服务的业务代码刻意共用一份 `account-service`，避免两边资产逻辑漂移。启动类显式配置 `@EntityScan` 和 `@EnableJpaRepositories`，让共享模块里的实体和仓储能被扫描到。
 
@@ -54,7 +54,7 @@ A/B 服务的业务代码刻意共用一份 `account-service`，避免两边资�
 | --- | --- |
 | `POST /transfers` | 创建转账，立即冻结源账户资产。 |
 | `POST /transfers/{transferId}/review` | 人工审核通过或驳回。 |
-| `POST /transfers/{transferId}/withdraw-result` | 接收自动提币成功或失败结果。 |
+| `POST /transfers/{transferId}/withdraw-result` | 兼容旧流程的自动提币结果回调。 |
 | `POST /transfers/{transferId}/retry` | 手动重试失败步骤。 |
 | `GET /transfers/{transferId}` | 查询转账单。 |
 
@@ -100,25 +100,19 @@ POST /transfers/{id}/review approved=false
   -> transfer_order = REJECTED
 ```
 
-### 自动提币
+### 站内自动完成
 
-基础版只允许 `A_TO_B + AUTO_WITHDRAW`。
+站内 `AUTO_WITHDRAW` 支持 `A_TO_B` 和 `B_TO_A`。它表示系统自动完成站内划转，不表示链上提币。
 
 ```text
 POST /transfers
   -> source.freeze()
-  -> transfer_order = WITHDRAW_PENDING
-
-withdraw-result success=true
   -> source.confirmDebit()
   -> target.credit()
   -> transfer_order = SUCCESS
-
-withdraw-result success=false
-  -> transfer_order = WITHDRAW_FAILED
-  -> source.cancelFreeze()
-  -> transfer_order = REJECTED
 ```
+
+如果确认扣减失败，状态进入 `DEBIT_FAILED`；如果目标入账失败，状态进入 `CREDIT_FAILED`，后续由重试机制继续推进。
 
 ## 6. 状态机
 
@@ -127,13 +121,13 @@ withdraw-result success=false
 | `CREATED` | 转账单已创建，尚未完成冻结。 | 调用源账户冻结。 |
 | `FREEZE_FAILED` | 源账户冻结失败。 | 基础版不自动重试，通常由业务重新发起或人工处理。 |
 | `WAIT_REVIEW` | 源账户已冻结，等待人工审核。 | 审核通过扣冻结并入账；审核驳回解冻。 |
-| `WITHDRAW_PENDING` | 源账户已冻结，等待自动提币结果。 | 成功则扣冻结并入账；失败则解冻。 |
-| `WITHDRAW_FAILED` | 自动提币失败，准备解冻。 | 调用源账户解冻。 |
+| `WITHDRAW_PENDING` | 兼容旧流程：源账户已冻结，等待自动提币结果。 | 新建站内自动转账通常不会进入该状态。 |
+| `WITHDRAW_FAILED` | 兼容旧流程：自动提币失败，准备解冻。 | 调用源账户解冻。 |
 | `DEBIT_FAILED` | 源账户确认扣冻结失败。 | 重试源账户 `confirmDebit`。 |
 | `DEBIT_SUCCESS` | 源账户确认扣冻结成功，目标账户尚未完成入账。 | 调用目标账户 `credit`。 |
 | `CREDIT_FAILED` | 目标账户入账失败。 | 只重试目标账户 `credit`。 |
 | `CANCEL_FAILED` | 解冻失败。 | 重试源账户 `cancelFreeze`。 |
-| `REJECTED` | 转账已驳回或自动提币失败后已解冻。 | 终态。 |
+| `REJECTED` | 转账已驳回或兼容旧自动提币失败后已解冻。 | 终态。 |
 | `SUCCESS` | 源账户扣减和目标账户入账都完成。 | 终态。 |
 
 关键原则：一旦源账户冻结金额已经确认扣减，目标入账失败不会自动反向补偿源账户，而是停在 `CREDIT_FAILED`，持续重试目标入账。
@@ -191,7 +185,7 @@ withdraw-result success=false
 
 ## 11. 当前限制
 
-- 自动提币只支持 A 转 B。
+- 站内自动转账支持 A 转 B 和 B 转 A；链上提币尚未实现，后续应独立建模。
 - 目标入账失败后只做重试，不做自动反向补偿。
 - 未实现认证鉴权、风控、限流、对账、运营审批页面。
 - Feign 调用异常的精细分类还比较基础，后续可补充超时、熔断和统一错误映射。

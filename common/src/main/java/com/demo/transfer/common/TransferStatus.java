@@ -4,7 +4,7 @@ package com.demo.transfer.common;
  * 转账 Saga 状态。
  *
  * <p>状态推进顺序大致为：
- * CREATED -> WAIT_REVIEW/WITHDRAW_PENDING -> DEBIT_SUCCESS -> SUCCESS，
+ * CREATED -> WAIT_REVIEW/DEBIT_SUCCESS -> SUCCESS，
  * 过程中可能进入各类 FAILED 或 REJECTED 分支。
  */
 public enum TransferStatus {
@@ -14,9 +14,9 @@ public enum TransferStatus {
     FREEZE_FAILED,
     /** 冻结成功，等待人工审核。 */
     WAIT_REVIEW,
-    /** 冻结成功，等待自动提现结果。 */
+    /** 兼容旧自动提现流程：冻结成功，等待自动提现结果。 */
     WITHDRAW_PENDING,
-    /** 自动提现失败。 */
+    /** 兼容旧自动提现流程：自动提现失败。 */
     WITHDRAW_FAILED,
     /** 取消冻结失败。 */
     CANCEL_FAILED,

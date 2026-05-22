@@ -135,12 +135,20 @@ curl -X POST http://localhost:8080/transfers \
   -d '{"userId":"user-1","assetCode":"USDT","amount":10,"direction":"B_TO_A","mode":"MANUAL_REVIEW"}'
 ```
 
-创建 A -> B 自动提币转账：
+创建 A -> B 站内自动转账：
 
 ```bash
 curl -X POST http://localhost:8080/transfers \
   -H 'Content-Type: application/json' \
   -d '{"userId":"user-1","assetCode":"USDT","amount":10,"direction":"A_TO_B","mode":"AUTO_WITHDRAW"}'
+```
+
+创建 B -> A 站内自动转账：
+
+```bash
+curl -X POST http://localhost:8080/transfers \
+  -H 'Content-Type: application/json' \
+  -d '{"userId":"user-1","assetCode":"USDT","amount":10,"direction":"B_TO_A","mode":"AUTO_WITHDRAW"}'
 ```
 
 人工审核通过：
@@ -159,7 +167,9 @@ curl -X POST http://localhost:8080/transfers/{transferId}/review \
   -d '{"approved":false,"message":"审核驳回"}'
 ```
 
-提交自动提币结果：
+提交兼容旧流程的自动提币结果：
+
+新建站内自动转账通常不需要调用这个接口；它只用于兼容仍停留在 `WITHDRAW_PENDING` 的历史流程。
 
 ```bash
 curl -X POST http://localhost:8080/transfers/{transferId}/withdraw-result \
@@ -192,5 +202,6 @@ mvn -q test -DfailIfNoTests=false
 - 账户冻结、确认扣减、取消冻结、入账，以及重复冻结的幂等处理
 - A -> B 人工审核通过与驳回
 - B -> A 人工审核通过
-- A -> B 自动提币成功与失败
+- A -> B、B -> A 站内自动转账成功
+- 兼容旧自动提币结果回调
 - 源账户已扣减后目标入账失败，以及从 `CREDIT_FAILED` 状态重试

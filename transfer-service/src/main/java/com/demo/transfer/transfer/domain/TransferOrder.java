@@ -58,7 +58,7 @@ public class TransferOrder {
     @Column(name = "amount", nullable = false, precision = 32, scale = 8)
     private BigDecimal amount;
 
-    /** 转账处理模式，决定是人工审核还是自动提现。 */
+    /** 转账处理模式，决定是人工审核还是站内自动完成。 */
     @Enumerated(EnumType.STRING)
     @Column(name = "transfer_mode", nullable = false, length = 32)
     private TransferMode transferMode;
