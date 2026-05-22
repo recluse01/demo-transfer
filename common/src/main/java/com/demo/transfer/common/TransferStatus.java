@@ -1,32 +1,23 @@
 package com.demo.transfer.common;
 
 /**
- * 转账 Saga 状态。
+ * 转账 Workflow 状态。
  *
- * <p>状态推进顺序大致为：
- * CREATED -> WAIT_REVIEW/DEBIT_SUCCESS -> SUCCESS，
- * 过程中可能进入各类 FAILED 或 REJECTED 分支。
+ * <p>由 Temporal Workflow 推进，精简后仅保留可观测的关键节点状态：
+ * CREATED → (WAIT_REVIEW →) DEBIT_SUCCESS → SUCCESS
+ *         ↘ REJECTED（审核驳回）
+ *         ↘ CREDIT_FAILED（入账失败，不补偿）
  */
 public enum TransferStatus {
-    /** 主单已创建，尚未完成冻结。 */
+    /** 主单已创建，Workflow 已启动，冻结步骤尚未完成。 */
     CREATED,
-    /** 源账户冻结失败。 */
-    FREEZE_FAILED,
-    /** 冻结成功，等待人工审核。 */
+    /** 冻结成功，等待人工审核（仅 MANUAL_REVIEW 模式）。 */
     WAIT_REVIEW,
-    /** 兼容旧自动提现流程：冻结成功，等待自动提现结果。 */
-    WITHDRAW_PENDING,
-    /** 兼容旧自动提现流程：自动提现失败。 */
-    WITHDRAW_FAILED,
-    /** 取消冻结失败。 */
-    CANCEL_FAILED,
-    /** 转账被拒绝，且已成功取消冻结。 */
+    /** 审核驳回，冻结已成功取消。 */
     REJECTED,
-    /** 确认扣减失败。 */
-    DEBIT_FAILED,
-    /** 确认扣减成功，待目标账户入账。 */
+    /** 源账户确认扣减成功，目标账户入账进行中。 */
     DEBIT_SUCCESS,
-    /** 目标账户入账失败。 */
+    /** 目标账户入账失败，Workflow 重试中或已耗尽重试（不反向补偿）。 */
     CREDIT_FAILED,
     /** 全部步骤完成。 */
     SUCCESS
