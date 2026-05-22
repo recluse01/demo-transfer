@@ -48,10 +48,6 @@ public class TransferSagaService {
 
     @Transactional
     public TransferOrder createTransfer(CreateTransferRequest request) {
-        // 基础版自动提现只支持 A 到 B，避免进入未实现分支。
-        if (TransferMode.AUTO_WITHDRAW == request.getMode() && TransferDirection.A_TO_B != request.getDirection()) {
-            throw new IllegalArgumentException("AUTO_WITHDRAW only supports A_TO_B in the basic version");
-        }
         AccountType source = router.sourceType(request.getDirection());
         AccountType target = router.targetType(request.getDirection());
         TransferOrder order = TransferOrder.create(UUID.randomUUID().toString(), request.getUserId(), source, target,
@@ -66,13 +62,17 @@ public class TransferSagaService {
                 order.getTransferId(), order.getUserId(), source, order.getAssetCode(), order.getAmount());
         ApiResponse<AssetOperationResponse> response = router.client(source).freeze(assetRequest(order, direction(order)));
         if (response.isSuccess()) {
-            // 冻结成功后，根据模式进入人工审核或等待提现结果两个分支。
-            order.markStatus(TransferMode.MANUAL_REVIEW == request.getMode() ? TransferStatus.WAIT_REVIEW
-                    : TransferStatus.WITHDRAW_PENDING);
             log(order, "FREEZE", "SUCCESS", null);
-            LOGGER.info("转账冻结成功，transferId={}, userId={}, sourceAccount={}, nextStatus={}",
-                    order.getTransferId(), order.getUserId(), source, order.getStatus());
-            return orderRepository.saveAndFlush(order);
+            if (TransferMode.MANUAL_REVIEW == request.getMode()) {
+                order.markStatus(TransferStatus.WAIT_REVIEW);
+                LOGGER.info("转账冻结成功，等待人工审核，transferId={}, userId={}, sourceAccount={}, nextStatus={}",
+                        order.getTransferId(), order.getUserId(), source, order.getStatus());
+                return orderRepository.saveAndFlush(order);
+            }
+            LOGGER.info("站内自动转账冻结成功，开始自动确认扣减，transferId={}, userId={}, sourceAccount={}",
+                    order.getTransferId(), order.getUserId(), source);
+            orderRepository.saveAndFlush(order);
+            return approve(order);
         }
         order.markFailure(TransferStatus.FREEZE_FAILED, response.getCode(), response.getMessage());
         log(order, "FREEZE", "FAILED", response.getMessage());
@@ -101,7 +101,7 @@ public class TransferSagaService {
 
     @Transactional
     public TransferOrder handleWithdrawResult(String transferId, boolean success, String message) {
-        // 自动提现模式下，提现结果决定继续扣减还是执行取消冻结。
+        // 该接口保留用于兼容仍停留在 WITHDRAW_PENDING 的历史流程；新建站内自动转账通常不会再进入该状态。
         TransferOrder order = load(transferId);
         requireStatus(order, TransferStatus.WITHDRAW_PENDING);
         LOGGER.info("收到提现结果，transferId={}, userId={}, success={}, message={}",

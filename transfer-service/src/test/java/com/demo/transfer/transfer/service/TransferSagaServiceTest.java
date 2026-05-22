@@ -126,11 +126,40 @@ class TransferSagaServiceTest {
     }
 
     @Test
-    void autoWithdrawCreatesFrozenOrderWaitingForWithdrawResult() {
+    void autoWithdrawAToBAutomaticallyConfirmsDebitAndCreditsTarget() {
         TransferOrder order = sagaService.createTransfer(request(TransferDirection.A_TO_B, TransferMode.AUTO_WITHDRAW));
 
-        assertThat(order.getStatus()).isEqualTo(TransferStatus.WITHDRAW_PENDING);
+        assertThat(order.getStatus()).isEqualTo(TransferStatus.SUCCESS);
+        assertThat(order.getSourceAccountType()).isEqualTo(AccountType.ACCOUNT_A);
+        assertThat(order.getTargetAccountType()).isEqualTo(AccountType.ACCOUNT_B);
         verify(accountAClient).freeze(any());
+        verify(accountAClient).confirmDebit(any());
+        verify(accountBClient).credit(any());
+    }
+
+    @Test
+    void autoWithdrawBToAAutomaticallyConfirmsDebitAndCreditsTarget() {
+        TransferOrder order = sagaService.createTransfer(request(TransferDirection.B_TO_A, TransferMode.AUTO_WITHDRAW));
+
+        assertThat(order.getStatus()).isEqualTo(TransferStatus.SUCCESS);
+        assertThat(order.getSourceAccountType()).isEqualTo(AccountType.ACCOUNT_B);
+        assertThat(order.getTargetAccountType()).isEqualTo(AccountType.ACCOUNT_A);
+        verify(accountBClient).freeze(any());
+        verify(accountBClient).confirmDebit(any());
+        verify(accountAClient).credit(any());
+    }
+
+    @Test
+    void autoWithdrawConfirmDebitFailureLeavesDebitFailed() {
+        when(accountAClient.confirmDebit(any())).thenReturn(ApiResponse.fail("DEBIT_TIMEOUT", "确认扣减超时"));
+
+        TransferOrder order = sagaService.createTransfer(request(TransferDirection.A_TO_B, TransferMode.AUTO_WITHDRAW));
+
+        assertThat(order.getStatus()).isEqualTo(TransferStatus.DEBIT_FAILED);
+        assertThat(order.getLastErrorCode()).isEqualTo("DEBIT_TIMEOUT");
+        verify(accountAClient).freeze(any());
+        verify(accountAClient).confirmDebit(any());
+        verify(accountBClient, org.mockito.Mockito.never()).credit(any());
     }
 
     private CreateTransferRequest request(TransferDirection direction, TransferMode mode) {
