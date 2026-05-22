@@ -11,6 +11,12 @@
 - 幂等验证
 - 目标账户入账失败后的重试行为
 
+演示口径：
+
+- `MANUAL_REVIEW` 表示站内转账需要人工审核。
+- `AUTO_WITHDRAW` 在本文中表示站内自动转账：资产仍在系统内部，只是在 A/B 账户之间划转。
+- 链上提币不是本次基础版演示内容，后续应独立建模，不复用站内目标账户入账流程。
+
 ## 1. 演示拓扑
 
 ```text
@@ -55,18 +61,18 @@ docker compose ps
 - 本机 `3306` 端口可以连接 MySQL。
 - 默认 root 密码是 `root`。
 
-如果本机 `3306` 已被占用，可以换一个宿主机端口：
+如果本机 `3306` 已被占用，可以换一个宿主机端口，例如 `3307`：
 
 ```bash
-MYSQL_PORT=3306 docker compose up -d mysql
+MYSQL_PORT=3307 docker compose up -d mysql
 ```
 
 同时启动 Java 服务前需要指定数据库连接：
 
 ```bash
-export TRANSFER_DB_URL='jdbc:mysql://localhost:3306/transfer?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
-export ACCOUNT_A_DB_URL='jdbc:mysql://localhost:3306/account_a?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
-export ACCOUNT_B_DB_URL='jdbc:mysql://localhost:3306/account_b?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
+export TRANSFER_DB_URL='jdbc:mysql://localhost:3307/transfer?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
+export ACCOUNT_A_DB_URL='jdbc:mysql://localhost:3307/account_a?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
+export ACCOUNT_B_DB_URL='jdbc:mysql://localhost:3307/account_b?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
 ```
 
 ### 2.2 自动初始化说明
@@ -216,17 +222,36 @@ FROM account_b.finance_ledger
 ORDER BY id;"
 ```
 
+### 2.8 命令辅助说明
+
+下面的场景会使用 `jq` 从创建转账响应中提取 `transferId`：
+
+```bash
+TRANSFER_ID=$(curl ... | jq -r '.data.transferId')
+```
+
+如果本机没有安装 `jq`，也可以直接从接口响应里复制 `data.transferId`，再手动执行：
+
+```bash
+export TRANSFER_ID='复制到这里'
+```
+
+建议每个场景开始前先执行一次“重置演示余额”，这样预期余额更容易对齐。
+
 ## 3. 场景一：A 转 B，人工审核通过
 
 ### 3.1 创建转账
 
 ```bash
-curl -s -X POST http://localhost:8080/transfers \
+TRANSFER_ID=$(curl -s -X POST http://localhost:8080/transfers \
   -H 'Content-Type: application/json' \
-  -d '{"userId":"user-1","assetCode":"USDT","amount":100,"direction":"A_TO_B","mode":"MANUAL_REVIEW"}'
+  -d '{"userId":"user-1","assetCode":"USDT","amount":100,"direction":"A_TO_B","mode":"MANUAL_REVIEW"}' \
+  | jq -r '.data.transferId')
+
+curl -s http://localhost:8080/transfers/$TRANSFER_ID
 ```
 
-记录响应中的 `data.transferId`，下文用 `$TRANSFER_ID` 表示。
+后续命令使用 `$TRANSFER_ID` 表示本次转账单号。
 
 预期：
 
@@ -263,9 +288,12 @@ account_b: available=600, frozen=0
 ### 4.1 创建转账
 
 ```bash
-curl -s -X POST http://localhost:8080/transfers \
+TRANSFER_ID=$(curl -s -X POST http://localhost:8080/transfers \
   -H 'Content-Type: application/json' \
-  -d '{"userId":"user-1","assetCode":"USDT","amount":80,"direction":"A_TO_B","mode":"MANUAL_REVIEW"}'
+  -d '{"userId":"user-1","assetCode":"USDT","amount":80,"direction":"A_TO_B","mode":"MANUAL_REVIEW"}' \
+  | jq -r '.data.transferId')
+
+curl -s http://localhost:8080/transfers/$TRANSFER_ID
 ```
 
 预期：
@@ -293,9 +321,12 @@ curl -s -X POST http://localhost:8080/transfers/$TRANSFER_ID/review \
 ### 5.1 创建转账
 
 ```bash
-curl -s -X POST http://localhost:8080/transfers \
+TRANSFER_ID=$(curl -s -X POST http://localhost:8080/transfers \
   -H 'Content-Type: application/json' \
-  -d '{"userId":"user-1","assetCode":"USDT","amount":50,"direction":"B_TO_A","mode":"MANUAL_REVIEW"}'
+  -d '{"userId":"user-1","assetCode":"USDT","amount":50,"direction":"B_TO_A","mode":"MANUAL_REVIEW"}' \
+  | jq -r '.data.transferId')
+
+curl -s http://localhost:8080/transfers/$TRANSFER_ID
 ```
 
 预期：
@@ -330,9 +361,12 @@ account_b: available=450, frozen=0
 ### 6.1 创建站内自动转账
 
 ```bash
-curl -s -X POST http://localhost:8080/transfers \
+TRANSFER_ID=$(curl -s -X POST http://localhost:8080/transfers \
   -H 'Content-Type: application/json' \
-  -d '{"userId":"user-1","assetCode":"USDT","amount":30,"direction":"A_TO_B","mode":"AUTO_WITHDRAW"}'
+  -d '{"userId":"user-1","assetCode":"USDT","amount":30,"direction":"A_TO_B","mode":"AUTO_WITHDRAW"}' \
+  | jq -r '.data.transferId')
+
+curl -s http://localhost:8080/transfers/$TRANSFER_ID
 ```
 
 预期：
@@ -342,14 +376,24 @@ curl -s -X POST http://localhost:8080/transfers \
 - B 账户可用金额增加。
 - 新建站内自动转账不需要调用 `/withdraw-result`。
 
+最终余额示例：
+
+```text
+account_a: available=970, frozen=0
+account_b: available=530, frozen=0
+```
+
 ## 7. 场景五：B 转 A，站内自动转账成功
 
 ### 7.1 创建站内自动转账
 
 ```bash
-curl -s -X POST http://localhost:8080/transfers \
+TRANSFER_ID=$(curl -s -X POST http://localhost:8080/transfers \
   -H 'Content-Type: application/json' \
-  -d '{"userId":"user-1","assetCode":"USDT","amount":30,"direction":"B_TO_A","mode":"AUTO_WITHDRAW"}'
+  -d '{"userId":"user-1","assetCode":"USDT","amount":30,"direction":"B_TO_A","mode":"AUTO_WITHDRAW"}' \
+  | jq -r '.data.transferId')
+
+curl -s http://localhost:8080/transfers/$TRANSFER_ID
 ```
 
 预期：
@@ -358,6 +402,13 @@ curl -s -X POST http://localhost:8080/transfers \
 - B 账户完成冻结并最终扣减冻结金额。
 - A 账户可用金额增加。
 - 这仍然是站内转账，不涉及链上交易。
+
+最终余额示例：
+
+```text
+account_a: available=1030, frozen=0
+account_b: available=470, frozen=0
+```
 
 ## 8. 场景六：余额不足，冻结失败
 
@@ -449,6 +500,14 @@ mvn -q -pl transfer-service -am test \
 6. 执行重试。
 7. 重试只调用 B 账户 `credit`，不会再次调用 A 账户 `confirmDebit`。
 8. B 入账成功后转账单变为 `SUCCESS`。
+
+也可以运行站内自动转账失败重试测试，演示自动模式下同样复用 `CREDIT_FAILED` 重试能力：
+
+```bash
+mvn -q -pl transfer-service -am test \
+  -Dtest=TransferScenarioIntegrationTest#autoWithdrawTargetCreditFailureLeavesCreditFailedAndRetryOnlyCreditsTarget \
+  -DfailIfNoTests=false
+```
 
 ### 10.2 人工演示思路
 
