@@ -1,10 +1,10 @@
 # 跨账户划转示例工程
 
-这是一个基于 Spring Boot、Feign、MySQL 和编排式 Saga 的跨服务账户划转基础示例。
+这是一个基于 Spring Boot、Feign、MySQL 和 Temporal 工作流引擎的跨服务账户划转示例。
 
 ## 服务说明
 
-- `transfer-service`：转账入口服务，也是 Saga 流程编排者。
+- `transfer-service`：转账入口服务，通过 Temporal Workflow 编排 Saga 流程。
 - `account-a-service`：账户 A 资产服务，连接 `account_a` 数据库。
 - `account-b-service`：账户 B 资产服务，连接 `account_b` 数据库。
 - `account-service`：账户资产共享实现，被 A/B 两个服务复用。
@@ -22,6 +22,7 @@
 - JDK 8 兼容运行环境
 - Maven 3.8+
 - MySQL 8
+- Docker（用于运行 Temporal Server）
 
 项目源码按 `source/target 1.8` 编译；本地验证使用 Maven 完成，也兼容较新的 JDK 运行。
 
@@ -50,11 +51,29 @@ INSERT INTO account_balance (user_id, asset_code, available_amount, frozen_amoun
 VALUES ('user-1', 'USDT', 1000.00000000, 0.00000000, 0, NOW(), NOW());
 ```
 
-如果使用项目自带的 Docker Compose，也可以直接启动 MySQL 并执行初始化脚本：
+如果使用项目自带的 Docker Compose，可以直接启动 MySQL 并执行初始化脚本：
 
 ```bash
 docker compose up -d mysql
 ```
+
+## Temporal Server 启动
+
+本项目使用 Temporal 作为工作流引擎。使用 Docker Compose 一键启动 Temporal Server 和 UI：
+
+```bash
+docker compose up -d
+```
+
+Temporal UI 地址：`http://localhost:8088`
+
+也可以单独启动：
+
+```bash
+docker compose up -d temporal temporal-ui
+```
+
+Temporal 依赖 MySQL，`docker compose up -d` 会先启动 MySQL 再拉起 Temporal。
 
 ## 本地启动
 
@@ -75,6 +94,12 @@ export ACCOUNT_B_DB_PASSWORD=root
 export TRANSFER_DB_URL='jdbc:mysql://localhost:3306/transfer?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
 export ACCOUNT_A_DB_URL='jdbc:mysql://localhost:3306/account_a?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
 export ACCOUNT_B_DB_URL='jdbc:mysql://localhost:3306/account_b?useSSL=false&serverTimezone=UTC&characterEncoding=utf8'
+```
+
+Temporal Server 地址默认为 `localhost:7233`，如需修改：
+
+```bash
+export TEMPORAL_HOST_PORT=localhost:7233
 ```
 
 建议先安装本地模块依赖：
@@ -167,22 +192,6 @@ curl -X POST http://localhost:8080/transfers/{transferId}/review \
   -d '{"approved":false,"message":"审核驳回"}'
 ```
 
-提交兼容旧流程的自动提币结果：
-
-新建站内自动转账通常不需要调用这个接口；它只用于兼容仍停留在 `WITHDRAW_PENDING` 的历史流程。
-
-```bash
-curl -X POST http://localhost:8080/transfers/{transferId}/withdraw-result \
-  -H 'Content-Type: application/json' \
-  -d '{"success":true,"message":"提币成功"}'
-```
-
-重试失败步骤：
-
-```bash
-curl -X POST http://localhost:8080/transfers/{transferId}/retry
-```
-
 查询转账单：
 
 ```bash
@@ -200,8 +209,7 @@ mvn -q test -DfailIfNoTests=false
 当前测试覆盖：
 
 - 账户冻结、确认扣减、取消冻结、入账，以及重复冻结的幂等处理
-- A -> B 人工审核通过与驳回
-- B -> A 人工审核通过
-- A -> B、B -> A 站内自动转账成功
-- 兼容旧自动提币结果回调
-- 源账户已扣减后目标入账失败，以及从 `CREDIT_FAILED` 状态重试
+- AUTO_WITHDRAW A→B、B→A 自动完成全流程
+- MANUAL_REVIEW 审核通过与驳回
+- Activity 失败后 Temporal 自动重试恢复
+- credit 失败后状态持久化为 CREDIT_FAILED
