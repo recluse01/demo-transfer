@@ -59,23 +59,23 @@ public class AccountAssetService {
      * 执行单个资产操作。
      *
      * <p>处理顺序：
-     * 1. 根据 transferId + operationType 做幂等检查。
-     * 2. 锁定余额记录并完成金额变更。
-     * 3. 写入资金流水和操作记录。
+     * 1. 锁定余额记录（FOR UPDATE），将并发请求串行化。
+     * 2. 在锁保护范围内做幂等检查，避免并发路径绕过幂等逻辑。
+     * 3. 完成金额变更，写入资金流水和操作记录。
      */
     private AssetOperationResponse apply(AssetOperationRequest request, OperationType operationType) {
+        AccountBalance balance = balanceRepository
+                .findByUserIdAndAssetCodeForUpdate(request.getUserId(), request.getAssetCode())
+                .orElseThrow(() -> new IllegalStateException("account balance not found"));
+
+        // 加锁后再检查幂等：并发请求在此处串行化，第二个请求可见第一个已写入的幂等记录。
         AssetOperation existing = operationRepository
                 .findByTransferIdAndOperationType(request.getTransferId(), operationType)
                 .orElse(null);
         if (existing != null) {
-            // 幂等命中时不重复扣改余额，直接返回已有处理结果。
             return new AssetOperationResponse(request.getTransferId(), operationType, false,
                     existing.getResponseMessage());
         }
-
-        AccountBalance balance = balanceRepository
-                .findByUserIdAndAssetCodeForUpdate(request.getUserId(), request.getAssetCode())
-                .orElseThrow(() -> new IllegalStateException("account balance not found"));
 
         BalanceDelta delta = mutate(balance, operationType, request.getAmount());
         ledgerRepository.save(FinanceLedger.of(request.getTransferId(), request.getUserId(), request.getAssetCode(),
