@@ -51,8 +51,8 @@ public class TransferController {
                 request.getMessage())));
     }
 
-    /** 接收自动提现结果回调。 */
-    @Operation(summary = "提现结果回调", description = "处理自动提现模式下的成功或失败回调。")
+    /** 接收兼容旧流程的自动提现结果回调。 */
+    @Operation(summary = "兼容旧流程的提现结果回调", description = "仅处理仍停留在 WITHDRAW_PENDING 的历史流程。")
     @PostMapping("/{transferId}/withdraw-result")
     public ApiResponse<TransferOrder> withdrawResult(
             @Parameter(description = "转账唯一标识", required = true) @PathVariable String transferId,

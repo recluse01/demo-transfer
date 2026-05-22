@@ -75,7 +75,7 @@ OpenAPI JSON：
 说明：
 
 - `MANUAL_REVIEW`：冻结成功后进入 `WAIT_REVIEW`。
-- `AUTO_WITHDRAW`：当前基础版只支持 `A_TO_B`，冻结成功后进入 `WITHDRAW_PENDING`。
+- `AUTO_WITHDRAW`：站内自动完成模式，支持 `A_TO_B` 和 `B_TO_A`；冻结成功后系统会主动确认扣减并给目标账户入账。
 
 示例：
 
@@ -114,13 +114,13 @@ curl -s -X POST http://localhost:8080/transfers \
 }
 ```
 
-失败响应示例：
+余额不足响应示例：
 
 ```json
 {
   "success": false,
   "code": "TRANSFER_OPERATION_FAILED",
-  "message": "AUTO_WITHDRAW only supports A_TO_B in the basic version",
+  "message": "余额不足",
   "data": null
 }
 ```
@@ -169,10 +169,12 @@ curl -s -X POST http://localhost:8080/transfers/$TRANSFER_ID/review \
 }
 ```
 
-### 2.3 提现结果回调
+### 2.3 兼容旧流程的提现结果回调
 
 - 方法：`POST`
 - 路径：`/transfers/{transferId}/withdraw-result`
+
+新建站内自动转账通常不需要调用该接口。该接口仅用于兼容仍停留在 `WITHDRAW_PENDING` 的历史流程。
 
 请求体：
 
@@ -422,7 +424,7 @@ curl -s -X POST http://localhost:8080/transfers/$TRANSFER_ID/review \
 curl -s http://localhost:8080/transfers/$TRANSFER_ID
 ```
 
-### 4.2 自动提现转账
+### 4.2 站内自动转账
 
 ```bash
 TRANSFER_ID=$(curl -s -X POST http://localhost:8080/transfers \
@@ -430,9 +432,16 @@ TRANSFER_ID=$(curl -s -X POST http://localhost:8080/transfers \
   -d '{"userId":"user-1","assetCode":"USDT","amount":50,"direction":"A_TO_B","mode":"AUTO_WITHDRAW"}' \
   | jq -r '.data.transferId')
 
-curl -s -X POST http://localhost:8080/transfers/$TRANSFER_ID/withdraw-result \
+curl -s http://localhost:8080/transfers/$TRANSFER_ID
+```
+
+B 到 A 同样支持站内自动完成：
+
+```bash
+TRANSFER_ID=$(curl -s -X POST http://localhost:8080/transfers \
   -H 'Content-Type: application/json' \
-  -d '{"success":true,"message":"调试回调成功"}'
+  -d '{"userId":"user-1","assetCode":"USDT","amount":50,"direction":"B_TO_A","mode":"AUTO_WITHDRAW"}' \
+  | jq -r '.data.transferId')
 
 curl -s http://localhost:8080/transfers/$TRANSFER_ID
 ```
@@ -442,11 +451,11 @@ curl -s http://localhost:8080/transfers/$TRANSFER_ID
 | 状态 | 含义 | 调试动作 |
 | --- | --- | --- |
 | `WAIT_REVIEW` | 已冻结，等待审核。 | 查源账户冻结余额是否增加。 |
-| `WITHDRAW_PENDING` | 已冻结，等待提现结果。 | 确认尚未扣减、尚未入账。 |
+| `WITHDRAW_PENDING` | 兼容旧流程：已冻结，等待提现结果。 | 新建站内自动转账通常不会进入该状态。 |
 | `DEBIT_FAILED` | 扣减冻结失败。 | 看源账户冻结金额是否不足，再调用重试接口。 |
 | `CREDIT_FAILED` | 目标账户入账失败。 | 查目标账户余额和流水，再调用重试接口。 |
 | `CANCEL_FAILED` | 解冻失败。 | 查源账户冻结金额，再调用重试接口。 |
-| `REJECTED` | 已拒绝或提现失败后已解冻。 | 查源账户可用余额是否恢复。 |
+| `REJECTED` | 已拒绝或兼容旧提现失败后已解冻。 | 查源账户可用余额是否恢复。 |
 | `SUCCESS` | 整笔转账完成。 | 查源账户扣减和目标账户入账是否都落账。 |
 
 ## 6. 排查 SQL
@@ -499,7 +508,6 @@ ORDER BY id DESC;
 常见原因：
 
 - 余额不足
-- `AUTO_WITHDRAW` 使用了 `B_TO_A`
 - 账户余额初始化数据不存在
 
 优先看：

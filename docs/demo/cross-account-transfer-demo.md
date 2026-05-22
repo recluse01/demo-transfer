@@ -5,8 +5,8 @@
 - A 账户转 B 账户，人工审核通过
 - A 账户转 B 账户，人工审核驳回
 - B 账户转 A 账户，人工审核通过
-- A 账户转 B 账户，自动提币成功
-- A 账户转 B 账户，自动提币失败
+- A 账户转 B 账户，站内自动转账成功
+- B 账户转 A 账户，站内自动转账成功
 - 余额不足导致冻结失败
 - 幂等验证
 - 目标账户入账失败后的重试行为
@@ -325,64 +325,39 @@ account_a: available=1050, frozen=0
 account_b: available=450, frozen=0
 ```
 
-## 6. 场景四：A 转 B，自动提币成功
+## 6. 场景四：A 转 B，站内自动转账成功
 
-### 6.1 创建自动提币转账
+### 6.1 创建站内自动转账
 
 ```bash
 curl -s -X POST http://localhost:8080/transfers \
   -H 'Content-Type: application/json' \
   -d '{"userId":"user-1","assetCode":"USDT","amount":30,"direction":"A_TO_B","mode":"AUTO_WITHDRAW"}'
-```
-
-预期：
-
-- 转账单状态为 `WITHDRAW_PENDING`。
-- A 账户完成冻结。
-
-### 6.2 模拟自动提币成功回调
-
-```bash
-curl -s -X POST http://localhost:8080/transfers/$TRANSFER_ID/withdraw-result \
-  -H 'Content-Type: application/json' \
-  -d '{"success":true,"message":"链上提币成功"}'
 ```
 
 预期：
 
 - 转账单状态为 `SUCCESS`。
-- A 账户冻结金额最终扣减。
+- A 账户完成冻结并最终扣减冻结金额。
 - B 账户可用金额增加。
+- 新建站内自动转账不需要调用 `/withdraw-result`。
 
-## 7. 场景五：A 转 B，自动提币失败
+## 7. 场景五：B 转 A，站内自动转账成功
 
-### 7.1 创建自动提币转账
+### 7.1 创建站内自动转账
 
 ```bash
 curl -s -X POST http://localhost:8080/transfers \
   -H 'Content-Type: application/json' \
-  -d '{"userId":"user-1","assetCode":"USDT","amount":30,"direction":"A_TO_B","mode":"AUTO_WITHDRAW"}'
+  -d '{"userId":"user-1","assetCode":"USDT","amount":30,"direction":"B_TO_A","mode":"AUTO_WITHDRAW"}'
 ```
 
 预期：
 
-- 转账单状态为 `WITHDRAW_PENDING`。
-- A 账户完成冻结。
-
-### 7.2 模拟自动提币失败回调
-
-```bash
-curl -s -X POST http://localhost:8080/transfers/$TRANSFER_ID/withdraw-result \
-  -H 'Content-Type: application/json' \
-  -d '{"success":false,"message":"链上提币失败"}'
-```
-
-预期：
-
-- 转账单状态为 `REJECTED`。
-- A 账户执行解冻。
-- A 账户流水包含 `FREEZE` 和 `CANCEL_FREEZE`。
-- B 账户余额不变。
+- 转账单状态为 `SUCCESS`。
+- B 账户完成冻结并最终扣减冻结金额。
+- A 账户可用金额增加。
+- 这仍然是站内转账，不涉及链上交易。
 
 ## 8. 场景六：余额不足，冻结失败
 
@@ -492,8 +467,8 @@ mvn -q -pl transfer-service -am test \
 3. 演示 A 转 B 人工审核通过。
 4. 演示 A 转 B 人工审核驳回。
 5. 演示 B 转 A 人工审核通过。
-6. 演示自动提币成功。
-7. 演示自动提币失败。
+6. 演示 A 转 B 站内自动转账成功。
+7. 演示 B 转 A 站内自动转账成功。
 8. 演示余额不足冻结失败。
 9. 演示账户接口幂等。
 10. 用集成测试演示 `CREDIT_FAILED -> retry -> SUCCESS`。
@@ -501,7 +476,7 @@ mvn -q -pl transfer-service -am test \
 ## 12. 关键讲解点
 
 - 为什么不用分布式事务：基础版先用 Saga 状态机和幂等重试达到最终一致。
-- 为什么冻结在源账户：审核和自动提币期间锁定资金，避免用户重复使用。
+- 为什么冻结在源账户：审核和站内自动完成期间锁定资金，避免用户重复使用。
 - 为什么每步都写流水：资产审计和问题排查需要完整轨迹。
 - 为什么要幂等：Feign 超时、重试、人工重复点击都不能造成重复扣款或重复入账。
 - 为什么 `CREDIT_FAILED` 只重试目标入账：源账户冻结资产已经确认扣减，反向补偿会引入新的资金风险，基础版选择重试收敛。
