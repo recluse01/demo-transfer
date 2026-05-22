@@ -94,25 +94,52 @@ class TransferScenarioIntegrationTest {
     }
 
     @Test
-    void scenarioThreeAutoWithdrawSuccessCompletesTransfer() {
-        TransferOrder order = sagaService.createTransfer(request(TransferDirection.A_TO_B, TransferMode.AUTO_WITHDRAW));
-
-        TransferOrder result = sagaService.handleWithdrawResult(order.getTransferId(), true, "withdraw success");
+    void scenarioThreeAutoWithdrawAToBCompletesTransferWithoutCallback() {
+        TransferOrder result = sagaService.createTransfer(request(TransferDirection.A_TO_B, TransferMode.AUTO_WITHDRAW));
 
         assertThat(result.getStatus()).isEqualTo(TransferStatus.SUCCESS);
+        verify(accountAClient).freeze(any());
         verify(accountAClient).confirmDebit(any());
         verify(accountBClient).credit(any());
     }
 
     @Test
-    void scenarioThreeAutoWithdrawFailureCancelsFreeze() {
+    void scenarioThreeAutoWithdrawBToACompletesTransferWithoutCallback() {
+        TransferOrder result = sagaService.createTransfer(request(TransferDirection.B_TO_A, TransferMode.AUTO_WITHDRAW));
+
+        assertThat(result.getStatus()).isEqualTo(TransferStatus.SUCCESS);
+        verify(accountBClient).freeze(any());
+        verify(accountBClient).confirmDebit(any());
+        verify(accountAClient).credit(any());
+    }
+
+    @Test
+    void legacyWithdrawResultFailureCancelsPendingFreeze() {
+        when(accountAClient.confirmDebit(any())).thenReturn(ApiResponse.fail("LEGACY_PENDING", "兼容旧流程"));
         TransferOrder order = sagaService.createTransfer(request(TransferDirection.A_TO_B, TransferMode.AUTO_WITHDRAW));
+        order.markStatus(TransferStatus.WITHDRAW_PENDING);
 
         TransferOrder result = sagaService.handleWithdrawResult(order.getTransferId(), false, "withdraw failed");
 
         assertThat(result.getStatus()).isEqualTo(TransferStatus.REJECTED);
         verify(accountAClient).cancelFreeze(any());
         verify(accountBClient, never()).credit(any());
+    }
+
+    @Test
+    void autoWithdrawTargetCreditFailureLeavesCreditFailedAndRetryOnlyCreditsTarget() {
+        when(accountBClient.credit(any()))
+                .thenReturn(ApiResponse.fail("TIMEOUT", "credit timeout"))
+                .thenReturn(ok(OperationType.CREDIT));
+
+        TransferOrder failed = sagaService.createTransfer(request(TransferDirection.A_TO_B, TransferMode.AUTO_WITHDRAW));
+        TransferStatus failedStatus = failed.getStatus();
+        TransferOrder retried = retryService.retryOne(failed.getTransferId());
+
+        assertThat(failedStatus).isEqualTo(TransferStatus.CREDIT_FAILED);
+        assertThat(retried.getStatus()).isEqualTo(TransferStatus.SUCCESS);
+        verify(accountAClient).confirmDebit(any());
+        verify(accountBClient, org.mockito.Mockito.times(2)).credit(any());
     }
 
     @Test
