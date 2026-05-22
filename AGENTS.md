@@ -5,10 +5,26 @@
 After each completed work stage, automatically commit the changes from that
 stage only.
 
-Use this commit message format:
+Git commit messages must follow the AngularJS style:
 
 ```text
-docs(<scope>): <本次文档更新摘要>
+<type>(<scope>): <subject>
+```
+
+Allowed `type` values include:
+
+- `feat`
+- `fix`
+- `refactor`
+- `test`
+- `docs`
+- `chore`
+
+Use the following extended format when a stage includes enough detail to
+justify a multi-line commit body:
+
+```text
+<type>(<scope>): <subject>
 
 新增内容：
 - <新增文章/页面/章节 1>
