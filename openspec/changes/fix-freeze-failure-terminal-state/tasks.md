@@ -17,8 +17,8 @@
 
 - [x] 4.1 运行 `TransferActivitiesImplTest` 全量测试，确认全部通过
 - [x] 4.2 运行 `TransferWorkflowImplTest` 全量测试，确认全部通过
-- [ ] 4.3 运行 `mvn -q test -DfailIfNoTests=false`，确认全量测试通过
+- [x] 4.3 运行 `mvn -q test -DfailIfNoTests=false`，确认全量测试通过
 
 ## 5. 文档更新
 
-- [ ] 5.1 更新 `openspec/changes/temporal-saga-refactor/design.md`：在 Open Questions 处回答该问题，并新增 D7 决策（业务终态失败应立即反映到 DB，以 `ApplicationFailure.newNonRetryableFailure` 区分业务失败与瞬时失败）
+- [x] 5.1 更新 `openspec/changes/temporal-saga-refactor/design.md`：在 Open Questions 处回答该问题，并新增 D7 决策（业务终态失败应立即反映到 DB，以 `ApplicationFailure.newNonRetryableFailure` 区分业务失败与瞬时失败）
