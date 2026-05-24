@@ -9,6 +9,7 @@ import com.demo.transfer.common.TransferMode;
 import com.demo.transfer.transfer.domain.TransferOrder;
 import com.demo.transfer.transfer.service.AccountClientRouter;
 import com.demo.transfer.transfer.service.TransferOrderStateService;
+import io.temporal.failure.ApplicationFailure;
 import org.springframework.stereotype.Component;
 
 /**
@@ -36,7 +37,9 @@ public class TransferActivitiesImpl implements TransferActivities {
         ApiResponse<AssetOperationResponse> response = router.client(order.getSourceAccountType())
                 .freeze(buildRequest(order));
         if (!response.isSuccess()) {
-            throw new RuntimeException("freeze failed: " + response.getMessage());
+            stateService.markFreezeFailed(transferId, response.getCode(), response.getMessage());
+            throw ApplicationFailure.newNonRetryableFailure(
+                    "freeze failed: " + response.getMessage(), response.getCode());
         }
         if (TransferMode.MANUAL_REVIEW == order.getTransferMode()) {
             stateService.markWaitReview(transferId);

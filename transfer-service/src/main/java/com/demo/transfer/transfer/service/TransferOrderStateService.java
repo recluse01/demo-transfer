@@ -46,6 +46,13 @@ public class TransferOrderStateService {
     }
 
     @Transactional
+    public void markFreezeFailed(String transferId, String code, String message) {
+        TransferOrder order = find(transferId);
+        order.markFailure(TransferStatus.FREEZE_FAILED, code, message);
+        orderRepository.saveAndFlush(order);
+    }
+
+    @Transactional
     public void markCreditFailed(String transferId, String code, String message) {
         TransferOrder order = find(transferId);
         order.markFailure(TransferStatus.CREDIT_FAILED, code, message);
