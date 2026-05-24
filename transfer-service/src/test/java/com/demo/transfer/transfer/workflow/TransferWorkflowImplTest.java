@@ -1,10 +1,13 @@
 package com.demo.transfer.transfer.workflow;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.demo.transfer.common.TransferMode;
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowFailedException;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.failure.ApplicationFailure;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
 import java.util.ArrayList;
@@ -76,6 +79,21 @@ class TransferWorkflowImplTest {
         assertThat(activities.calls).contains("freeze", "confirmDebit", "credit");
     }
 
+    @Test
+    void freezeNonRetryableFailureTerminatesWorkflowWithoutRetryingOrCompensation() {
+        activities.freezeFailure = ApplicationFailure.newNonRetryableFailure(
+                "freeze failed: 余额不足", "ACCOUNT_OPERATION_FAILED");
+
+        TransferWorkflow workflow = stub();
+        WorkflowClient.start(workflow::execute, TRANSFER_ID, TransferMode.AUTO_WITHDRAW);
+
+        assertThatThrownBy(() -> testEnv.getWorkflowClient().newUntypedWorkflowStub(TRANSFER_ID).getResult(Void.class))
+                .isInstanceOf(WorkflowFailedException.class)
+                .hasRootCauseInstanceOf(ApplicationFailure.class);
+        assertThat(activities.freezeAttempts).isEqualTo(1);
+        assertThat(activities.calls).containsExactly("freeze");
+    }
+
     private void execute(TransferMode mode) {
         stub().execute(TRANSFER_ID, mode);
     }
@@ -94,14 +112,18 @@ class TransferWorkflowImplTest {
         final List<String> calls = new ArrayList<>();
         int freezeFailTimes = 0;
         int freezeAttempts = 0;
+        RuntimeException freezeFailure;
 
         @Override
         public void freeze(String transferId) {
             freezeAttempts++;
+            calls.add("freeze");
+            if (freezeFailure != null) {
+                throw freezeFailure;
+            }
             if (freezeAttempts <= freezeFailTimes) {
                 throw new RuntimeException("transient error on attempt " + freezeAttempts);
             }
-            calls.add("freeze");
         }
 
         @Override
