@@ -153,7 +153,34 @@ VALUES
 SQL
 ```
 
-### 2.6 启动服务
+### 2.6 重置 Temporal 数据
+
+如果需要清空历史 Workflow、Signal、重试任务和可见性查询数据，可以重置 Temporal 使用的数据库。
+
+重置前先停止 Java 服务，避免 Worker 在清库期间继续连接 Temporal。使用 Docker Compose 启动的 Temporal 时，可以执行：
+
+```bash
+docker compose stop temporal-ui temporal
+
+docker compose exec mysql mysql -uroot -proot <<'SQL'
+DROP DATABASE IF EXISTS temporal_visibility;
+DROP DATABASE IF EXISTS temporal;
+
+CREATE DATABASE temporal DEFAULT CHARACTER SET utf8mb4;
+CREATE DATABASE temporal_visibility DEFAULT CHARACTER SET utf8mb4;
+SQL
+
+docker compose up -d temporal temporal-ui
+```
+
+说明：
+
+- `temporal` 保存 Workflow 执行历史、任务队列和内部状态。
+- `temporal_visibility` 保存 Temporal UI 和查询使用的可见性数据。
+- `temporalio/auto-setup` 容器重新启动后会自动初始化 Temporal schema。
+- 如果同时重置演示业务数据，建议先执行本节，再执行“重置演示余额”，最后重新启动 Java 服务。
+
+### 2.7 启动服务
 
 三个终端分别启动：
 
@@ -169,7 +196,7 @@ mvn -q -pl account-b-service spring-boot:run
 mvn -q -pl transfer-service spring-boot:run
 ```
 
-### 2.7 查询辅助 SQL
+### 2.8 查询辅助 SQL
 
 查询转账单：
 
@@ -222,7 +249,7 @@ FROM account_b.finance_ledger
 ORDER BY id;"
 ```
 
-### 2.8 命令辅助说明
+### 2.9 命令辅助说明
 
 下面的场景会使用 `jq` 从创建转账响应中提取 `transferId`：
 
