@@ -4,7 +4,7 @@
 - [x] 1.2 docker-compose.yml 新增 Temporal UI 服务（端口 8088）
 - [x] 1.3 docker/mysql/init 新增 Temporal 初始化 SQL（创建 temporal / temporal_visibility 数据库）
 - [x] 1.4 transfer-service/pom.xml 新增 `io.temporal:temporal-sdk` 和 `io.temporal:temporal-spring-boot-starter` 依赖
-- [ ] 1.5 本地启动验证：`docker compose up -d` 后访问 `http://localhost:8088` 确认 Temporal UI 正常
+- [x] 1.5 本地启动验证：`docker compose up -d` 后访问 `http://localhost:8088` 确认 Temporal UI 正常
 
 ## 2. F2 修复：幂等检查调序（account-service）
 
@@ -35,7 +35,7 @@
 
 - [x] 5.1 新增 Temporal Worker Spring Bean 配置类，注册 `TransferWorkflowImpl` 和 `TransferActivitiesImpl` 到 Task Queue `transfer-queue`
 - [x] 5.2 配置 `application.yml`：新增 Temporal Server 地址、namespace、Task Queue 配置项（支持环境变量覆盖）
-- [ ] 5.3 本地启动 transfer-service，验证 Worker 成功连接 Temporal Server（Temporal UI 中可见 Worker 注册）
+- [x] 5.3 本地启动 transfer-service，验证 Worker 成功连接 Temporal Server（Temporal UI 中可见 Worker 注册）
 
 ## 6. Controller 改造（transfer-service）
 
@@ -59,7 +59,7 @@
 - [x] 8.2 将 `TransferRetryServiceTest` 的重试场景合并入 Workflow 测试（验证 Activity 失败后重试行为）
 - [x] 8.3 将 `TransferScenarioIntegrationTest` 迁移为 Temporal 测试环境下的端到端场景测试
 - [x] 8.4 运行全量测试 `mvn -q test -DfailIfNoTests=false`，确认全部通过
-- [ ] 8.5 端对端手动验证：本地启动三服务 + Temporal，执行 AUTO_WITHDRAW 和 MANUAL_REVIEW 场景，在 Temporal UI 中确认工作流执行历史符合预期
+- [x] 8.5 端对端手动验证：本地启动三服务 + Temporal，执行 AUTO_WITHDRAW 和 MANUAL_REVIEW 场景，在 Temporal UI 中确认工作流执行历史符合预期
 
 ## 9. 文档更新
 

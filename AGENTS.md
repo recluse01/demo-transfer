@@ -1,5 +1,3 @@
 ## Working Agreements
 
-- After each completed work stage, commit only that stage's changes.
-- Commit messages follow AngularJS style: `<type>(<scope>): <subject>`.
-- Common `type`: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`.
+* After each completed work stage, commit only that stage's changes. 提交信息参考 [git.md](docs/git.md)
