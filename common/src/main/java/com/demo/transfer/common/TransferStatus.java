@@ -5,6 +5,7 @@ package com.demo.transfer.common;
  *
  * <p>由 Temporal Workflow 推进，精简后仅保留可观测的关键节点状态：
  * CREATED → (WAIT_REVIEW →) DEBIT_SUCCESS → SUCCESS
+ *         ↘ INIT_FAILED（Workflow 启动失败）
  *         ↘ FREEZE_FAILED（冻结失败，不重试）
  *         ↘ REJECTED（审核驳回）
  *         ↘ CREDIT_FAILED（入账失败，不补偿）
@@ -12,6 +13,8 @@ package com.demo.transfer.common;
 public enum TransferStatus {
     /** 主单已创建，Workflow 已启动，冻结步骤尚未完成。 */
     CREATED,
+    /** Workflow 启动失败，主单未进入 Saga 流程。 */
+    INIT_FAILED,
     /** 冻结业务失败，Workflow 已不可重试地终止。 */
     FREEZE_FAILED,
     /** 冻结成功，等待人工审核（仅 MANUAL_REVIEW 模式）。 */

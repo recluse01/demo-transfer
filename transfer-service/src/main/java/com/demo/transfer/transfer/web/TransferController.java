@@ -70,11 +70,16 @@ public class TransferController {
                     .setWorkflowId(transferId)
                     .setTaskQueue(taskQueue)
                     .build();
-            if (request.getAmount().compareTo(BigDecimal.valueOf(90)) == 0) {
-                throw new RuntimeException("模拟创建订单成功，workflow发送的情况...");
+            try {
+                if (request.getAmount().compareTo(BigDecimal.valueOf(90)) == 0) {
+                    throw new RuntimeException("模拟创建订单成功，workflow发送的情况...");
+                }
+                TransferWorkflow workflow = workflowClient.newWorkflowStub(TransferWorkflow.class, options);
+                WorkflowClient.start(workflow::execute, transferId, request.getMode());
+            } catch (Exception ex) {
+                stateService.markInitFailed(transferId, ex.getMessage());
+                throw new RuntimeException("Workflow 启动失败: " + ex.getMessage(), ex);
             }
-            TransferWorkflow workflow = workflowClient.newWorkflowStub(TransferWorkflow.class, options);
-            WorkflowClient.start(workflow::execute, transferId, request.getMode());
             return order;
         });
     }
