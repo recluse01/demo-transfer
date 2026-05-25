@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+
+import java.math.BigDecimal;
 import java.util.UUID;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,12 +61,18 @@ public class TransferController {
             String transferId = UUID.randomUUID().toString();
             TransferOrder order = TransferOrder.create(transferId, request.getUserId(), source, target,
                     request.getAssetCode(), request.getAmount(), request.getMode());
+            if (request.getAmount().compareTo(BigDecimal.valueOf(110)) == 0) {
+                throw new RuntimeException("模拟创建订单失败的情况...");
+            }
             stateService.createOrder(order);
 
             WorkflowOptions options = WorkflowOptions.newBuilder()
                     .setWorkflowId(transferId)
                     .setTaskQueue(taskQueue)
                     .build();
+            if (request.getAmount().compareTo(BigDecimal.valueOf(90)) == 0) {
+                throw new RuntimeException("模拟创建订单成功，workflow发送的情况...");
+            }
             TransferWorkflow workflow = workflowClient.newWorkflowStub(TransferWorkflow.class, options);
             WorkflowClient.start(workflow::execute, transferId, request.getMode());
             return order;

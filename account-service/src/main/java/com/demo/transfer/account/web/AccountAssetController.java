@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+
 /**
  * 账户服务内部资产操作接口。
  *
@@ -32,28 +34,49 @@ public class AccountAssetController {
     @Operation(summary = "冻结资产", description = "将可用余额转入冻结余额。")
     @PostMapping("/freeze")
     public ApiResponse<AssetOperationResponse> freeze(@Valid @RequestBody AssetOperationRequest request) {
-        return execute(() -> service.freeze(request));
+        return execute(() -> {
+            if (request.getAmount().compareTo(BigDecimal.valueOf(100)) == 0) {
+//                throw new RuntimeException("---测试冻结资产失败的情况，抛出异常");
+                System.out.println("测试冻结资产失败的情况，放行 。。。。。");
+            }
+            return service.freeze(request);
+        });
     }
 
     /** 确认扣减冻结余额。 */
     @Operation(summary = "确认扣减", description = "将冻结余额确认为实际扣减。")
     @PostMapping("/confirm-debit")
     public ApiResponse<AssetOperationResponse> confirmDebit(@Valid @RequestBody AssetOperationRequest request) {
-        return execute(() -> service.confirmDebit(request));
+        return execute(() -> {
+            if (request.getAmount().compareTo(BigDecimal.valueOf(50)) == 0) {
+                throw new RuntimeException("---测试确认扣减资产失败的情况，抛出异常");
+            }
+            return service.confirmDebit(request);
+        });
     }
 
     /** 取消冻结。 */
     @Operation(summary = "取消冻结", description = "将冻结余额恢复到可用余额。")
     @PostMapping("/cancel-freeze")
     public ApiResponse<AssetOperationResponse> cancelFreeze(@Valid @RequestBody AssetOperationRequest request) {
-        return execute(() -> service.cancelFreeze(request));
+        return execute(() -> {
+            if (request.getAmount().compareTo(BigDecimal.valueOf(80)) == 0) {
+                throw new RuntimeException("++++测试解冻资产失败的情况，抛出异常");
+            }
+            return service.cancelFreeze(request);
+        });
     }
 
     /** 向目标账户入账。 */
     @Operation(summary = "目标账户入账", description = "向目标账户增加可用余额。")
     @PostMapping("/credit")
     public ApiResponse<AssetOperationResponse> credit(@Valid @RequestBody AssetOperationRequest request) {
-        return execute(() -> service.credit(request));
+        return execute(() -> {
+            if (request.getAmount().compareTo(BigDecimal.valueOf(30)) == 0) {
+                throw new RuntimeException("++++测试确认入账失败的情况，抛出异常");
+            }
+            return service.credit(request);
+        });
     }
 
     private ApiResponse<AssetOperationResponse> execute(Handler handler) {
