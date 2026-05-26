@@ -67,10 +67,6 @@ public class TransferController {
             String transferId = UUID.randomUUID().toString();
             TransferOrder order = TransferOrder.create(transferId, request.getUserId(), source, target,
                     request.getAssetCode(), request.getAmount(), request.getMode());
-            // todo 测试代码
-            if (request.getAmount().compareTo(BigDecimal.valueOf(110)) == 0) {
-                throw new RuntimeException("模拟创建订单失败的情况...");
-            }
 
             stateService.createOrder(order);
 
@@ -79,10 +75,6 @@ public class TransferController {
                     .setTaskQueue(taskQueue)
                     .build();
             try {
-                // todo 测试代码
-                if (request.getAmount().compareTo(BigDecimal.valueOf(90)) == 0) {
-                    throw new RuntimeException("模拟创建订单成功，workflow发送失败的情况...");
-                }
                 TransferWorkflow workflow = workflowClient.newWorkflowStub(TransferWorkflow.class, options);
                 WorkflowClient.start(workflow::execute, transferId, request.getMode());
                 log.info("转账 Workflow 已启动，transferId={}, taskQueue={}, mode={}",
@@ -92,10 +84,6 @@ public class TransferController {
                         transferId, ex.getMessage(), ex);
                 stateService.markInitFailed(transferId, ex.getMessage());
                 throw new RuntimeException("Workflow 启动失败: " + ex.getMessage(), ex);
-            }
-            // todo 测试代码
-            if (request.getAmount().compareTo(BigDecimal.valueOf(91)) == 0) {
-                throw new RuntimeException("模拟创建订单成功，workflow发送成功但异常的情况...");
             }
             log.info("创建转账请求处理完成，transferId={}", transferId);
             return order;

@@ -37,14 +37,7 @@ public class AccountAssetController {
     public ApiResponse<AssetOperationResponse> freeze(@Valid @RequestBody AssetOperationRequest request) {
         log.info("收到冻结资产请求，transferId={}, userId={}, assetCode={}, amount={}",
                 request.getTransferId(), request.getUserId(), request.getAssetCode(), request.getAmount());
-        return execute(() -> {
-            if (request.getAmount().compareTo(BigDecimal.valueOf(100)) == 0) {
-                // todo 测试代码
-                throw new RuntimeException("---测试冻结资产失败的情况，抛出异常");
-//                System.out.println("测试冻结资产失败的情况，放行 。。。。。");
-            }
-            return service.freeze(request);
-        });
+        return execute(() -> service.freeze(request));
     }
 
     /** 确认扣减冻结余额。 */
@@ -53,13 +46,7 @@ public class AccountAssetController {
     public ApiResponse<AssetOperationResponse> confirmDebit(@Valid @RequestBody AssetOperationRequest request) {
         log.info("收到确认扣减请求，transferId={}, userId={}, assetCode={}, amount={}",
                 request.getTransferId(), request.getUserId(), request.getAssetCode(), request.getAmount());
-        return execute(() -> {
-            // todo 测试代码
-            if (request.getAmount().compareTo(BigDecimal.valueOf(50)) == 0) {
-                throw new RuntimeException("---测试确认扣减资产失败的情况，抛出异常");
-            }
-            return service.confirmDebit(request);
-        });
+        return execute(() -> service.confirmDebit(request));
     }
 
     /** 取消冻结。 */
@@ -68,13 +55,7 @@ public class AccountAssetController {
     public ApiResponse<AssetOperationResponse> cancelFreeze(@Valid @RequestBody AssetOperationRequest request) {
         log.info("收到取消冻结请求，transferId={}, userId={}, assetCode={}, amount={}",
                 request.getTransferId(), request.getUserId(), request.getAssetCode(), request.getAmount());
-        return execute(() -> {
-            // todo 测试代码
-            if (request.getAmount().compareTo(BigDecimal.valueOf(80)) == 0) {
-                throw new RuntimeException("++++测试解冻资产失败的情况，抛出异常");
-            }
-            return service.cancelFreeze(request);
-        });
+        return execute(() -> service.cancelFreeze(request));
     }
 
     /** 向目标账户入账。 */
@@ -83,13 +64,7 @@ public class AccountAssetController {
     public ApiResponse<AssetOperationResponse> credit(@Valid @RequestBody AssetOperationRequest request) {
         log.info("收到资产入账请求，transferId={}, userId={}, assetCode={}, amount={}",
                 request.getTransferId(), request.getUserId(), request.getAssetCode(), request.getAmount());
-        return execute(() -> {
-            // todo 测试代码
-            if (request.getAmount().compareTo(BigDecimal.valueOf(30)) == 0) {
-                throw new RuntimeException("++++测试确认入账失败的情况，抛出异常");
-            }
-            return service.credit(request);
-        });
+        return execute(() -> service.credit(request));
     }
 
     private ApiResponse<AssetOperationResponse> execute(Handler handler) {
