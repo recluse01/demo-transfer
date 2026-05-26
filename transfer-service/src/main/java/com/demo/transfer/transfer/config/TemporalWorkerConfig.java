@@ -32,7 +32,7 @@ public class TemporalWorkerConfig {
 
     @Bean
     public WorkflowServiceStubs workflowServiceStubs() {
-        log.info("Creating Temporal service stubs, hostPort={}", hostPort);
+        log.info("正在创建 Temporal 服务连接，hostPort={}", hostPort);
         return WorkflowServiceStubs.newServiceStubs(
                 WorkflowServiceStubsOptions.newBuilder()
                         .setTarget(hostPort)
@@ -41,7 +41,7 @@ public class TemporalWorkerConfig {
 
     @Bean
     public WorkflowClient workflowClient(WorkflowServiceStubs stubs) {
-        log.info("Creating Temporal workflow client, namespace={}", namespace);
+        log.info("正在创建 Temporal Workflow 客户端，namespace={}", namespace);
         return WorkflowClient.newInstance(stubs,
                 WorkflowClientOptions.newBuilder()
                         .setNamespace(namespace)
@@ -59,7 +59,7 @@ public class TemporalWorkerConfig {
         worker.registerWorkflowImplementationTypes(TransferWorkflowImpl.class);
         worker.registerActivitiesImplementations(activities);
         factory.start();
-        log.info("Temporal worker started, taskQueue={}", taskQueue);
+        log.info("工作节点已启动，component=Temporal, taskQueue={}", taskQueue);
         return worker;
     }
 

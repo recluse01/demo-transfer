@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication(scanBasePackages = "com.demo.transfer")
 public class TransferServiceApplication {
     public static void main(String[] args) {
-        log.info("Starting transfer-service");
+        log.info("正在启动 transfer-service");
         SpringApplication.run(TransferServiceApplication.class, args);
     }
 }

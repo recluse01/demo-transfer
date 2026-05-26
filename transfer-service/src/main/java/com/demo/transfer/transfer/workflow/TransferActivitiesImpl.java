@@ -35,12 +35,12 @@ public class TransferActivitiesImpl implements TransferActivities {
 
     @Override
     public void freeze(String transferId) {
-        log.info("Starting freeze activity, transferId={}", transferId);
+        log.info("开始执行冻结 Activity，transferId={}", transferId);
         TransferOrder order = stateService.loadOrder(transferId);
         ApiResponse<AssetOperationResponse> response = router.client(order.getSourceAccountType())
                 .freeze(buildRequest(order));
         if (!response.isSuccess()) {
-            log.warn("Freeze activity failed, transferId={}, code={}, message={}",
+            log.warn("冻结 Activity 执行失败，transferId={}, code={}, message={}",
                     transferId, response.getCode(), response.getMessage());
             stateService.markFreezeFailed(transferId, response.getCode(), response.getMessage());
             throw ApplicationFailure.newNonRetryableFailure(
@@ -50,54 +50,54 @@ public class TransferActivitiesImpl implements TransferActivities {
             stateService.markWaitReview(transferId);
         }
         // AUTO_WITHDRAW：冻结成功后 Workflow 直接推进到 confirmDebit，无需写入中间状态
-        log.info("Freeze activity completed, transferId={}, mode={}", transferId, order.getTransferMode());
+        log.info("冻结 Activity 执行完成，transferId={}, mode={}", transferId, order.getTransferMode());
     }
 
     @Override
     public void confirmDebit(String transferId) {
-        log.info("Starting confirm debit activity, transferId={}", transferId);
+        log.info("开始执行确认扣减 Activity，transferId={}", transferId);
         TransferOrder order = stateService.loadOrder(transferId);
         ApiResponse<AssetOperationResponse> response = router.client(order.getSourceAccountType())
                 .confirmDebit(buildRequest(order));
         if (!response.isSuccess()) {
-            log.warn("Confirm debit activity failed, transferId={}, code={}, message={}",
+            log.warn("确认扣减 Activity 执行失败，transferId={}, code={}, message={}",
                     transferId, response.getCode(), response.getMessage());
             throw new RuntimeException("confirmDebit failed: " + response.getMessage());
         }
         stateService.markDebitSuccess(transferId);
-        log.info("Confirm debit activity completed, transferId={}", transferId);
+        log.info("确认扣减 Activity 执行完成，transferId={}", transferId);
     }
 
     @Override
     public void credit(String transferId) {
-        log.info("Starting credit activity, transferId={}", transferId);
+        log.info("开始执行入账 Activity，transferId={}", transferId);
         TransferOrder order = stateService.loadOrder(transferId);
         ApiResponse<AssetOperationResponse> response = router.client(order.getTargetAccountType())
                 .credit(buildRequest(order));
         if (!response.isSuccess()) {
             // credit 失败：持久化失败状态后上抛，不触发反向补偿
-            log.warn("Credit activity failed, transferId={}, code={}, message={}",
+            log.warn("入账 Activity 执行失败，transferId={}, code={}, message={}",
                     transferId, response.getCode(), response.getMessage());
             stateService.markCreditFailed(transferId, response.getCode(), response.getMessage());
             throw new RuntimeException("credit failed: " + response.getMessage());
         }
         stateService.markSuccess(transferId);
-        log.info("Credit activity completed, transferId={}", transferId);
+        log.info("入账 Activity 执行完成，transferId={}", transferId);
     }
 
     @Override
     public void cancelFreeze(String transferId) {
-        log.info("Starting cancel freeze activity, transferId={}", transferId);
+        log.info("开始执行取消冻结 Activity，transferId={}", transferId);
         TransferOrder order = stateService.loadOrder(transferId);
         ApiResponse<AssetOperationResponse> response = router.client(order.getSourceAccountType())
                 .cancelFreeze(buildRequest(order));
         if (!response.isSuccess()) {
-            log.warn("Cancel freeze activity failed, transferId={}, code={}, message={}",
+            log.warn("取消冻结 Activity 执行失败，transferId={}, code={}, message={}",
                     transferId, response.getCode(), response.getMessage());
             throw new RuntimeException("cancelFreeze failed: " + response.getMessage());
         }
         stateService.markRejected(transferId);
-        log.info("Cancel freeze activity completed, transferId={}", transferId);
+        log.info("取消冻结 Activity 执行完成，transferId={}", transferId);
     }
 
     private AssetOperationRequest buildRequest(TransferOrder order) {

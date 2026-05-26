@@ -35,7 +35,7 @@ public class AccountAssetController {
     @Operation(summary = "冻结资产", description = "将可用余额转入冻结余额。")
     @PostMapping("/freeze")
     public ApiResponse<AssetOperationResponse> freeze(@Valid @RequestBody AssetOperationRequest request) {
-        log.info("Received freeze request, transferId={}, userId={}, assetCode={}, amount={}",
+        log.info("收到冻结资产请求，transferId={}, userId={}, assetCode={}, amount={}",
                 request.getTransferId(), request.getUserId(), request.getAssetCode(), request.getAmount());
         return execute(() -> {
             if (request.getAmount().compareTo(BigDecimal.valueOf(100)) == 0) {
@@ -50,7 +50,7 @@ public class AccountAssetController {
     @Operation(summary = "确认扣减", description = "将冻结余额确认为实际扣减。")
     @PostMapping("/confirm-debit")
     public ApiResponse<AssetOperationResponse> confirmDebit(@Valid @RequestBody AssetOperationRequest request) {
-        log.info("Received confirm debit request, transferId={}, userId={}, assetCode={}, amount={}",
+        log.info("收到确认扣减请求，transferId={}, userId={}, assetCode={}, amount={}",
                 request.getTransferId(), request.getUserId(), request.getAssetCode(), request.getAmount());
         return execute(() -> {
             if (request.getAmount().compareTo(BigDecimal.valueOf(50)) == 0) {
@@ -64,7 +64,7 @@ public class AccountAssetController {
     @Operation(summary = "取消冻结", description = "将冻结余额恢复到可用余额。")
     @PostMapping("/cancel-freeze")
     public ApiResponse<AssetOperationResponse> cancelFreeze(@Valid @RequestBody AssetOperationRequest request) {
-        log.info("Received cancel freeze request, transferId={}, userId={}, assetCode={}, amount={}",
+        log.info("收到取消冻结请求，transferId={}, userId={}, assetCode={}, amount={}",
                 request.getTransferId(), request.getUserId(), request.getAssetCode(), request.getAmount());
         return execute(() -> {
             if (request.getAmount().compareTo(BigDecimal.valueOf(80)) == 0) {
@@ -78,7 +78,7 @@ public class AccountAssetController {
     @Operation(summary = "目标账户入账", description = "向目标账户增加可用余额。")
     @PostMapping("/credit")
     public ApiResponse<AssetOperationResponse> credit(@Valid @RequestBody AssetOperationRequest request) {
-        log.info("Received credit request, transferId={}, userId={}, assetCode={}, amount={}",
+        log.info("收到资产入账请求，transferId={}, userId={}, assetCode={}, amount={}",
                 request.getTransferId(), request.getUserId(), request.getAssetCode(), request.getAmount());
         return execute(() -> {
             if (request.getAmount().compareTo(BigDecimal.valueOf(30)) == 0) {
@@ -92,10 +92,10 @@ public class AccountAssetController {
         try {
             return ApiResponse.ok(handler.apply());
         } catch (IllegalStateException ex) {
-            log.warn("Account asset operation failed, message={}", ex.getMessage(), ex);
+            log.warn("账户资产操作失败，message={}", ex.getMessage(), ex);
             return ApiResponse.fail("ACCOUNT_OPERATION_FAILED", ex.getMessage());
         } catch (RuntimeException ex) {
-            log.warn("Account asset operation failed unexpectedly, message={}", ex.getMessage(), ex);
+            log.warn("账户资产操作发生非预期异常，message={}", ex.getMessage(), ex);
             return ApiResponse.fail("ACCOUNT_OPERATION_FAILED", ex.getMessage());
         }
     }

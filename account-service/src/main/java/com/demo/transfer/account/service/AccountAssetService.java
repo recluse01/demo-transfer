@@ -66,7 +66,7 @@ public class AccountAssetService {
      * 3. 完成金额变更，写入资金流水和操作记录。
      */
     private AssetOperationResponse apply(AssetOperationRequest request, OperationType operationType) {
-        log.info("Applying account asset operation, transferId={}, operationType={}, userId={}, assetCode={}, amount={}",
+        log.info("开始执行账户资产操作，transferId={}, operationType={}, userId={}, assetCode={}, amount={}",
                 request.getTransferId(), operationType, request.getUserId(), request.getAssetCode(),
                 request.getAmount());
         AccountBalance balance = balanceRepository
@@ -78,7 +78,7 @@ public class AccountAssetService {
                 .findByTransferIdAndOperationType(request.getTransferId(), operationType)
                 .orElse(null);
         if (existing != null) {
-            log.warn("Account asset operation already applied, transferId={}, operationType={}, message={}",
+            log.warn("账户资产操作已处理，命中幂等记录，transferId={}, operationType={}, message={}",
                     request.getTransferId(), operationType, existing.getResponseMessage());
             return new AssetOperationResponse(request.getTransferId(), operationType, false,
                     existing.getResponseMessage());
@@ -90,7 +90,7 @@ public class AccountAssetService {
                 balance.getFrozenAmount()));
         operationRepository.save(AssetOperation.success(request.getTransferId(), operationType, request.getUserId(),
                 request.getAssetCode(), request.getAmount(), operationType.name() + " success"));
-        log.info("Account asset operation applied, transferId={}, operationType={}, availableAmount={}, frozenAmount={}",
+        log.info("账户资产操作执行完成，transferId={}, operationType={}, availableAmount={}, frozenAmount={}",
                 request.getTransferId(), operationType, balance.getAvailableAmount(), balance.getFrozenAmount());
         return new AssetOperationResponse(request.getTransferId(), operationType, true, operationType.name() + " success");
     }

@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication(scanBasePackages = "com.demo.transfer")
 public class AccountBApplication {
     public static void main(String[] args) {
-        log.info("Starting account-b-service");
+        log.info("正在启动 account-b-service");
         SpringApplication.run(AccountBApplication.class, args);
     }
 }

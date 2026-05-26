@@ -24,7 +24,7 @@ public class TransferOrderStateService {
 
     @Transactional(readOnly = true)
     public TransferOrder loadOrder(String transferId) {
-        log.debug("Loading transfer order, transferId={}", transferId);
+        log.debug("正在加载转账订单，transferId={}", transferId);
         return orderRepository.findByTransferId(transferId)
                 .orElseThrow(() -> new IllegalArgumentException("transfer not found: " + transferId));
     }
@@ -32,7 +32,7 @@ public class TransferOrderStateService {
     @Transactional
     public TransferOrder createOrder(TransferOrder order) {
         TransferOrder saved = orderRepository.saveAndFlush(order);
-        log.info("Transfer order created, transferId={}, userId={}, sourceAccountType={}, targetAccountType={}, amount={}, mode={}",
+        log.info("转账订单已创建，transferId={}, userId={}, sourceAccountType={}, targetAccountType={}, amount={}, mode={}",
                 saved.getTransferId(), saved.getUserId(), saved.getSourceAccountType(), saved.getTargetAccountType(),
                 saved.getAmount(), saved.getTransferMode());
         return saved;
@@ -43,7 +43,7 @@ public class TransferOrderStateService {
         TransferOrder order = find(transferId);
         order.markStatus(TransferStatus.WAIT_REVIEW);
         orderRepository.saveAndFlush(order);
-        log.info("Transfer order marked wait review, transferId={}", transferId);
+        log.info("转账订单已标记为待审核，transferId={}", transferId);
     }
 
     @Transactional
@@ -51,7 +51,7 @@ public class TransferOrderStateService {
         TransferOrder order = find(transferId);
         order.markStatus(TransferStatus.DEBIT_SUCCESS);
         orderRepository.saveAndFlush(order);
-        log.info("Transfer order marked debit success, transferId={}", transferId);
+        log.info("转账订单已标记为扣减成功，transferId={}", transferId);
     }
 
     @Transactional
@@ -59,7 +59,7 @@ public class TransferOrderStateService {
         TransferOrder order = find(transferId);
         order.markFailure(TransferStatus.FREEZE_FAILED, code, message);
         orderRepository.saveAndFlush(order);
-        log.warn("Transfer order marked freeze failed, transferId={}, code={}, message={}",
+        log.warn("转账订单已标记为冻结失败，transferId={}, code={}, message={}",
                 transferId, code, message);
     }
 
@@ -68,7 +68,7 @@ public class TransferOrderStateService {
         TransferOrder order = find(transferId);
         order.markFailure(TransferStatus.INIT_FAILED, "WORKFLOW_START_FAILED", message);
         orderRepository.saveAndFlush(order);
-        log.warn("Transfer order marked init failed, transferId={}, message={}", transferId, message);
+        log.warn("转账订单已标记为初始化失败，transferId={}, message={}", transferId, message);
     }
 
     @Transactional
@@ -76,7 +76,7 @@ public class TransferOrderStateService {
         TransferOrder order = find(transferId);
         order.markFailure(TransferStatus.CREDIT_FAILED, code, message);
         orderRepository.saveAndFlush(order);
-        log.warn("Transfer order marked credit failed, transferId={}, code={}, message={}",
+        log.warn("转账订单已标记为入账失败，transferId={}, code={}, message={}",
                 transferId, code, message);
     }
 
@@ -85,7 +85,7 @@ public class TransferOrderStateService {
         TransferOrder order = find(transferId);
         order.markStatus(TransferStatus.SUCCESS);
         orderRepository.saveAndFlush(order);
-        log.info("Transfer order marked success, transferId={}", transferId);
+        log.info("转账订单已标记为成功，transferId={}", transferId);
     }
 
     @Transactional
@@ -93,7 +93,7 @@ public class TransferOrderStateService {
         TransferOrder order = find(transferId);
         order.markStatus(TransferStatus.REJECTED);
         orderRepository.saveAndFlush(order);
-        log.info("Transfer order marked rejected, transferId={}", transferId);
+        log.info("转账订单已标记为已拒绝，transferId={}", transferId);
     }
 
     private TransferOrder find(String transferId) {
