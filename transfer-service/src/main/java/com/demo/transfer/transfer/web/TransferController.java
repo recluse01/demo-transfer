@@ -16,6 +16,8 @@ import io.temporal.client.WorkflowOptions;
 import java.math.BigDecimal;
 import java.util.UUID;
 import javax.validation.Valid;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 审核时通过 Signal 通知对应 Workflow；
  * 查询直接读取 transfer_order 表。
  */
+@Slf4j
 @Tag(name = "Transfer API", description = "跨账户转账主流程接口")
 @RestController
 @RequestMapping("/transfers")
@@ -55,6 +58,9 @@ public class TransferController {
     @Operation(summary = "创建转账", description = "持久化转账单后立即触发 Temporal Workflow 执行 Saga 流程。")
     @PostMapping
     public ApiResponse<TransferOrder> create(@Valid @RequestBody CreateTransferRequest request) {
+        log.info("Received create transfer request, userId={}, direction={}, assetCode={}, amount={}, mode={}",
+                request.getUserId(), request.getDirection(), request.getAssetCode(), request.getAmount(),
+                request.getMode());
         return execute(() -> {
             AccountType source = router.sourceType(request.getDirection());
             AccountType target = router.targetType(request.getDirection());
@@ -76,10 +82,15 @@ public class TransferController {
                 }
                 TransferWorkflow workflow = workflowClient.newWorkflowStub(TransferWorkflow.class, options);
                 WorkflowClient.start(workflow::execute, transferId, request.getMode());
+                log.info("Transfer workflow started, transferId={}, taskQueue={}, mode={}",
+                        transferId, taskQueue, request.getMode());
             } catch (Exception ex) {
+                log.warn("Transfer workflow start failed, transferId={}, message={}",
+                        transferId, ex.getMessage(), ex);
                 stateService.markInitFailed(transferId, ex.getMessage());
                 throw new RuntimeException("Workflow 启动失败: " + ex.getMessage(), ex);
             }
+            log.info("Create transfer request completed, transferId={}", transferId);
             return order;
         });
     }
@@ -90,9 +101,12 @@ public class TransferController {
     public ApiResponse<TransferOrder> review(
             @Parameter(description = "转账唯一标识", required = true) @PathVariable String transferId,
             @RequestBody ReviewTransferRequest request) {
+        log.info("Received review transfer request, transferId={}, approved={}, message={}",
+                transferId, request.isApproved(), request.getMessage());
         return execute(() -> {
             TransferWorkflow workflow = workflowClient.newWorkflowStub(TransferWorkflow.class, transferId);
             workflow.review(new ReviewDecision(request.isApproved(), request.getMessage()));
+            log.info("Review signal sent, transferId={}, approved={}", transferId, request.isApproved());
             return stateService.loadOrder(transferId);
         });
     }
@@ -102,6 +116,7 @@ public class TransferController {
     @GetMapping("/{transferId}")
     public ApiResponse<TransferOrder> get(
             @Parameter(description = "转账唯一标识", required = true) @PathVariable String transferId) {
+        log.debug("Received get transfer request, transferId={}", transferId);
         return execute(() -> stateService.loadOrder(transferId));
     }
 
@@ -109,6 +124,7 @@ public class TransferController {
         try {
             return ApiResponse.ok(handler.apply());
         } catch (RuntimeException ex) {
+            log.warn("Transfer operation failed, message={}", ex.getMessage(), ex);
             return ApiResponse.fail("TRANSFER_OPERATION_FAILED", ex.getMessage());
         }
     }

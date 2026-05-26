@@ -6,19 +6,20 @@ import com.demo.transfer.common.AssetOperationRequest;
 import com.demo.transfer.common.AssetOperationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.math.BigDecimal;
 import javax.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.math.BigDecimal;
 
 /**
  * 账户服务内部资产操作接口。
  *
  * <p>仅供转账服务等内部系统调用，不面向终端用户直接开放。
  */
+@Slf4j
 @Tag(name = "Account Asset API", description = "账户资产内部操作接口")
 @RestController
 @RequestMapping("/internal/accounts/assets")
@@ -34,6 +35,8 @@ public class AccountAssetController {
     @Operation(summary = "冻结资产", description = "将可用余额转入冻结余额。")
     @PostMapping("/freeze")
     public ApiResponse<AssetOperationResponse> freeze(@Valid @RequestBody AssetOperationRequest request) {
+        log.info("Received freeze request, transferId={}, userId={}, assetCode={}, amount={}",
+                request.getTransferId(), request.getUserId(), request.getAssetCode(), request.getAmount());
         return execute(() -> {
             if (request.getAmount().compareTo(BigDecimal.valueOf(100)) == 0) {
 //                throw new RuntimeException("---测试冻结资产失败的情况，抛出异常");
@@ -47,6 +50,8 @@ public class AccountAssetController {
     @Operation(summary = "确认扣减", description = "将冻结余额确认为实际扣减。")
     @PostMapping("/confirm-debit")
     public ApiResponse<AssetOperationResponse> confirmDebit(@Valid @RequestBody AssetOperationRequest request) {
+        log.info("Received confirm debit request, transferId={}, userId={}, assetCode={}, amount={}",
+                request.getTransferId(), request.getUserId(), request.getAssetCode(), request.getAmount());
         return execute(() -> {
             if (request.getAmount().compareTo(BigDecimal.valueOf(50)) == 0) {
                 throw new RuntimeException("---测试确认扣减资产失败的情况，抛出异常");
@@ -59,6 +64,8 @@ public class AccountAssetController {
     @Operation(summary = "取消冻结", description = "将冻结余额恢复到可用余额。")
     @PostMapping("/cancel-freeze")
     public ApiResponse<AssetOperationResponse> cancelFreeze(@Valid @RequestBody AssetOperationRequest request) {
+        log.info("Received cancel freeze request, transferId={}, userId={}, assetCode={}, amount={}",
+                request.getTransferId(), request.getUserId(), request.getAssetCode(), request.getAmount());
         return execute(() -> {
             if (request.getAmount().compareTo(BigDecimal.valueOf(80)) == 0) {
                 throw new RuntimeException("++++测试解冻资产失败的情况，抛出异常");
@@ -71,6 +78,8 @@ public class AccountAssetController {
     @Operation(summary = "目标账户入账", description = "向目标账户增加可用余额。")
     @PostMapping("/credit")
     public ApiResponse<AssetOperationResponse> credit(@Valid @RequestBody AssetOperationRequest request) {
+        log.info("Received credit request, transferId={}, userId={}, assetCode={}, amount={}",
+                request.getTransferId(), request.getUserId(), request.getAssetCode(), request.getAmount());
         return execute(() -> {
             if (request.getAmount().compareTo(BigDecimal.valueOf(30)) == 0) {
                 throw new RuntimeException("++++测试确认入账失败的情况，抛出异常");
@@ -83,6 +92,10 @@ public class AccountAssetController {
         try {
             return ApiResponse.ok(handler.apply());
         } catch (IllegalStateException ex) {
+            log.warn("Account asset operation failed, message={}", ex.getMessage(), ex);
+            return ApiResponse.fail("ACCOUNT_OPERATION_FAILED", ex.getMessage());
+        } catch (RuntimeException ex) {
+            log.warn("Account asset operation failed unexpectedly, message={}", ex.getMessage(), ex);
             return ApiResponse.fail("ACCOUNT_OPERATION_FAILED", ex.getMessage());
         }
     }

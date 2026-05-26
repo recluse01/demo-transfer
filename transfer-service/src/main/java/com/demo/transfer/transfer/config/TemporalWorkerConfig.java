@@ -8,6 +8,7 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * <p>在 Spring 上下文启动时自动注册 Workflow 实现和 Activity Bean，并启动 Worker 监听 Task Queue。
  */
+@Slf4j
 @Configuration
 public class TemporalWorkerConfig {
     @Value("${temporal.host-port:localhost:7233}")
@@ -30,6 +32,7 @@ public class TemporalWorkerConfig {
 
     @Bean
     public WorkflowServiceStubs workflowServiceStubs() {
+        log.info("Creating Temporal service stubs, hostPort={}", hostPort);
         return WorkflowServiceStubs.newServiceStubs(
                 WorkflowServiceStubsOptions.newBuilder()
                         .setTarget(hostPort)
@@ -38,6 +41,7 @@ public class TemporalWorkerConfig {
 
     @Bean
     public WorkflowClient workflowClient(WorkflowServiceStubs stubs) {
+        log.info("Creating Temporal workflow client, namespace={}", namespace);
         return WorkflowClient.newInstance(stubs,
                 WorkflowClientOptions.newBuilder()
                         .setNamespace(namespace)
@@ -55,6 +59,7 @@ public class TemporalWorkerConfig {
         worker.registerWorkflowImplementationTypes(TransferWorkflowImpl.class);
         worker.registerActivitiesImplementations(activities);
         factory.start();
+        log.info("Temporal worker started, taskQueue={}", taskQueue);
         return worker;
     }
 
