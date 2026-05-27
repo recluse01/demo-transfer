@@ -1,0 +1,6172 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "94f3085971281649e43fccca6359998c777322e2",
+  "generatedAt": "2026-05-27T01:59:33.971Z",
+  "files": {
+    ".understand-anything/.understandignore": {
+      "filePath": ".understand-anything/.understandignore",
+      "contentHash": "a07861a5282a7017d4e0536cf315ec094f499bd91ce6446e045c481d5240a541",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 47,
+      "hasStructuralAnalysis": false
+    },
+    ".understand-anything/config.json": {
+      "filePath": ".understand-anything/config.json",
+      "contentHash": "c4a81b476be169d02009b0f55951562958b700b6d831e2b5754648ac73552ec9",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 2,
+      "hasStructuralAnalysis": true
+    },
+    "account-a-service/pom.xml": {
+      "filePath": "account-a-service/pom.xml",
+      "contentHash": "db0ea49cf30ac6badd7c7caed77f43788bc9414c2d8444db148b4f09fe76c682",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 48,
+      "hasStructuralAnalysis": false
+    },
+    "account-a-service/src/main/java/com/demo/transfer/accounta/AccountAApplication.java": {
+      "filePath": "account-a-service/src/main/java/com/demo/transfer/accounta/AccountAApplication.java",
+      "contentHash": "d290c806370b091eb64106c1a54cd1b176d6946fb4a33a0cf6926c09dc8d121c",
+      "functions": [
+        {
+          "name": "main",
+          "params": [
+            "args"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [
+        {
+          "name": "AccountAApplication",
+          "methods": [
+            "main"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "imports": [
+        {
+          "source": "lombok.extern.slf4j.Slf4j",
+          "specifiers": [
+            "Slf4j"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.SpringApplication",
+          "specifiers": [
+            "SpringApplication"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.autoconfigure.SpringBootApplication",
+          "specifiers": [
+            "SpringBootApplication"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.autoconfigure.domain.EntityScan",
+          "specifiers": [
+            "EntityScan"
+          ]
+        },
+        {
+          "source": "org.springframework.data.jpa.repository.config.EnableJpaRepositories",
+          "specifiers": [
+            "EnableJpaRepositories"
+          ]
+        }
+      ],
+      "exports": [
+        "main",
+        "AccountAApplication"
+      ],
+      "totalLines": 19,
+      "hasStructuralAnalysis": true
+    },
+    "account-a-service/src/main/resources/application.yml": {
+      "filePath": "account-a-service/src/main/resources/application.yml",
+      "contentHash": "2aa2d7952f9f6e8f217afdb249731cefbb562fd64f196a6954575be0ab2bd861",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 19,
+      "hasStructuralAnalysis": true
+    },
+    "account-a-service/src/test/java/com/demo/transfer/accounta/AccountAApplicationTest.java": {
+      "filePath": "account-a-service/src/test/java/com/demo/transfer/accounta/AccountAApplicationTest.java",
+      "contentHash": "faec291239225dba1254e3d890a6fba8c9bf7c700a29db5c5f9ea6ad887a2f1e",
+      "functions": [
+        {
+          "name": "contextLoads",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "AccountAApplicationTest",
+          "methods": [
+            "contextLoads"
+          ],
+          "properties": [],
+          "exported": false,
+          "lineCount": 12
+        }
+      ],
+      "imports": [
+        {
+          "source": "org.junit.jupiter.api.Test",
+          "specifiers": [
+            "Test"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.test.context.SpringBootTest",
+          "specifiers": [
+            "SpringBootTest"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 18,
+      "hasStructuralAnalysis": true
+    },
+    "account-b-service/pom.xml": {
+      "filePath": "account-b-service/pom.xml",
+      "contentHash": "65b18159ae36a13b322c876ca64039290c45d3d2a94ca5c5d755835e69e2c1b3",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 48,
+      "hasStructuralAnalysis": false
+    },
+    "account-b-service/src/main/java/com/demo/transfer/accountb/AccountBApplication.java": {
+      "filePath": "account-b-service/src/main/java/com/demo/transfer/accountb/AccountBApplication.java",
+      "contentHash": "2c73235b2297100a01b14ae2b1f18ab4b8d666bd279aecdac23ccb2abba67685",
+      "functions": [
+        {
+          "name": "main",
+          "params": [
+            "args"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [
+        {
+          "name": "AccountBApplication",
+          "methods": [
+            "main"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "imports": [
+        {
+          "source": "lombok.extern.slf4j.Slf4j",
+          "specifiers": [
+            "Slf4j"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.SpringApplication",
+          "specifiers": [
+            "SpringApplication"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.autoconfigure.SpringBootApplication",
+          "specifiers": [
+            "SpringBootApplication"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.autoconfigure.domain.EntityScan",
+          "specifiers": [
+            "EntityScan"
+          ]
+        },
+        {
+          "source": "org.springframework.data.jpa.repository.config.EnableJpaRepositories",
+          "specifiers": [
+            "EnableJpaRepositories"
+          ]
+        }
+      ],
+      "exports": [
+        "main",
+        "AccountBApplication"
+      ],
+      "totalLines": 19,
+      "hasStructuralAnalysis": true
+    },
+    "account-b-service/src/main/resources/application.yml": {
+      "filePath": "account-b-service/src/main/resources/application.yml",
+      "contentHash": "e78f00f53c5ca05af78a10c7727e09b8dd25d179a7e2d89f6f57809dca91fa48",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 19,
+      "hasStructuralAnalysis": true
+    },
+    "account-b-service/src/test/java/com/demo/transfer/accountb/AccountBApplicationTest.java": {
+      "filePath": "account-b-service/src/test/java/com/demo/transfer/accountb/AccountBApplicationTest.java",
+      "contentHash": "c28458cec1c205163d9ab4ba315912b9e8dd8af59b7f8d970e1f414c0cc961fc",
+      "functions": [
+        {
+          "name": "contextLoads",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "AccountBApplicationTest",
+          "methods": [
+            "contextLoads"
+          ],
+          "properties": [],
+          "exported": false,
+          "lineCount": 12
+        }
+      ],
+      "imports": [
+        {
+          "source": "org.junit.jupiter.api.Test",
+          "specifiers": [
+            "Test"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.test.context.SpringBootTest",
+          "specifiers": [
+            "SpringBootTest"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 18,
+      "hasStructuralAnalysis": true
+    },
+    "account-service/pom.xml": {
+      "filePath": "account-service/pom.xml",
+      "contentHash": "b84b3e05660575180c450164756a53f449f6b16c90331b3db57dca6d1177179b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 51,
+      "hasStructuralAnalysis": false
+    },
+    "account-service/src/main/java/com/demo/transfer/account/config/OpenApiConfig.java": {
+      "filePath": "account-service/src/main/java/com/demo/transfer/account/config/OpenApiConfig.java",
+      "contentHash": "e1855ed1f1674288cd906ea18a069ba926d38d426bc9220956b78cc729114363",
+      "functions": [
+        {
+          "name": "accountOpenApi",
+          "params": [
+            "applicationName"
+          ],
+          "returnType": "OpenAPI",
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [
+        {
+          "name": "OpenApiConfig",
+          "methods": [
+            "accountOpenApi"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 12
+        }
+      ],
+      "imports": [
+        {
+          "source": "io.swagger.v3.oas.models.OpenAPI",
+          "specifiers": [
+            "OpenAPI"
+          ]
+        },
+        {
+          "source": "io.swagger.v3.oas.models.info.Contact",
+          "specifiers": [
+            "Contact"
+          ]
+        },
+        {
+          "source": "io.swagger.v3.oas.models.info.Info",
+          "specifiers": [
+            "Info"
+          ]
+        },
+        {
+          "source": "io.swagger.v3.oas.models.info.License",
+          "specifiers": [
+            "License"
+          ]
+        },
+        {
+          "source": "org.springframework.beans.factory.annotation.Value",
+          "specifiers": [
+            "Value"
+          ]
+        },
+        {
+          "source": "org.springframework.context.annotation.Bean",
+          "specifiers": [
+            "Bean"
+          ]
+        },
+        {
+          "source": "org.springframework.context.annotation.Configuration",
+          "specifiers": [
+            "Configuration"
+          ]
+        }
+      ],
+      "exports": [
+        "accountOpenApi",
+        "OpenApiConfig"
+      ],
+      "totalLines": 23,
+      "hasStructuralAnalysis": true
+    },
+    "account-service/src/main/java/com/demo/transfer/account/domain/AccountBalance.java": {
+      "filePath": "account-service/src/main/java/com/demo/transfer/account/domain/AccountBalance.java",
+      "contentHash": "6455071d35eb51af9767a9a23941592beea689f3de9d70a0c476c648a1228544",
+      "functions": [
+        {
+          "name": "create",
+          "params": [
+            "userId",
+            "assetCode",
+            "availableAmount"
+          ],
+          "returnType": "AccountBalance",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "freeze",
+          "params": [
+            "amount"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "confirmDebit",
+          "params": [
+            "amount"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "cancelFreeze",
+          "params": [
+            "amount"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "credit",
+          "params": [
+            "amount"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "prePersist",
+          "params": [],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "preUpdate",
+          "params": [],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "getId",
+          "params": [],
+          "returnType": "Long",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getUserId",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getAssetCode",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getAvailableAmount",
+          "params": [],
+          "returnType": "BigDecimal",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getFrozenAmount",
+          "params": [],
+          "returnType": "BigDecimal",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getVersion",
+          "params": [],
+          "returnType": "Long",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getCreatedAt",
+          "params": [],
+          "returnType": "LocalDateTime",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getUpdatedAt",
+          "params": [],
+          "returnType": "LocalDateTime",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "AccountBalance",
+          "methods": [
+            "create",
+            "freeze",
+            "confirmDebit",
+            "cancelFreeze",
+            "credit",
+            "prePersist",
+            "preUpdate",
+            "getId",
+            "getUserId",
+            "getAssetCode",
+            "getAvailableAmount",
+            "getFrozenAmount",
+            "getVersion",
+            "getCreatedAt",
+            "getUpdatedAt"
+          ],
+          "properties": [
+            "id",
+            "userId",
+            "assetCode",
+            "availableAmount",
+            "frozenAmount",
+            "version",
+            "createdAt",
+            "updatedAt"
+          ],
+          "exported": true,
+          "lineCount": 101
+        }
+      ],
+      "imports": [
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "java.time.LocalDateTime",
+          "specifiers": [
+            "LocalDateTime"
+          ]
+        },
+        {
+          "source": "javax.persistence.Column",
+          "specifiers": [
+            "Column"
+          ]
+        },
+        {
+          "source": "javax.persistence.Entity",
+          "specifiers": [
+            "Entity"
+          ]
+        },
+        {
+          "source": "javax.persistence.GeneratedValue",
+          "specifiers": [
+            "GeneratedValue"
+          ]
+        },
+        {
+          "source": "javax.persistence.GenerationType",
+          "specifiers": [
+            "GenerationType"
+          ]
+        },
+        {
+          "source": "javax.persistence.Id",
+          "specifiers": [
+            "Id"
+          ]
+        },
+        {
+          "source": "javax.persistence.PrePersist",
+          "specifiers": [
+            "PrePersist"
+          ]
+        },
+        {
+          "source": "javax.persistence.PreUpdate",
+          "specifiers": [
+            "PreUpdate"
+          ]
+        },
+        {
+          "source": "javax.persistence.Table",
+          "specifiers": [
+            "Table"
+          ]
+        },
+        {
+          "source": "javax.persistence.UniqueConstraint",
+          "specifiers": [
+            "UniqueConstraint"
+          ]
+        },
+        {
+          "source": "javax.persistence.Version",
+          "specifiers": [
+            "Version"
+          ]
+        }
+      ],
+      "exports": [
+        "create",
+        "freeze",
+        "confirmDebit",
+        "cancelFreeze",
+        "credit",
+        "prePersist",
+        "preUpdate",
+        "getId",
+        "getUserId",
+        "getAssetCode",
+        "getAvailableAmount",
+        "getFrozenAmount",
+        "getVersion",
+        "getCreatedAt",
+        "getUpdatedAt",
+        "AccountBalance"
+      ],
+      "totalLines": 117,
+      "hasStructuralAnalysis": true
+    },
+    "account-service/src/main/java/com/demo/transfer/account/domain/AssetOperation.java": {
+      "filePath": "account-service/src/main/java/com/demo/transfer/account/domain/AssetOperation.java",
+      "contentHash": "751b50366920cfb67ac9c1d6bd4ca59fde04061a1f9bb26b91f1da6413a223ed",
+      "functions": [
+        {
+          "name": "success",
+          "params": [
+            "transferId",
+            "operationType",
+            "userId",
+            "assetCode",
+            "amount",
+            "message"
+          ],
+          "returnType": "AssetOperation",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "prePersist",
+          "params": [],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "preUpdate",
+          "params": [],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "getId",
+          "params": [],
+          "returnType": "Long",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getTransferId",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getOperationType",
+          "params": [],
+          "returnType": "OperationType",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getUserId",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getAssetCode",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getAmount",
+          "params": [],
+          "returnType": "BigDecimal",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getStatus",
+          "params": [],
+          "returnType": "OperationStatus",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getResponseMessage",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "AssetOperation",
+          "methods": [
+            "success",
+            "prePersist",
+            "preUpdate",
+            "getId",
+            "getTransferId",
+            "getOperationType",
+            "getUserId",
+            "getAssetCode",
+            "getAmount",
+            "getStatus",
+            "getResponseMessage"
+          ],
+          "properties": [
+            "id",
+            "transferId",
+            "operationType",
+            "userId",
+            "assetCode",
+            "amount",
+            "status",
+            "responseCode",
+            "responseMessage",
+            "createdAt",
+            "updatedAt"
+          ],
+          "exported": true,
+          "lineCount": 116
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.common.OperationType",
+          "specifiers": [
+            "OperationType"
+          ]
+        },
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "java.time.LocalDateTime",
+          "specifiers": [
+            "LocalDateTime"
+          ]
+        },
+        {
+          "source": "javax.persistence.Column",
+          "specifiers": [
+            "Column"
+          ]
+        },
+        {
+          "source": "javax.persistence.Entity",
+          "specifiers": [
+            "Entity"
+          ]
+        },
+        {
+          "source": "javax.persistence.EnumType",
+          "specifiers": [
+            "EnumType"
+          ]
+        },
+        {
+          "source": "javax.persistence.Enumerated",
+          "specifiers": [
+            "Enumerated"
+          ]
+        },
+        {
+          "source": "javax.persistence.GeneratedValue",
+          "specifiers": [
+            "GeneratedValue"
+          ]
+        },
+        {
+          "source": "javax.persistence.GenerationType",
+          "specifiers": [
+            "GenerationType"
+          ]
+        },
+        {
+          "source": "javax.persistence.Id",
+          "specifiers": [
+            "Id"
+          ]
+        },
+        {
+          "source": "javax.persistence.PrePersist",
+          "specifiers": [
+            "PrePersist"
+          ]
+        },
+        {
+          "source": "javax.persistence.PreUpdate",
+          "specifiers": [
+            "PreUpdate"
+          ]
+        },
+        {
+          "source": "javax.persistence.Table",
+          "specifiers": [
+            "Table"
+          ]
+        },
+        {
+          "source": "javax.persistence.UniqueConstraint",
+          "specifiers": [
+            "UniqueConstraint"
+          ]
+        }
+      ],
+      "exports": [
+        "success",
+        "prePersist",
+        "preUpdate",
+        "getId",
+        "getTransferId",
+        "getOperationType",
+        "getUserId",
+        "getAssetCode",
+        "getAmount",
+        "getStatus",
+        "getResponseMessage",
+        "AssetOperation"
+      ],
+      "totalLines": 134,
+      "hasStructuralAnalysis": true
+    },
+    "account-service/src/main/java/com/demo/transfer/account/domain/FinanceLedger.java": {
+      "filePath": "account-service/src/main/java/com/demo/transfer/account/domain/FinanceLedger.java",
+      "contentHash": "7922febeddf9d13eacd373affd7570d7c05bb2a4daee5b9633bf83d8f68e9fef",
+      "functions": [
+        {
+          "name": "of",
+          "params": [
+            "transferId",
+            "userId",
+            "assetCode",
+            "operationType",
+            "availableDelta",
+            "frozenDelta",
+            "availableAfter",
+            "frozenAfter"
+          ],
+          "returnType": "FinanceLedger",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "prePersist",
+          "params": [],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [
+        {
+          "name": "FinanceLedger",
+          "methods": [
+            "of",
+            "prePersist"
+          ],
+          "properties": [
+            "id",
+            "transferId",
+            "userId",
+            "assetCode",
+            "operationType",
+            "availableDelta",
+            "frozenDelta",
+            "availableAfter",
+            "frozenAfter",
+            "createdAt"
+          ],
+          "exported": true,
+          "lineCount": 54
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.common.OperationType",
+          "specifiers": [
+            "OperationType"
+          ]
+        },
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "java.time.LocalDateTime",
+          "specifiers": [
+            "LocalDateTime"
+          ]
+        },
+        {
+          "source": "javax.persistence.Column",
+          "specifiers": [
+            "Column"
+          ]
+        },
+        {
+          "source": "javax.persistence.Entity",
+          "specifiers": [
+            "Entity"
+          ]
+        },
+        {
+          "source": "javax.persistence.EnumType",
+          "specifiers": [
+            "EnumType"
+          ]
+        },
+        {
+          "source": "javax.persistence.Enumerated",
+          "specifiers": [
+            "Enumerated"
+          ]
+        },
+        {
+          "source": "javax.persistence.GeneratedValue",
+          "specifiers": [
+            "GeneratedValue"
+          ]
+        },
+        {
+          "source": "javax.persistence.GenerationType",
+          "specifiers": [
+            "GenerationType"
+          ]
+        },
+        {
+          "source": "javax.persistence.Id",
+          "specifiers": [
+            "Id"
+          ]
+        },
+        {
+          "source": "javax.persistence.PrePersist",
+          "specifiers": [
+            "PrePersist"
+          ]
+        },
+        {
+          "source": "javax.persistence.Table",
+          "specifiers": [
+            "Table"
+          ]
+        }
+      ],
+      "exports": [
+        "of",
+        "prePersist",
+        "FinanceLedger"
+      ],
+      "totalLines": 70,
+      "hasStructuralAnalysis": true
+    },
+    "account-service/src/main/java/com/demo/transfer/account/domain/OperationStatus.java": {
+      "filePath": "account-service/src/main/java/com/demo/transfer/account/domain/OperationStatus.java",
+      "contentHash": "8c919049a7d2d73f4cd3413c754040c3037513c70a4b3f3eff6ef52a530be4bc",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 6,
+      "hasStructuralAnalysis": true
+    },
+    "account-service/src/main/java/com/demo/transfer/account/repository/AccountBalanceRepository.java": {
+      "filePath": "account-service/src/main/java/com/demo/transfer/account/repository/AccountBalanceRepository.java",
+      "contentHash": "8dfb2d7cde51d9bfd72d9f26ba6a5503b2323ba6fbe19e7c5ce1a986d401653d",
+      "functions": [],
+      "classes": [
+        {
+          "name": "AccountBalanceRepository",
+          "methods": [
+            "findByUserIdAndAssetCode",
+            "findByUserIdAndAssetCodeForUpdate"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 8
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.account.domain.AccountBalance",
+          "specifiers": [
+            "AccountBalance"
+          ]
+        },
+        {
+          "source": "java.util.Optional",
+          "specifiers": [
+            "Optional"
+          ]
+        },
+        {
+          "source": "javax.persistence.LockModeType",
+          "specifiers": [
+            "LockModeType"
+          ]
+        },
+        {
+          "source": "org.springframework.data.jpa.repository.JpaRepository",
+          "specifiers": [
+            "JpaRepository"
+          ]
+        },
+        {
+          "source": "org.springframework.data.jpa.repository.Lock",
+          "specifiers": [
+            "Lock"
+          ]
+        },
+        {
+          "source": "org.springframework.data.jpa.repository.Query",
+          "specifiers": [
+            "Query"
+          ]
+        },
+        {
+          "source": "org.springframework.data.repository.query.Param",
+          "specifiers": [
+            "Param"
+          ]
+        }
+      ],
+      "exports": [
+        "AccountBalanceRepository"
+      ],
+      "totalLines": 19,
+      "hasStructuralAnalysis": true
+    },
+    "account-service/src/main/java/com/demo/transfer/account/repository/AssetOperationRepository.java": {
+      "filePath": "account-service/src/main/java/com/demo/transfer/account/repository/AssetOperationRepository.java",
+      "contentHash": "5dba83b15f615cdbac21190fdf6042133af73796fc82ff1c06178328cd9a6ba9",
+      "functions": [],
+      "classes": [
+        {
+          "name": "AssetOperationRepository",
+          "methods": [
+            "findByTransferIdAndOperationType"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.account.domain.AssetOperation",
+          "specifiers": [
+            "AssetOperation"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.OperationType",
+          "specifiers": [
+            "OperationType"
+          ]
+        },
+        {
+          "source": "java.util.Optional",
+          "specifiers": [
+            "Optional"
+          ]
+        },
+        {
+          "source": "org.springframework.data.jpa.repository.JpaRepository",
+          "specifiers": [
+            "JpaRepository"
+          ]
+        }
+      ],
+      "exports": [
+        "AssetOperationRepository"
+      ],
+      "totalLines": 11,
+      "hasStructuralAnalysis": true
+    },
+    "account-service/src/main/java/com/demo/transfer/account/repository/FinanceLedgerRepository.java": {
+      "filePath": "account-service/src/main/java/com/demo/transfer/account/repository/FinanceLedgerRepository.java",
+      "contentHash": "5fe0bd1c9f8a5ba251a116e8ac41609b1987523ec9c24440d6cf4e3474db68f8",
+      "functions": [],
+      "classes": [
+        {
+          "name": "FinanceLedgerRepository",
+          "methods": [
+            "countByTransferIdAndOperationType"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.account.domain.FinanceLedger",
+          "specifiers": [
+            "FinanceLedger"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.OperationType",
+          "specifiers": [
+            "OperationType"
+          ]
+        },
+        {
+          "source": "org.springframework.data.jpa.repository.JpaRepository",
+          "specifiers": [
+            "JpaRepository"
+          ]
+        }
+      ],
+      "exports": [
+        "FinanceLedgerRepository"
+      ],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    },
+    "account-service/src/main/java/com/demo/transfer/account/service/AccountAssetService.java": {
+      "filePath": "account-service/src/main/java/com/demo/transfer/account/service/AccountAssetService.java",
+      "contentHash": "3fe7f819858b0f7323d0c0fa8a65941de23b5e29262b6d2be88f18d6dcd6927f",
+      "functions": [
+        {
+          "name": "AccountAssetService",
+          "params": [
+            "balanceRepository",
+            "operationRepository",
+            "ledgerRepository"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "freeze",
+          "params": [
+            "request"
+          ],
+          "returnType": "AssetOperationResponse",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "confirmDebit",
+          "params": [
+            "request"
+          ],
+          "returnType": "AssetOperationResponse",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "cancelFreeze",
+          "params": [
+            "request"
+          ],
+          "returnType": "AssetOperationResponse",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "credit",
+          "params": [
+            "request"
+          ],
+          "returnType": "AssetOperationResponse",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "apply",
+          "params": [
+            "request",
+            "operationType"
+          ],
+          "returnType": "AssetOperationResponse",
+          "exported": false,
+          "lineCount": 29
+        },
+        {
+          "name": "mutate",
+          "params": [
+            "balance",
+            "operationType",
+            "amount"
+          ],
+          "returnType": "BalanceDelta",
+          "exported": false,
+          "lineCount": 19
+        },
+        {
+          "name": "requireEnough",
+          "params": [
+            "balance",
+            "amount",
+            "message"
+          ],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 6
+        }
+      ],
+      "classes": [
+        {
+          "name": "AccountAssetService",
+          "methods": [
+            "AccountAssetService",
+            "freeze",
+            "confirmDebit",
+            "cancelFreeze",
+            "credit",
+            "apply",
+            "mutate",
+            "requireEnough"
+          ],
+          "properties": [
+            "balanceRepository",
+            "operationRepository",
+            "ledgerRepository"
+          ],
+          "exported": true,
+          "lineCount": 120
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.account.domain.AccountBalance",
+          "specifiers": [
+            "AccountBalance"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.account.domain.AssetOperation",
+          "specifiers": [
+            "AssetOperation"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.account.domain.FinanceLedger",
+          "specifiers": [
+            "FinanceLedger"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.account.repository.AccountBalanceRepository",
+          "specifiers": [
+            "AccountBalanceRepository"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.account.repository.AssetOperationRepository",
+          "specifiers": [
+            "AssetOperationRepository"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.account.repository.FinanceLedgerRepository",
+          "specifiers": [
+            "FinanceLedgerRepository"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AssetOperationRequest",
+          "specifiers": [
+            "AssetOperationRequest"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AssetOperationResponse",
+          "specifiers": [
+            "AssetOperationResponse"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.OperationType",
+          "specifiers": [
+            "OperationType"
+          ]
+        },
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "lombok.extern.slf4j.Slf4j",
+          "specifiers": [
+            "Slf4j"
+          ]
+        },
+        {
+          "source": "org.springframework.stereotype.Service",
+          "specifiers": [
+            "Service"
+          ]
+        },
+        {
+          "source": "org.springframework.transaction.annotation.Transactional",
+          "specifiers": [
+            "Transactional"
+          ]
+        }
+      ],
+      "exports": [
+        "AccountAssetService",
+        "freeze",
+        "confirmDebit",
+        "cancelFreeze",
+        "credit",
+        "AccountAssetService"
+      ],
+      "totalLines": 143,
+      "hasStructuralAnalysis": true
+    },
+    "account-service/src/main/java/com/demo/transfer/account/web/AccountAssetController.java": {
+      "filePath": "account-service/src/main/java/com/demo/transfer/account/web/AccountAssetController.java",
+      "contentHash": "8ca0b5ec94b03b4d698c5b685d8ebf9b1ff5d4d41e5f40fac28192e300a7d12a",
+      "functions": [
+        {
+          "name": "AccountAssetController",
+          "params": [
+            "service"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "freeze",
+          "params": [
+            "request"
+          ],
+          "returnType": "ApiResponse<AssetOperationResponse>",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "confirmDebit",
+          "params": [
+            "request"
+          ],
+          "returnType": "ApiResponse<AssetOperationResponse>",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "cancelFreeze",
+          "params": [
+            "request"
+          ],
+          "returnType": "ApiResponse<AssetOperationResponse>",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "credit",
+          "params": [
+            "request"
+          ],
+          "returnType": "ApiResponse<AssetOperationResponse>",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "execute",
+          "params": [
+            "handler"
+          ],
+          "returnType": "ApiResponse<AssetOperationResponse>",
+          "exported": false,
+          "lineCount": 11
+        }
+      ],
+      "classes": [
+        {
+          "name": "AccountAssetController",
+          "methods": [
+            "AccountAssetController",
+            "freeze",
+            "confirmDebit",
+            "cancelFreeze",
+            "credit",
+            "execute"
+          ],
+          "properties": [
+            "service"
+          ],
+          "exported": true,
+          "lineCount": 65
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.account.service.AccountAssetService",
+          "specifiers": [
+            "AccountAssetService"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.ApiResponse",
+          "specifiers": [
+            "ApiResponse"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AssetOperationRequest",
+          "specifiers": [
+            "AssetOperationRequest"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AssetOperationResponse",
+          "specifiers": [
+            "AssetOperationResponse"
+          ]
+        },
+        {
+          "source": "io.swagger.v3.oas.annotations.Operation",
+          "specifiers": [
+            "Operation"
+          ]
+        },
+        {
+          "source": "io.swagger.v3.oas.annotations.tags.Tag",
+          "specifiers": [
+            "Tag"
+          ]
+        },
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "javax.validation.Valid",
+          "specifiers": [
+            "Valid"
+          ]
+        },
+        {
+          "source": "lombok.extern.slf4j.Slf4j",
+          "specifiers": [
+            "Slf4j"
+          ]
+        },
+        {
+          "source": "org.springframework.web.bind.annotation.PostMapping",
+          "specifiers": [
+            "PostMapping"
+          ]
+        },
+        {
+          "source": "org.springframework.web.bind.annotation.RequestBody",
+          "specifiers": [
+            "RequestBody"
+          ]
+        },
+        {
+          "source": "org.springframework.web.bind.annotation.RequestMapping",
+          "specifiers": [
+            "RequestMapping"
+          ]
+        },
+        {
+          "source": "org.springframework.web.bind.annotation.RestController",
+          "specifiers": [
+            "RestController"
+          ]
+        }
+      ],
+      "exports": [
+        "AccountAssetController",
+        "freeze",
+        "confirmDebit",
+        "cancelFreeze",
+        "credit",
+        "AccountAssetController"
+      ],
+      "totalLines": 87,
+      "hasStructuralAnalysis": true
+    },
+    "account-service/src/test/java/com/demo/transfer/account/integration/AccountOperationIntegrationTest.java": {
+      "filePath": "account-service/src/test/java/com/demo/transfer/account/integration/AccountOperationIntegrationTest.java",
+      "contentHash": "0f0f5fc7f71dd83ee5014f4f04a2190c05e168cb451ed791376bb80b610bcdbd",
+      "functions": [
+        {
+          "name": "setUp",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "freezeWritesOneLedgerAndDuplicateFreezeDoesNotChangeBalanceAgain",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "confirmDebitCancelFreezeAndCreditWriteLedgers",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 16
+        },
+        {
+          "name": "request",
+          "params": [
+            "transferId",
+            "amount"
+          ],
+          "returnType": "AssetOperationRequest",
+          "exported": false,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "AccountOperationIntegrationTest",
+          "methods": [
+            "setUp",
+            "freezeWritesOneLedgerAndDuplicateFreezeDoesNotChangeBalanceAgain",
+            "confirmDebitCancelFreezeAndCreditWriteLedgers",
+            "request"
+          ],
+          "properties": [
+            "service",
+            "balanceRepository",
+            "ledgerRepository"
+          ],
+          "exported": false,
+          "lineCount": 57
+        }
+      ],
+      "imports": [
+        {
+          "source": "org.assertj.core.api.Assertions.assertThat",
+          "specifiers": [
+            "assertThat"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.account.domain.AccountBalance",
+          "specifiers": [
+            "AccountBalance"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.account.repository.AccountBalanceRepository",
+          "specifiers": [
+            "AccountBalanceRepository"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.account.repository.FinanceLedgerRepository",
+          "specifiers": [
+            "FinanceLedgerRepository"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.account.service.AccountAssetService",
+          "specifiers": [
+            "AccountAssetService"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AssetOperationRequest",
+          "specifiers": [
+            "AssetOperationRequest"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.OperationType",
+          "specifiers": [
+            "OperationType"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferDirection",
+          "specifiers": [
+            "TransferDirection"
+          ]
+        },
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "org.junit.jupiter.api.BeforeEach",
+          "specifiers": [
+            "BeforeEach"
+          ]
+        },
+        {
+          "source": "org.junit.jupiter.api.Test",
+          "specifiers": [
+            "Test"
+          ]
+        },
+        {
+          "source": "org.springframework.beans.factory.annotation.Autowired",
+          "specifiers": [
+            "Autowired"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.autoconfigure.domain.EntityScan",
+          "specifiers": [
+            "EntityScan"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest",
+          "specifiers": [
+            "DataJpaTest"
+          ]
+        },
+        {
+          "source": "org.springframework.context.annotation.Import",
+          "specifiers": [
+            "Import"
+          ]
+        },
+        {
+          "source": "org.springframework.data.jpa.repository.config.EnableJpaRepositories",
+          "specifiers": [
+            "EnableJpaRepositories"
+          ]
+        },
+        {
+          "source": "org.springframework.test.context.ContextConfiguration",
+          "specifiers": [
+            "ContextConfiguration"
+          ]
+        },
+        {
+          "source": "org.springframework.transaction.annotation.Transactional",
+          "specifiers": [
+            "Transactional"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 80,
+      "hasStructuralAnalysis": true
+    },
+    "account-service/src/test/java/com/demo/transfer/account/repository/AccountRepositoryTest.java": {
+      "filePath": "account-service/src/test/java/com/demo/transfer/account/repository/AccountRepositoryTest.java",
+      "contentHash": "fbe6e06ade5e1114d6874745f245625cfcb3e1b1abd4a625eeddecf952028fce",
+      "functions": [
+        {
+          "name": "savesAndLoadsAccountBalance",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "rejectsDuplicateTransferOperation",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "loadsBalanceForUpdateInsideTransaction",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 11
+        }
+      ],
+      "classes": [
+        {
+          "name": "AccountRepositoryTest",
+          "methods": [
+            "savesAndLoadsAccountBalance",
+            "rejectsDuplicateTransferOperation",
+            "loadsBalanceForUpdateInsideTransaction"
+          ],
+          "properties": [
+            "balanceRepository",
+            "operationRepository",
+            "ledgerRepository",
+            "entityManager"
+          ],
+          "exported": false,
+          "lineCount": 58
+        }
+      ],
+      "imports": [
+        {
+          "source": "org.assertj.core.api.Assertions.assertThat",
+          "specifiers": [
+            "assertThat"
+          ]
+        },
+        {
+          "source": "org.assertj.core.api.Assertions.assertThatThrownBy",
+          "specifiers": [
+            "assertThatThrownBy"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.account.domain.AccountBalance",
+          "specifiers": [
+            "AccountBalance"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.account.domain.AssetOperation",
+          "specifiers": [
+            "AssetOperation"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.OperationType",
+          "specifiers": [
+            "OperationType"
+          ]
+        },
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "javax.persistence.EntityManager",
+          "specifiers": [
+            "EntityManager"
+          ]
+        },
+        {
+          "source": "org.junit.jupiter.api.Test",
+          "specifiers": [
+            "Test"
+          ]
+        },
+        {
+          "source": "org.springframework.beans.factory.annotation.Autowired",
+          "specifiers": [
+            "Autowired"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.autoconfigure.domain.EntityScan",
+          "specifiers": [
+            "EntityScan"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest",
+          "specifiers": [
+            "DataJpaTest"
+          ]
+        },
+        {
+          "source": "org.springframework.dao.DataIntegrityViolationException",
+          "specifiers": [
+            "DataIntegrityViolationException"
+          ]
+        },
+        {
+          "source": "org.springframework.data.jpa.repository.config.EnableJpaRepositories",
+          "specifiers": [
+            "EnableJpaRepositories"
+          ]
+        },
+        {
+          "source": "org.springframework.test.context.ContextConfiguration",
+          "specifiers": [
+            "ContextConfiguration"
+          ]
+        },
+        {
+          "source": "org.springframework.transaction.annotation.Transactional",
+          "specifiers": [
+            "Transactional"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 78,
+      "hasStructuralAnalysis": true
+    },
+    "account-service/src/test/java/com/demo/transfer/account/service/AccountAssetServiceTest.java": {
+      "filePath": "account-service/src/test/java/com/demo/transfer/account/service/AccountAssetServiceTest.java",
+      "contentHash": "2f278fd26205eba5f6748ab80e4d0583783df04555fce2d30ef74012d042f224",
+      "functions": [
+        {
+          "name": "setUp",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "freezeMovesAvailableAmountToFrozenAmount",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "freezeRejectsInsufficientAvailableAmount",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "duplicateFreezeDoesNotApplyBalanceOrLedgerAgain",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "confirmDebitDecreasesFrozenAmount",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "cancelFreezeReturnsFrozenAmountToAvailableAmount",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "creditIncreasesAvailableAmount",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 9
+        },
+        {
+          "name": "loadBalance",
+          "params": [],
+          "returnType": "AccountBalance",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "request",
+          "params": [
+            "transferId",
+            "amount"
+          ],
+          "returnType": "AssetOperationRequest",
+          "exported": false,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "AccountAssetServiceTest",
+          "methods": [
+            "setUp",
+            "freezeMovesAvailableAmountToFrozenAmount",
+            "freezeRejectsInsufficientAvailableAmount",
+            "duplicateFreezeDoesNotApplyBalanceOrLedgerAgain",
+            "confirmDebitDecreasesFrozenAmount",
+            "cancelFreezeReturnsFrozenAmountToAvailableAmount",
+            "creditIncreasesAvailableAmount",
+            "loadBalance",
+            "request"
+          ],
+          "properties": [
+            "service",
+            "balanceRepository",
+            "ledgerRepository"
+          ],
+          "exported": false,
+          "lineCount": 97
+        }
+      ],
+      "imports": [
+        {
+          "source": "org.assertj.core.api.Assertions.assertThat",
+          "specifiers": [
+            "assertThat"
+          ]
+        },
+        {
+          "source": "org.assertj.core.api.Assertions.assertThatThrownBy",
+          "specifiers": [
+            "assertThatThrownBy"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.account.domain.AccountBalance",
+          "specifiers": [
+            "AccountBalance"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.account.repository.AccountBalanceRepository",
+          "specifiers": [
+            "AccountBalanceRepository"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.account.repository.FinanceLedgerRepository",
+          "specifiers": [
+            "FinanceLedgerRepository"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AssetOperationRequest",
+          "specifiers": [
+            "AssetOperationRequest"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AssetOperationResponse",
+          "specifiers": [
+            "AssetOperationResponse"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.OperationType",
+          "specifiers": [
+            "OperationType"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferDirection",
+          "specifiers": [
+            "TransferDirection"
+          ]
+        },
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "org.junit.jupiter.api.BeforeEach",
+          "specifiers": [
+            "BeforeEach"
+          ]
+        },
+        {
+          "source": "org.junit.jupiter.api.Test",
+          "specifiers": [
+            "Test"
+          ]
+        },
+        {
+          "source": "org.springframework.beans.factory.annotation.Autowired",
+          "specifiers": [
+            "Autowired"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.autoconfigure.domain.EntityScan",
+          "specifiers": [
+            "EntityScan"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest",
+          "specifiers": [
+            "DataJpaTest"
+          ]
+        },
+        {
+          "source": "org.springframework.context.annotation.Import",
+          "specifiers": [
+            "Import"
+          ]
+        },
+        {
+          "source": "org.springframework.data.jpa.repository.config.EnableJpaRepositories",
+          "specifiers": [
+            "EnableJpaRepositories"
+          ]
+        },
+        {
+          "source": "org.springframework.test.context.ContextConfiguration",
+          "specifiers": [
+            "ContextConfiguration"
+          ]
+        },
+        {
+          "source": "org.springframework.transaction.annotation.Transactional",
+          "specifiers": [
+            "Transactional"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 121,
+      "hasStructuralAnalysis": true
+    },
+    "account-service/src/test/java/com/demo/transfer/account/web/AccountAssetControllerTest.java": {
+      "filePath": "account-service/src/test/java/com/demo/transfer/account/web/AccountAssetControllerTest.java",
+      "contentHash": "714b72c2ac91993d08dd629a03e4b755037c859eef7c6cc2b2f8d578ffd63c62",
+      "functions": [
+        {
+          "name": "setUp",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "freezeReturnsFailureAndDoesNotCallServiceForTodoAmount",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "confirmDebitReturnsFailureAndDoesNotCallServiceForTodoAmount",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "cancelFreezeReturnsFailureAndDoesNotCallServiceForTodoAmount",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "creditReturnsFailureAndDoesNotCallServiceForTodoAmount",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "freezeWrapsServiceIllegalStateExceptionAsAccountOperationFailure",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "creditReturnsSuccessWhenServiceSucceeds",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "assertFailure",
+          "params": [
+            "response",
+            "messagePart"
+          ],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "request",
+          "params": [
+            "amount"
+          ],
+          "returnType": "AssetOperationRequest",
+          "exported": false,
+          "lineCount": 4
+        }
+      ],
+      "classes": [
+        {
+          "name": "AccountAssetControllerTest",
+          "methods": [
+            "setUp",
+            "freezeReturnsFailureAndDoesNotCallServiceForTodoAmount",
+            "confirmDebitReturnsFailureAndDoesNotCallServiceForTodoAmount",
+            "cancelFreezeReturnsFailureAndDoesNotCallServiceForTodoAmount",
+            "creditReturnsFailureAndDoesNotCallServiceForTodoAmount",
+            "freezeWrapsServiceIllegalStateExceptionAsAccountOperationFailure",
+            "creditReturnsSuccessWhenServiceSucceeds",
+            "assertFailure",
+            "request"
+          ],
+          "properties": [
+            "service",
+            "controller"
+          ],
+          "exported": false,
+          "lineCount": 80
+        }
+      ],
+      "imports": [
+        {
+          "source": "org.assertj.core.api.Assertions.assertThat",
+          "specifiers": [
+            "assertThat"
+          ]
+        },
+        {
+          "source": "org.mockito.Mockito.mock",
+          "specifiers": [
+            "mock"
+          ]
+        },
+        {
+          "source": "org.mockito.Mockito.verify",
+          "specifiers": [
+            "verify"
+          ]
+        },
+        {
+          "source": "org.mockito.Mockito.verifyNoInteractions",
+          "specifiers": [
+            "verifyNoInteractions"
+          ]
+        },
+        {
+          "source": "org.mockito.Mockito.when",
+          "specifiers": [
+            "when"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.account.service.AccountAssetService",
+          "specifiers": [
+            "AccountAssetService"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.ApiResponse",
+          "specifiers": [
+            "ApiResponse"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AssetOperationRequest",
+          "specifiers": [
+            "AssetOperationRequest"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AssetOperationResponse",
+          "specifiers": [
+            "AssetOperationResponse"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.OperationType",
+          "specifiers": [
+            "OperationType"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferDirection",
+          "specifiers": [
+            "TransferDirection"
+          ]
+        },
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "org.junit.jupiter.api.BeforeEach",
+          "specifiers": [
+            "BeforeEach"
+          ]
+        },
+        {
+          "source": "org.junit.jupiter.api.Test",
+          "specifiers": [
+            "Test"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 99,
+      "hasStructuralAnalysis": true
+    },
+    "AGENTS.md": {
+      "filePath": "AGENTS.md",
+      "contentHash": "17917507ec3eb9ed778f123f163ba8c980f6872cf820fe89fa38bdf09fbdf1cd",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 4,
+      "hasStructuralAnalysis": true
+    },
+    "CLAUDE.md": {
+      "filePath": "CLAUDE.md",
+      "contentHash": "17917507ec3eb9ed778f123f163ba8c980f6872cf820fe89fa38bdf09fbdf1cd",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 4,
+      "hasStructuralAnalysis": true
+    },
+    "common/pom.xml": {
+      "filePath": "common/pom.xml",
+      "contentHash": "2d708e0c5edeec400430f76801e8512d894fa35500d0f64ecdf380f2210558cc",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 24,
+      "hasStructuralAnalysis": false
+    },
+    "common/src/main/java/com/demo/transfer/common/AccountType.java": {
+      "filePath": "common/src/main/java/com/demo/transfer/common/AccountType.java",
+      "contentHash": "4bdb7b87f6bec4a7a58b66b238a7ff85ae2f54421b7c3ae2521a75206d0375c1",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    },
+    "common/src/main/java/com/demo/transfer/common/ApiResponse.java": {
+      "filePath": "common/src/main/java/com/demo/transfer/common/ApiResponse.java",
+      "contentHash": "f70a2cef3e980d8b5b82f9e1898e1cda6403e5650139819235280e0866d12ad2",
+      "functions": [
+        {
+          "name": "ApiResponse",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "ApiResponse",
+          "params": [
+            "success",
+            "code",
+            "message",
+            "data"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "ok",
+          "params": [
+            "data"
+          ],
+          "returnType": "ApiResponse<T>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "fail",
+          "params": [
+            "code",
+            "message"
+          ],
+          "returnType": "ApiResponse<T>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "isSuccess",
+          "params": [],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "setSuccess",
+          "params": [
+            "success"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getCode",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "setCode",
+          "params": [
+            "code"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getMessage",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "setMessage",
+          "params": [
+            "message"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getData",
+          "params": [],
+          "returnType": "T",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "setData",
+          "params": [
+            "data"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "ApiResponse",
+          "methods": [
+            "ApiResponse",
+            "ApiResponse",
+            "ok",
+            "fail",
+            "isSuccess",
+            "setSuccess",
+            "getCode",
+            "setCode",
+            "getMessage",
+            "setMessage",
+            "getData",
+            "setData"
+          ],
+          "properties": [
+            "success",
+            "code",
+            "message",
+            "data"
+          ],
+          "exported": true,
+          "lineCount": 56
+        }
+      ],
+      "imports": [],
+      "exports": [
+        "ApiResponse",
+        "ApiResponse",
+        "ok",
+        "fail",
+        "isSuccess",
+        "setSuccess",
+        "getCode",
+        "setCode",
+        "getMessage",
+        "setMessage",
+        "getData",
+        "setData",
+        "ApiResponse"
+      ],
+      "totalLines": 59,
+      "hasStructuralAnalysis": true
+    },
+    "common/src/main/java/com/demo/transfer/common/AssetOperationRequest.java": {
+      "filePath": "common/src/main/java/com/demo/transfer/common/AssetOperationRequest.java",
+      "contentHash": "389f7234fc6241cfc85346460e2ccc5644e6a2a8609a2ee38ed6b9c331864c96",
+      "functions": [
+        {
+          "name": "AssetOperationRequest",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "AssetOperationRequest",
+          "params": [
+            "transferId",
+            "userId",
+            "assetCode",
+            "amount",
+            "direction"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "getTransferId",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "setTransferId",
+          "params": [
+            "transferId"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getUserId",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "setUserId",
+          "params": [
+            "userId"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getAssetCode",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "setAssetCode",
+          "params": [
+            "assetCode"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getAmount",
+          "params": [],
+          "returnType": "BigDecimal",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "setAmount",
+          "params": [
+            "amount"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getDirection",
+          "params": [],
+          "returnType": "TransferDirection",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "setDirection",
+          "params": [
+            "direction"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "AssetOperationRequest",
+          "methods": [
+            "AssetOperationRequest",
+            "AssetOperationRequest",
+            "getTransferId",
+            "setTransferId",
+            "getUserId",
+            "setUserId",
+            "getAssetCode",
+            "setAssetCode",
+            "getAmount",
+            "setAmount",
+            "getDirection",
+            "setDirection"
+          ],
+          "properties": [
+            "transferId",
+            "userId",
+            "assetCode",
+            "amount",
+            "direction"
+          ],
+          "exported": true,
+          "lineCount": 80
+        }
+      ],
+      "imports": [
+        {
+          "source": "io.swagger.v3.oas.annotations.media.Schema",
+          "specifiers": [
+            "Schema"
+          ]
+        },
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "javax.validation.constraints.DecimalMin",
+          "specifiers": [
+            "DecimalMin"
+          ]
+        },
+        {
+          "source": "javax.validation.constraints.NotBlank",
+          "specifiers": [
+            "NotBlank"
+          ]
+        },
+        {
+          "source": "javax.validation.constraints.NotNull",
+          "specifiers": [
+            "NotNull"
+          ]
+        }
+      ],
+      "exports": [
+        "AssetOperationRequest",
+        "AssetOperationRequest",
+        "getTransferId",
+        "setTransferId",
+        "getUserId",
+        "setUserId",
+        "getAssetCode",
+        "setAssetCode",
+        "getAmount",
+        "setAmount",
+        "getDirection",
+        "setDirection",
+        "AssetOperationRequest"
+      ],
+      "totalLines": 94,
+      "hasStructuralAnalysis": true
+    },
+    "common/src/main/java/com/demo/transfer/common/AssetOperationResponse.java": {
+      "filePath": "common/src/main/java/com/demo/transfer/common/AssetOperationResponse.java",
+      "contentHash": "4ebc5b4e79b96dc5b1772daee3bfb3113d047755e08c675869effa538908e7c4",
+      "functions": [
+        {
+          "name": "AssetOperationResponse",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "AssetOperationResponse",
+          "params": [
+            "transferId",
+            "operationType",
+            "applied",
+            "message"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "getTransferId",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "setTransferId",
+          "params": [
+            "transferId"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getOperationType",
+          "params": [],
+          "returnType": "OperationType",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "setOperationType",
+          "params": [
+            "operationType"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "isApplied",
+          "params": [],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "setApplied",
+          "params": [
+            "applied"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getMessage",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "setMessage",
+          "params": [
+            "message"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "AssetOperationResponse",
+          "methods": [
+            "AssetOperationResponse",
+            "AssetOperationResponse",
+            "getTransferId",
+            "setTransferId",
+            "getOperationType",
+            "setOperationType",
+            "isApplied",
+            "setApplied",
+            "getMessage",
+            "setMessage"
+          ],
+          "properties": [
+            "transferId",
+            "operationType",
+            "applied",
+            "message"
+          ],
+          "exported": true,
+          "lineCount": 57
+        }
+      ],
+      "imports": [
+        {
+          "source": "io.swagger.v3.oas.annotations.media.Schema",
+          "specifiers": [
+            "Schema"
+          ]
+        }
+      ],
+      "exports": [
+        "AssetOperationResponse",
+        "AssetOperationResponse",
+        "getTransferId",
+        "setTransferId",
+        "getOperationType",
+        "setOperationType",
+        "isApplied",
+        "setApplied",
+        "getMessage",
+        "setMessage",
+        "AssetOperationResponse"
+      ],
+      "totalLines": 68,
+      "hasStructuralAnalysis": true
+    },
+    "common/src/main/java/com/demo/transfer/common/OperationType.java": {
+      "filePath": "common/src/main/java/com/demo/transfer/common/OperationType.java",
+      "contentHash": "b5ebb20af55794ddc38bca848c2bfca0c55401832d2f8858186c3d7e7a5c5efd",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 14,
+      "hasStructuralAnalysis": true
+    },
+    "common/src/main/java/com/demo/transfer/common/TransferDirection.java": {
+      "filePath": "common/src/main/java/com/demo/transfer/common/TransferDirection.java",
+      "contentHash": "09361ee886ed8a9018f42def15b9d7c416fa5c8affaaf255556c613f531f0519",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    },
+    "common/src/main/java/com/demo/transfer/common/TransferMode.java": {
+      "filePath": "common/src/main/java/com/demo/transfer/common/TransferMode.java",
+      "contentHash": "8b7d88eef08fe0b18953269b40e9911f301174fd227f3518d36ebbaea8054e3d",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    },
+    "common/src/main/java/com/demo/transfer/common/TransferStatus.java": {
+      "filePath": "common/src/main/java/com/demo/transfer/common/TransferStatus.java",
+      "contentHash": "e4892cc8398238e462c67be351121f5550bee902934d724fe2f72fb9a11eafa1",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 31,
+      "hasStructuralAnalysis": true
+    },
+    "docker-compose.yml": {
+      "filePath": "docker-compose.yml",
+      "contentHash": "f4bbde6dbbc21e9c62b605b997a6fe32de67c49dee624a5840da71402206b4fd",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 59,
+      "hasStructuralAnalysis": true
+    },
+    "docker/mysql/init/01-demo-transfer.sql": {
+      "filePath": "docker/mysql/init/01-demo-transfer.sql",
+      "contentHash": "e0a56ab4e77af0da08e926a29cd2ed3743dfa7bfd05ceb64962423e3a39f327a",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 146,
+      "hasStructuralAnalysis": true
+    },
+    "docker/mysql/init/02-temporal.sql": {
+      "filePath": "docker/mysql/init/02-temporal.sql",
+      "contentHash": "bd8f630aa9cb1a322f339765f4ea5b8a734c8de6bf3051a37356d548dd555328",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 3,
+      "hasStructuralAnalysis": true
+    },
+    "docker/temporal/dynamicconfig.yaml": {
+      "filePath": "docker/temporal/dynamicconfig.yaml",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": true
+    },
+    "docs/api/transfer-debug-api.md": {
+      "filePath": "docs/api/transfer-debug-api.md",
+      "contentHash": "24e7ee3b9b25b97f500e9db2bdfd76695afc4cbe854165f70c4697bffef66438",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 534,
+      "hasStructuralAnalysis": true
+    },
+    "docs/conventional-commits.md": {
+      "filePath": "docs/conventional-commits.md",
+      "contentHash": "bd6f37d905168c2f2e903de59983f874e0d0a3a60b8c615e49ca8d5b4849139c",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 166,
+      "hasStructuralAnalysis": true
+    },
+    "docs/demo/cross-account-transfer-demo.md": {
+      "filePath": "docs/demo/cross-account-transfer-demo.md",
+      "contentHash": "6cb23c895930c4fd3a476d447295b485a0ba2f8d4ad292bca81a69f7e0901393",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 569,
+      "hasStructuralAnalysis": true
+    },
+    "docs/design/README.md": {
+      "filePath": "docs/design/README.md",
+      "contentHash": "4b9bc2b5f14cab00698e6fc989e7abaf560ad8a549a75401495174e8c635388b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 5,
+      "hasStructuralAnalysis": true
+    },
+    "docs/design/service-implementation-overview.md": {
+      "filePath": "docs/design/service-implementation-overview.md",
+      "contentHash": "6b305682d7e41eac16470b8f281f078378850273665bb8ee70f646a37644953d",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 165,
+      "hasStructuralAnalysis": true
+    },
+    "docs/sql/account_schema.sql": {
+      "filePath": "docs/sql/account_schema.sql",
+      "contentHash": "ba7f7194915d1c1a7f6e3a9c2654b1e9966b97bbb60dc7770a8c203fbbbe8882",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 43,
+      "hasStructuralAnalysis": true
+    },
+    "docs/sql/transfer_schema.sql": {
+      "filePath": "docs/sql/transfer_schema.sql",
+      "contentHash": "c59c458f6b5bb66c6429e7fc57949cbbc2557f7c3f29ed3b66e541c86bbba33b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 32,
+      "hasStructuralAnalysis": true
+    },
+    "docs/superpowers/plans/2026-05-21-cross-account-transfer-implementation-plan.md": {
+      "filePath": "docs/superpowers/plans/2026-05-21-cross-account-transfer-implementation-plan.md",
+      "contentHash": "fc0c1f35010ffe1c5a1ba46b9f0eb8141c61a7798c9985b63b393c008fe04011",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 932,
+      "hasStructuralAnalysis": true
+    },
+    "docs/superpowers/plans/2026-05-22-transfer-auto-withdraw-refinement-plan.md": {
+      "filePath": "docs/superpowers/plans/2026-05-22-transfer-auto-withdraw-refinement-plan.md",
+      "contentHash": "2ab8b05874bd73b0f34531233223844ee15ad00d9ddbcceb61d0022ab2c5af90",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 446,
+      "hasStructuralAnalysis": true
+    },
+    "docs/superpowers/specs/2026-05-21-cross-account-transfer-requirements.md": {
+      "filePath": "docs/superpowers/specs/2026-05-21-cross-account-transfer-requirements.md",
+      "contentHash": "eeda1e82884292a3078b3a2c913bc5548cd03c636a1d2d14e4ea800c76292a79",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 296,
+      "hasStructuralAnalysis": true
+    },
+    "docs/superpowers/specs/2026-05-21-transfer-and-withdrawal-refinement-design.md": {
+      "filePath": "docs/superpowers/specs/2026-05-21-transfer-and-withdrawal-refinement-design.md",
+      "contentHash": "bc3d03ff059695a69471eafab203e334b042a4b4b0f896988207fc3103d39090",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 232,
+      "hasStructuralAnalysis": true
+    },
+    "docs/superpowers/specs/2026-05-22-saga-consistency-review-design.md": {
+      "filePath": "docs/superpowers/specs/2026-05-22-saga-consistency-review-design.md",
+      "contentHash": "aa7d0302c4985964a58c52ddbfa16e80673652f852184c4e2b564de901356628",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 201,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/add-init-failed-terminal-state/.openspec.yaml": {
+      "filePath": "openspec/changes/add-init-failed-terminal-state/.openspec.yaml",
+      "contentHash": "50929c4c661b68000311529c7d558a51fed22b27cf844495eb19ce06627690c2",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 3,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/add-init-failed-terminal-state/design.md": {
+      "filePath": "openspec/changes/add-init-failed-terminal-state/design.md",
+      "contentHash": "0a3c1240506ec46e7ddc2d69b30a429c4eac8190c8c950de4bfafc2f8c334442",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 60,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/add-init-failed-terminal-state/proposal.md": {
+      "filePath": "openspec/changes/add-init-failed-terminal-state/proposal.md",
+      "contentHash": "5e7badb053c7260af135634d90153241ba8ebd172d0f3435905d23e1c880b565",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 36,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/add-init-failed-terminal-state/specs/init-failed-handling/spec.md": {
+      "filePath": "openspec/changes/add-init-failed-terminal-state/specs/init-failed-handling/spec.md",
+      "contentHash": "c30a75f6d0566ea5130efcd5b01bfc49b91f08d7f56ebd5b56ebc17f14ac8f65",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 30,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/add-init-failed-terminal-state/tasks.md": {
+      "filePath": "openspec/changes/add-init-failed-terminal-state/tasks.md",
+      "contentHash": "d2e7d2af408db8b46aa2220803830b1c14db849f58138ccba8e30660dbd5f53b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 16,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/archive/2026-05-24-temporal-saga-refactor/.openspec.yaml": {
+      "filePath": "openspec/changes/archive/2026-05-24-temporal-saga-refactor/.openspec.yaml",
+      "contentHash": "34631e928684055be8a55e2865e01eb2bc61cbd7627fb42c2e3f7c569d0eb461",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 3,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/archive/2026-05-24-temporal-saga-refactor/design.md": {
+      "filePath": "openspec/changes/archive/2026-05-24-temporal-saga-refactor/design.md",
+      "contentHash": "499e08aaed0b2060d500df7a2b17cb1c2a3e87c56c6c18295521a2e9f992b097",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 100,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/archive/2026-05-24-temporal-saga-refactor/proposal.md": {
+      "filePath": "openspec/changes/archive/2026-05-24-temporal-saga-refactor/proposal.md",
+      "contentHash": "5f347068834b3e8aa6c6ddea01e58523c9ca98c2b79057036209643ed4b168c3",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 50,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/archive/2026-05-24-temporal-saga-refactor/specs/idempotency-lock-ordering/spec.md": {
+      "filePath": "openspec/changes/archive/2026-05-24-temporal-saga-refactor/specs/idempotency-lock-ordering/spec.md",
+      "contentHash": "85eb5fa2822a30a5bef2f11b6427655b6e7156ad7faa6c39f6a7be6f41b35e41",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 23,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/archive/2026-05-24-temporal-saga-refactor/specs/temporal-workflow-orchestration/spec.md": {
+      "filePath": "openspec/changes/archive/2026-05-24-temporal-saga-refactor/specs/temporal-workflow-orchestration/spec.md",
+      "contentHash": "9ff47f4223a1a981f3f03997a02cdcc9d011b05a7015e8301f136584552b52e8",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 117,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/archive/2026-05-24-temporal-saga-refactor/tasks.md": {
+      "filePath": "openspec/changes/archive/2026-05-24-temporal-saga-refactor/tasks.md",
+      "contentHash": "663b1f5e74950df76cae31350a44f2644db4ee349a230038f17817185c218e66",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 69,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/fix-freeze-failure-terminal-state/.openspec.yaml": {
+      "filePath": "openspec/changes/fix-freeze-failure-terminal-state/.openspec.yaml",
+      "contentHash": "d8685d464068cd9aa1ef387dfcdb6d0fb51636cbd43d2b15af040b6ef5b4d359",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 3,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/fix-freeze-failure-terminal-state/design.md": {
+      "filePath": "openspec/changes/fix-freeze-failure-terminal-state/design.md",
+      "contentHash": "3c2bc8633ff126b6bbae3ba3b38d58746d5d11332926f3c20c8855e517ef460e",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 65,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/fix-freeze-failure-terminal-state/proposal.md": {
+      "filePath": "openspec/changes/fix-freeze-failure-terminal-state/proposal.md",
+      "contentHash": "b1aaf4a06b54e0e6fbde5bfa0c2ccc2685d4e8a813029a821e9ff28e088de246",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 39,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/fix-freeze-failure-terminal-state/specs/freeze-failure-handling/spec.md": {
+      "filePath": "openspec/changes/fix-freeze-failure-terminal-state/specs/freeze-failure-handling/spec.md",
+      "contentHash": "9cf5659026b3a8c3da5b9dea66691b5cdccfdec625c92f63c65983bb5894a5c7",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 42,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/changes/fix-freeze-failure-terminal-state/tasks.md": {
+      "filePath": "openspec/changes/fix-freeze-failure-terminal-state/tasks.md",
+      "contentHash": "2c546cd509438008a6d599921ede64db6ecf6c9dbd2c35fdbfde985de618ee54",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 25,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/config.yaml": {
+      "filePath": "openspec/config.yaml",
+      "contentHash": "7f64d2448e1c83ffa6f2f3398b742fb5f2d4d3ea47b2c540a9076484977026b4",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/specs/idempotency-lock-ordering/spec.md": {
+      "filePath": "openspec/specs/idempotency-lock-ordering/spec.md",
+      "contentHash": "cc94f27cb3ff6572d529ff8ad082976ad949541732297aceab9bed7c29747a22",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "openspec/specs/temporal-workflow-orchestration/spec.md": {
+      "filePath": "openspec/specs/temporal-workflow-orchestration/spec.md",
+      "contentHash": "413f07dad6ba9e34a2a2ef36591f565e613e5851e43a79c45057c23f43fd8dee",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 115,
+      "hasStructuralAnalysis": true
+    },
+    "pom.xml": {
+      "filePath": "pom.xml",
+      "contentHash": "51a6ea29ae192155cb71c99e4b49bb0cb1687a91d1299b74c36727da46ff8341",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 84,
+      "hasStructuralAnalysis": false
+    },
+    "README.md": {
+      "filePath": "README.md",
+      "contentHash": "8078c26251283d7e9e6326ae81c0043b83351469139d8019e86a7b23af998d7d",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 216,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/pom.xml": {
+      "filePath": "transfer-service/pom.xml",
+      "contentHash": "24718915a77162f46c895d0e482ea6af64b9ca7c6e9f0270081794b762b3d3cc",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 80,
+      "hasStructuralAnalysis": false
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/client/AccountAClient.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/client/AccountAClient.java",
+      "contentHash": "e394ff21f877b8670f17a5ef5e857a22e4b592b73cf0f2482d8eeeae9f2beaa8",
+      "functions": [],
+      "classes": [
+        {
+          "name": "AccountAClient",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "org.springframework.cloud.openfeign.FeignClient",
+          "specifiers": [
+            "FeignClient"
+          ]
+        }
+      ],
+      "exports": [
+        "AccountAClient"
+      ],
+      "totalLines": 8,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/client/AccountBClient.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/client/AccountBClient.java",
+      "contentHash": "f6aeadaed0b81ea36958932dcb9b278ee48d80f75ca68503a160c011fa27a259",
+      "functions": [],
+      "classes": [
+        {
+          "name": "AccountBClient",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "org.springframework.cloud.openfeign.FeignClient",
+          "specifiers": [
+            "FeignClient"
+          ]
+        }
+      ],
+      "exports": [
+        "AccountBClient"
+      ],
+      "totalLines": 8,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/client/AccountOperationsClient.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/client/AccountOperationsClient.java",
+      "contentHash": "25b405a6881a176e0555a845511f4e77a4ffcd131ee325c2b48c210c49f8bbf9",
+      "functions": [],
+      "classes": [
+        {
+          "name": "AccountOperationsClient",
+          "methods": [
+            "freeze",
+            "confirmDebit",
+            "cancelFreeze",
+            "credit"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 17
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.common.ApiResponse",
+          "specifiers": [
+            "ApiResponse"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AssetOperationRequest",
+          "specifiers": [
+            "AssetOperationRequest"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AssetOperationResponse",
+          "specifiers": [
+            "AssetOperationResponse"
+          ]
+        },
+        {
+          "source": "org.springframework.web.bind.annotation.PostMapping",
+          "specifiers": [
+            "PostMapping"
+          ]
+        },
+        {
+          "source": "org.springframework.web.bind.annotation.RequestBody",
+          "specifiers": [
+            "RequestBody"
+          ]
+        }
+      ],
+      "exports": [
+        "AccountOperationsClient"
+      ],
+      "totalLines": 31,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/config/OpenApiConfig.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/config/OpenApiConfig.java",
+      "contentHash": "af75ad7b1b238569b6ac9c82da9dcfcc9dfea3acc146864bdadefffb5e8f4f0c",
+      "functions": [
+        {
+          "name": "transferOpenApi",
+          "params": [
+            "applicationName"
+          ],
+          "returnType": "OpenAPI",
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [
+        {
+          "name": "OpenApiConfig",
+          "methods": [
+            "transferOpenApi"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 12
+        }
+      ],
+      "imports": [
+        {
+          "source": "io.swagger.v3.oas.models.OpenAPI",
+          "specifiers": [
+            "OpenAPI"
+          ]
+        },
+        {
+          "source": "io.swagger.v3.oas.models.info.Contact",
+          "specifiers": [
+            "Contact"
+          ]
+        },
+        {
+          "source": "io.swagger.v3.oas.models.info.Info",
+          "specifiers": [
+            "Info"
+          ]
+        },
+        {
+          "source": "io.swagger.v3.oas.models.info.License",
+          "specifiers": [
+            "License"
+          ]
+        },
+        {
+          "source": "org.springframework.beans.factory.annotation.Value",
+          "specifiers": [
+            "Value"
+          ]
+        },
+        {
+          "source": "org.springframework.context.annotation.Bean",
+          "specifiers": [
+            "Bean"
+          ]
+        },
+        {
+          "source": "org.springframework.context.annotation.Configuration",
+          "specifiers": [
+            "Configuration"
+          ]
+        }
+      ],
+      "exports": [
+        "transferOpenApi",
+        "OpenApiConfig"
+      ],
+      "totalLines": 23,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/config/TemporalWorkerConfig.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/config/TemporalWorkerConfig.java",
+      "contentHash": "5abb496ab52885bf00242e87d0c1125a21941a2074e4960bb7713fb6d52e159c",
+      "functions": [
+        {
+          "name": "workflowServiceStubs",
+          "params": [],
+          "returnType": "WorkflowServiceStubs",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "workflowClient",
+          "params": [
+            "stubs"
+          ],
+          "returnType": "WorkflowClient",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "workerFactory",
+          "params": [
+            "client"
+          ],
+          "returnType": "WorkerFactory",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "transferWorker",
+          "params": [
+            "factory",
+            "activities"
+          ],
+          "returnType": "Worker",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "getTaskQueue",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "TemporalWorkerConfig",
+          "methods": [
+            "workflowServiceStubs",
+            "workflowClient",
+            "workerFactory",
+            "transferWorker",
+            "getTaskQueue"
+          ],
+          "properties": [
+            "hostPort",
+            "namespace",
+            "taskQueue"
+          ],
+          "exported": true,
+          "lineCount": 49
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.transfer.workflow.TransferActivitiesImpl",
+          "specifiers": [
+            "TransferActivitiesImpl"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.workflow.TransferWorkflowImpl",
+          "specifiers": [
+            "TransferWorkflowImpl"
+          ]
+        },
+        {
+          "source": "io.temporal.client.WorkflowClient",
+          "specifiers": [
+            "WorkflowClient"
+          ]
+        },
+        {
+          "source": "io.temporal.client.WorkflowClientOptions",
+          "specifiers": [
+            "WorkflowClientOptions"
+          ]
+        },
+        {
+          "source": "io.temporal.serviceclient.WorkflowServiceStubs",
+          "specifiers": [
+            "WorkflowServiceStubs"
+          ]
+        },
+        {
+          "source": "io.temporal.serviceclient.WorkflowServiceStubsOptions",
+          "specifiers": [
+            "WorkflowServiceStubsOptions"
+          ]
+        },
+        {
+          "source": "io.temporal.worker.Worker",
+          "specifiers": [
+            "Worker"
+          ]
+        },
+        {
+          "source": "io.temporal.worker.WorkerFactory",
+          "specifiers": [
+            "WorkerFactory"
+          ]
+        },
+        {
+          "source": "lombok.extern.slf4j.Slf4j",
+          "specifiers": [
+            "Slf4j"
+          ]
+        },
+        {
+          "source": "org.springframework.beans.factory.annotation.Value",
+          "specifiers": [
+            "Value"
+          ]
+        },
+        {
+          "source": "org.springframework.context.annotation.Bean",
+          "specifiers": [
+            "Bean"
+          ]
+        },
+        {
+          "source": "org.springframework.context.annotation.Configuration",
+          "specifiers": [
+            "Configuration"
+          ]
+        }
+      ],
+      "exports": [
+        "workflowServiceStubs",
+        "workflowClient",
+        "workerFactory",
+        "transferWorker",
+        "getTaskQueue",
+        "TemporalWorkerConfig"
+      ],
+      "totalLines": 70,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/domain/TransferOrder.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/domain/TransferOrder.java",
+      "contentHash": "e8edbafce47d7b765150deac50c17c0e540e768aa5ec66867b874cf3022f02fa",
+      "functions": [
+        {
+          "name": "create",
+          "params": [
+            "transferId",
+            "userId",
+            "sourceAccountType",
+            "targetAccountType",
+            "assetCode",
+            "amount",
+            "transferMode"
+          ],
+          "returnType": "TransferOrder",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "markStatus",
+          "params": [
+            "status"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "markFailure",
+          "params": [
+            "status",
+            "code",
+            "message"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "prePersist",
+          "params": [],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "preUpdate",
+          "params": [],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "getId",
+          "params": [],
+          "returnType": "Long",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getTransferId",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getUserId",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getSourceAccountType",
+          "params": [],
+          "returnType": "AccountType",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getTargetAccountType",
+          "params": [],
+          "returnType": "AccountType",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getAssetCode",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getAmount",
+          "params": [],
+          "returnType": "BigDecimal",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getTransferMode",
+          "params": [],
+          "returnType": "TransferMode",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getStatus",
+          "params": [],
+          "returnType": "TransferStatus",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getLastErrorCode",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getLastErrorMessage",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "TransferOrder",
+          "methods": [
+            "create",
+            "markStatus",
+            "markFailure",
+            "prePersist",
+            "preUpdate",
+            "getId",
+            "getTransferId",
+            "getUserId",
+            "getSourceAccountType",
+            "getTargetAccountType",
+            "getAssetCode",
+            "getAmount",
+            "getTransferMode",
+            "getStatus",
+            "getLastErrorCode",
+            "getLastErrorMessage"
+          ],
+          "properties": [
+            "id",
+            "transferId",
+            "userId",
+            "sourceAccountType",
+            "targetAccountType",
+            "assetCode",
+            "amount",
+            "transferMode",
+            "status",
+            "lastErrorCode",
+            "lastErrorMessage",
+            "version",
+            "createdAt",
+            "updatedAt"
+          ],
+          "exported": true,
+          "lineCount": 155
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.common.AccountType",
+          "specifiers": [
+            "AccountType"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferMode",
+          "specifiers": [
+            "TransferMode"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferStatus",
+          "specifiers": [
+            "TransferStatus"
+          ]
+        },
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "java.time.LocalDateTime",
+          "specifiers": [
+            "LocalDateTime"
+          ]
+        },
+        {
+          "source": "javax.persistence.Column",
+          "specifiers": [
+            "Column"
+          ]
+        },
+        {
+          "source": "javax.persistence.Entity",
+          "specifiers": [
+            "Entity"
+          ]
+        },
+        {
+          "source": "javax.persistence.EnumType",
+          "specifiers": [
+            "EnumType"
+          ]
+        },
+        {
+          "source": "javax.persistence.Enumerated",
+          "specifiers": [
+            "Enumerated"
+          ]
+        },
+        {
+          "source": "javax.persistence.GeneratedValue",
+          "specifiers": [
+            "GeneratedValue"
+          ]
+        },
+        {
+          "source": "javax.persistence.GenerationType",
+          "specifiers": [
+            "GenerationType"
+          ]
+        },
+        {
+          "source": "javax.persistence.Id",
+          "specifiers": [
+            "Id"
+          ]
+        },
+        {
+          "source": "javax.persistence.PrePersist",
+          "specifiers": [
+            "PrePersist"
+          ]
+        },
+        {
+          "source": "javax.persistence.PreUpdate",
+          "specifiers": [
+            "PreUpdate"
+          ]
+        },
+        {
+          "source": "javax.persistence.Table",
+          "specifiers": [
+            "Table"
+          ]
+        },
+        {
+          "source": "javax.persistence.UniqueConstraint",
+          "specifiers": [
+            "UniqueConstraint"
+          ]
+        },
+        {
+          "source": "javax.persistence.Version",
+          "specifiers": [
+            "Version"
+          ]
+        }
+      ],
+      "exports": [
+        "create",
+        "markStatus",
+        "markFailure",
+        "prePersist",
+        "preUpdate",
+        "getId",
+        "getTransferId",
+        "getUserId",
+        "getSourceAccountType",
+        "getTargetAccountType",
+        "getAssetCode",
+        "getAmount",
+        "getTransferMode",
+        "getStatus",
+        "getLastErrorCode",
+        "getLastErrorMessage",
+        "TransferOrder"
+      ],
+      "totalLines": 176,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/domain/TransferStepLog.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/domain/TransferStepLog.java",
+      "contentHash": "7067c9cf07e2d7d423e42ffd625ccd287ae0339eb5d5fc1a1d1e409e7261b581",
+      "functions": [
+        {
+          "name": "of",
+          "params": [
+            "transferId",
+            "stepName",
+            "stepStatus",
+            "requestBody",
+            "responseBody",
+            "errorMessage"
+          ],
+          "returnType": "TransferStepLog",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "prePersist",
+          "params": [],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [
+        {
+          "name": "TransferStepLog",
+          "methods": [
+            "of",
+            "prePersist"
+          ],
+          "properties": [
+            "id",
+            "transferId",
+            "stepName",
+            "stepStatus",
+            "requestBody",
+            "responseBody",
+            "errorMessage",
+            "createdAt"
+          ],
+          "exported": true,
+          "lineCount": 60
+        }
+      ],
+      "imports": [
+        {
+          "source": "java.time.LocalDateTime",
+          "specifiers": [
+            "LocalDateTime"
+          ]
+        },
+        {
+          "source": "javax.persistence.Column",
+          "specifiers": [
+            "Column"
+          ]
+        },
+        {
+          "source": "javax.persistence.Entity",
+          "specifiers": [
+            "Entity"
+          ]
+        },
+        {
+          "source": "javax.persistence.GeneratedValue",
+          "specifiers": [
+            "GeneratedValue"
+          ]
+        },
+        {
+          "source": "javax.persistence.GenerationType",
+          "specifiers": [
+            "GenerationType"
+          ]
+        },
+        {
+          "source": "javax.persistence.Id",
+          "specifiers": [
+            "Id"
+          ]
+        },
+        {
+          "source": "javax.persistence.Lob",
+          "specifiers": [
+            "Lob"
+          ]
+        },
+        {
+          "source": "javax.persistence.PrePersist",
+          "specifiers": [
+            "PrePersist"
+          ]
+        },
+        {
+          "source": "javax.persistence.Table",
+          "specifiers": [
+            "Table"
+          ]
+        }
+      ],
+      "exports": [
+        "of",
+        "prePersist",
+        "TransferStepLog"
+      ],
+      "totalLines": 73,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/repository/TransferOrderRepository.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/repository/TransferOrderRepository.java",
+      "contentHash": "3fd939eddcb014dceb0b2b4d3a706a2ddeea1ba7a4d64b2b8a2cfec96404c921",
+      "functions": [],
+      "classes": [
+        {
+          "name": "TransferOrderRepository",
+          "methods": [
+            "findByTransferId",
+            "findTop100ByStatusInOrderByUpdatedAtAsc"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 5
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.common.TransferStatus",
+          "specifiers": [
+            "TransferStatus"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.domain.TransferOrder",
+          "specifiers": [
+            "TransferOrder"
+          ]
+        },
+        {
+          "source": "java.util.Collection",
+          "specifiers": [
+            "Collection"
+          ]
+        },
+        {
+          "source": "java.util.List",
+          "specifiers": [
+            "List"
+          ]
+        },
+        {
+          "source": "java.util.Optional",
+          "specifiers": [
+            "Optional"
+          ]
+        },
+        {
+          "source": "org.springframework.data.jpa.repository.JpaRepository",
+          "specifiers": [
+            "JpaRepository"
+          ]
+        }
+      ],
+      "exports": [
+        "TransferOrderRepository"
+      ],
+      "totalLines": 15,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/repository/TransferStepLogRepository.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/repository/TransferStepLogRepository.java",
+      "contentHash": "26310519105000b0736cac4e333bcaba045cc8f7126764e304978431d6541167",
+      "functions": [],
+      "classes": [
+        {
+          "name": "TransferStepLogRepository",
+          "methods": [
+            "findByTransferIdOrderByCreatedAtAsc"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.transfer.domain.TransferStepLog",
+          "specifiers": [
+            "TransferStepLog"
+          ]
+        },
+        {
+          "source": "java.util.List",
+          "specifiers": [
+            "List"
+          ]
+        },
+        {
+          "source": "org.springframework.data.jpa.repository.JpaRepository",
+          "specifiers": [
+            "JpaRepository"
+          ]
+        }
+      ],
+      "exports": [
+        "TransferStepLogRepository"
+      ],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/service/AccountClientRouter.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/service/AccountClientRouter.java",
+      "contentHash": "36b6b6f8b530348ec121dd4656409f803e815f952dd7771ecf18735c444ed035",
+      "functions": [
+        {
+          "name": "AccountClientRouter",
+          "params": [
+            "accountAClient",
+            "accountBClient"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "sourceType",
+          "params": [
+            "direction"
+          ],
+          "returnType": "AccountType",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "targetType",
+          "params": [
+            "direction"
+          ],
+          "returnType": "AccountType",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "client",
+          "params": [
+            "accountType"
+          ],
+          "returnType": "AccountOperationsClient",
+          "exported": true,
+          "lineCount": 8
+        }
+      ],
+      "classes": [
+        {
+          "name": "AccountClientRouter",
+          "methods": [
+            "AccountClientRouter",
+            "sourceType",
+            "targetType",
+            "client"
+          ],
+          "properties": [
+            "accountAClient",
+            "accountBClient"
+          ],
+          "exported": true,
+          "lineCount": 40
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.common.AccountType",
+          "specifiers": [
+            "AccountType"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferDirection",
+          "specifiers": [
+            "TransferDirection"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.client.AccountAClient",
+          "specifiers": [
+            "AccountAClient"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.client.AccountBClient",
+          "specifiers": [
+            "AccountBClient"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.client.AccountOperationsClient",
+          "specifiers": [
+            "AccountOperationsClient"
+          ]
+        },
+        {
+          "source": "lombok.extern.slf4j.Slf4j",
+          "specifiers": [
+            "Slf4j"
+          ]
+        },
+        {
+          "source": "org.springframework.stereotype.Component",
+          "specifiers": [
+            "Component"
+          ]
+        }
+      ],
+      "exports": [
+        "AccountClientRouter",
+        "sourceType",
+        "targetType",
+        "client",
+        "AccountClientRouter"
+      ],
+      "totalLines": 56,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/service/TransferOrderStateService.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/service/TransferOrderStateService.java",
+      "contentHash": "843f2af6fe6bb81aa23da36ac613e1171ca911d37db6eb536fd9c5fd01a8be7d",
+      "functions": [
+        {
+          "name": "TransferOrderStateService",
+          "params": [
+            "orderRepository"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "loadOrder",
+          "params": [
+            "transferId"
+          ],
+          "returnType": "TransferOrder",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "createOrder",
+          "params": [
+            "order"
+          ],
+          "returnType": "TransferOrder",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "markWaitReview",
+          "params": [
+            "transferId"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "markDebitSuccess",
+          "params": [
+            "transferId"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "markFreezeFailed",
+          "params": [
+            "transferId",
+            "code",
+            "message"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "markInitFailed",
+          "params": [
+            "transferId",
+            "message"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "markCreditFailed",
+          "params": [
+            "transferId",
+            "code",
+            "message"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "markSuccess",
+          "params": [
+            "transferId"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "markRejected",
+          "params": [
+            "transferId"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "find",
+          "params": [
+            "transferId"
+          ],
+          "returnType": "TransferOrder",
+          "exported": false,
+          "lineCount": 4
+        }
+      ],
+      "classes": [
+        {
+          "name": "TransferOrderStateService",
+          "methods": [
+            "TransferOrderStateService",
+            "loadOrder",
+            "createOrder",
+            "markWaitReview",
+            "markDebitSuccess",
+            "markFreezeFailed",
+            "markInitFailed",
+            "markCreditFailed",
+            "markSuccess",
+            "markRejected",
+            "find"
+          ],
+          "properties": [
+            "orderRepository"
+          ],
+          "exported": true,
+          "lineCount": 88
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.common.TransferStatus",
+          "specifiers": [
+            "TransferStatus"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.domain.TransferOrder",
+          "specifiers": [
+            "TransferOrder"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.repository.TransferOrderRepository",
+          "specifiers": [
+            "TransferOrderRepository"
+          ]
+        },
+        {
+          "source": "lombok.extern.slf4j.Slf4j",
+          "specifiers": [
+            "Slf4j"
+          ]
+        },
+        {
+          "source": "org.springframework.stereotype.Service",
+          "specifiers": [
+            "Service"
+          ]
+        },
+        {
+          "source": "org.springframework.transaction.annotation.Transactional",
+          "specifiers": [
+            "Transactional"
+          ]
+        }
+      ],
+      "exports": [
+        "TransferOrderStateService",
+        "loadOrder",
+        "createOrder",
+        "markWaitReview",
+        "markDebitSuccess",
+        "markFreezeFailed",
+        "markInitFailed",
+        "markCreditFailed",
+        "markSuccess",
+        "markRejected",
+        "TransferOrderStateService"
+      ],
+      "totalLines": 104,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/TransferServiceApplication.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/TransferServiceApplication.java",
+      "contentHash": "ebeb6e881e30b0bdd420cb3f09c5a3a759a3bad0fcc21252ea65503a22ce8781",
+      "functions": [
+        {
+          "name": "main",
+          "params": [
+            "args"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [
+        {
+          "name": "TransferServiceApplication",
+          "methods": [
+            "main"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "imports": [
+        {
+          "source": "lombok.extern.slf4j.Slf4j",
+          "specifiers": [
+            "Slf4j"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.SpringApplication",
+          "specifiers": [
+            "SpringApplication"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.autoconfigure.SpringBootApplication",
+          "specifiers": [
+            "SpringBootApplication"
+          ]
+        },
+        {
+          "source": "org.springframework.cloud.openfeign.EnableFeignClients",
+          "specifiers": [
+            "EnableFeignClients"
+          ]
+        },
+        {
+          "source": "org.springframework.scheduling.annotation.EnableScheduling",
+          "specifiers": [
+            "EnableScheduling"
+          ]
+        }
+      ],
+      "exports": [
+        "main",
+        "TransferServiceApplication"
+      ],
+      "totalLines": 19,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/web/CreateTransferRequest.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/web/CreateTransferRequest.java",
+      "contentHash": "24da3fd9b0a6cbf31a400bccada7ed69f7d5c4a9bf7d2a603c6c3d74f2a02b9a",
+      "functions": [
+        {
+          "name": "CreateTransferRequest",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "CreateTransferRequest",
+          "params": [
+            "userId",
+            "assetCode",
+            "amount",
+            "direction",
+            "mode"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "getUserId",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getAssetCode",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getAmount",
+          "params": [],
+          "returnType": "BigDecimal",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getDirection",
+          "params": [],
+          "returnType": "TransferDirection",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getMode",
+          "params": [],
+          "returnType": "TransferMode",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "CreateTransferRequest",
+          "methods": [
+            "CreateTransferRequest",
+            "CreateTransferRequest",
+            "getUserId",
+            "getAssetCode",
+            "getAmount",
+            "getDirection",
+            "getMode"
+          ],
+          "properties": [
+            "userId",
+            "assetCode",
+            "amount",
+            "direction",
+            "mode"
+          ],
+          "exported": true,
+          "lineCount": 61
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.common.TransferDirection",
+          "specifiers": [
+            "TransferDirection"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferMode",
+          "specifiers": [
+            "TransferMode"
+          ]
+        },
+        {
+          "source": "io.swagger.v3.oas.annotations.media.Schema",
+          "specifiers": [
+            "Schema"
+          ]
+        },
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "javax.validation.constraints.DecimalMin",
+          "specifiers": [
+            "DecimalMin"
+          ]
+        },
+        {
+          "source": "javax.validation.constraints.NotBlank",
+          "specifiers": [
+            "NotBlank"
+          ]
+        },
+        {
+          "source": "javax.validation.constraints.NotNull",
+          "specifiers": [
+            "NotNull"
+          ]
+        }
+      ],
+      "exports": [
+        "CreateTransferRequest",
+        "CreateTransferRequest",
+        "getUserId",
+        "getAssetCode",
+        "getAmount",
+        "getDirection",
+        "getMode",
+        "CreateTransferRequest"
+      ],
+      "totalLines": 73,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/web/ReviewTransferRequest.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/web/ReviewTransferRequest.java",
+      "contentHash": "79c3e68006eb37ea5d04b187c950e6685cb55f2536277d90c37d6219339ef423",
+      "functions": [
+        {
+          "name": "ReviewTransferRequest",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "ReviewTransferRequest",
+          "params": [
+            "transferId",
+            "approved",
+            "message"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "getTransferId",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "isApproved",
+          "params": [],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getMessage",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "ReviewTransferRequest",
+          "methods": [
+            "ReviewTransferRequest",
+            "ReviewTransferRequest",
+            "getTransferId",
+            "isApproved",
+            "getMessage"
+          ],
+          "properties": [
+            "transferId",
+            "approved",
+            "message"
+          ],
+          "exported": true,
+          "lineCount": 36
+        }
+      ],
+      "imports": [
+        {
+          "source": "io.swagger.v3.oas.annotations.media.Schema",
+          "specifiers": [
+            "Schema"
+          ]
+        },
+        {
+          "source": "javax.validation.constraints.NotBlank",
+          "specifiers": [
+            "NotBlank"
+          ]
+        }
+      ],
+      "exports": [
+        "ReviewTransferRequest",
+        "ReviewTransferRequest",
+        "getTransferId",
+        "isApproved",
+        "getMessage",
+        "ReviewTransferRequest"
+      ],
+      "totalLines": 43,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/web/TransferController.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/web/TransferController.java",
+      "contentHash": "0621355a52a6e63d0f50b051b286fd2779fb64d4c6dcd68f60f67bd9b929ca04",
+      "functions": [
+        {
+          "name": "TransferController",
+          "params": [
+            "stateService",
+            "workflowClient",
+            "router",
+            "taskQueue"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "create",
+          "params": [
+            "request"
+          ],
+          "returnType": "ApiResponse<TransferOrder>",
+          "exported": true,
+          "lineCount": 34
+        },
+        {
+          "name": "review",
+          "params": [
+            "transferId",
+            "request"
+          ],
+          "returnType": "ApiResponse<TransferOrder>",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "get",
+          "params": [
+            "transferId"
+          ],
+          "returnType": "ApiResponse<TransferOrder>",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "execute",
+          "params": [
+            "handler"
+          ],
+          "returnType": "ApiResponse<TransferOrder>",
+          "exported": false,
+          "lineCount": 8
+        }
+      ],
+      "classes": [
+        {
+          "name": "TransferController",
+          "methods": [
+            "TransferController",
+            "create",
+            "review",
+            "get",
+            "execute"
+          ],
+          "properties": [
+            "stateService",
+            "workflowClient",
+            "router",
+            "taskQueue"
+          ],
+          "exported": true,
+          "lineCount": 94
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.common.AccountType",
+          "specifiers": [
+            "AccountType"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.ApiResponse",
+          "specifiers": [
+            "ApiResponse"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.domain.TransferOrder",
+          "specifiers": [
+            "TransferOrder"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.service.AccountClientRouter",
+          "specifiers": [
+            "AccountClientRouter"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.service.TransferOrderStateService",
+          "specifiers": [
+            "TransferOrderStateService"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.workflow.ReviewDecision",
+          "specifiers": [
+            "ReviewDecision"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.workflow.TransferWorkflow",
+          "specifiers": [
+            "TransferWorkflow"
+          ]
+        },
+        {
+          "source": "io.swagger.v3.oas.annotations.Operation",
+          "specifiers": [
+            "Operation"
+          ]
+        },
+        {
+          "source": "io.swagger.v3.oas.annotations.Parameter",
+          "specifiers": [
+            "Parameter"
+          ]
+        },
+        {
+          "source": "io.swagger.v3.oas.annotations.tags.Tag",
+          "specifiers": [
+            "Tag"
+          ]
+        },
+        {
+          "source": "io.temporal.client.WorkflowClient",
+          "specifiers": [
+            "WorkflowClient"
+          ]
+        },
+        {
+          "source": "io.temporal.client.WorkflowOptions",
+          "specifiers": [
+            "WorkflowOptions"
+          ]
+        },
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "java.util.UUID",
+          "specifiers": [
+            "UUID"
+          ]
+        },
+        {
+          "source": "javax.validation.Valid",
+          "specifiers": [
+            "Valid"
+          ]
+        },
+        {
+          "source": "lombok.extern.slf4j.Slf4j",
+          "specifiers": [
+            "Slf4j"
+          ]
+        },
+        {
+          "source": "org.springframework.beans.factory.annotation.Value",
+          "specifiers": [
+            "Value"
+          ]
+        },
+        {
+          "source": "org.springframework.web.bind.annotation.GetMapping",
+          "specifiers": [
+            "GetMapping"
+          ]
+        },
+        {
+          "source": "org.springframework.web.bind.annotation.PathVariable",
+          "specifiers": [
+            "PathVariable"
+          ]
+        },
+        {
+          "source": "org.springframework.web.bind.annotation.PostMapping",
+          "specifiers": [
+            "PostMapping"
+          ]
+        },
+        {
+          "source": "org.springframework.web.bind.annotation.RequestBody",
+          "specifiers": [
+            "RequestBody"
+          ]
+        },
+        {
+          "source": "org.springframework.web.bind.annotation.RequestMapping",
+          "specifiers": [
+            "RequestMapping"
+          ]
+        },
+        {
+          "source": "org.springframework.web.bind.annotation.RestController",
+          "specifiers": [
+            "RestController"
+          ]
+        }
+      ],
+      "exports": [
+        "TransferController",
+        "create",
+        "review",
+        "get",
+        "TransferController"
+      ],
+      "totalLines": 131,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/web/WithdrawResultRequest.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/web/WithdrawResultRequest.java",
+      "contentHash": "18d603cf21ea54b82566fa022374b9c636a7c9491cb600995bb862b0bb8c9d65",
+      "functions": [
+        {
+          "name": "WithdrawResultRequest",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "WithdrawResultRequest",
+          "params": [
+            "success",
+            "message"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "isSuccess",
+          "params": [],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getMessage",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "WithdrawResultRequest",
+          "methods": [
+            "WithdrawResultRequest",
+            "WithdrawResultRequest",
+            "isSuccess",
+            "getMessage"
+          ],
+          "properties": [
+            "success",
+            "message"
+          ],
+          "exported": true,
+          "lineCount": 25
+        }
+      ],
+      "imports": [
+        {
+          "source": "io.swagger.v3.oas.annotations.media.Schema",
+          "specifiers": [
+            "Schema"
+          ]
+        }
+      ],
+      "exports": [
+        "WithdrawResultRequest",
+        "WithdrawResultRequest",
+        "isSuccess",
+        "getMessage",
+        "WithdrawResultRequest"
+      ],
+      "totalLines": 31,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/workflow/ReviewDecision.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/workflow/ReviewDecision.java",
+      "contentHash": "804edfd556729f6d34dd539522761f3b7e5f963350cdc5527f6907e297efbea7",
+      "functions": [
+        {
+          "name": "ReviewDecision",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "ReviewDecision",
+          "params": [
+            "approved",
+            "message"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "isApproved",
+          "params": [],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getMessage",
+          "params": [],
+          "returnType": "String",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "ReviewDecision",
+          "methods": [
+            "ReviewDecision",
+            "ReviewDecision",
+            "isApproved",
+            "getMessage"
+          ],
+          "properties": [
+            "approved",
+            "message"
+          ],
+          "exported": true,
+          "lineCount": 20
+        }
+      ],
+      "imports": [],
+      "exports": [
+        "ReviewDecision",
+        "ReviewDecision",
+        "isApproved",
+        "getMessage",
+        "ReviewDecision"
+      ],
+      "totalLines": 24,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/workflow/TransferActivities.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/workflow/TransferActivities.java",
+      "contentHash": "e33715e32702572de21f4acb488c9bc44201a3308f8245883d64d4edf3fc567c",
+      "functions": [],
+      "classes": [
+        {
+          "name": "TransferActivities",
+          "methods": [
+            "freeze",
+            "confirmDebit",
+            "credit",
+            "cancelFreeze"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 14
+        }
+      ],
+      "imports": [
+        {
+          "source": "io.temporal.activity.ActivityInterface",
+          "specifiers": [
+            "ActivityInterface"
+          ]
+        },
+        {
+          "source": "io.temporal.activity.ActivityMethod",
+          "specifiers": [
+            "ActivityMethod"
+          ]
+        }
+      ],
+      "exports": [
+        "TransferActivities"
+      ],
+      "totalLines": 26,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/workflow/TransferActivitiesImpl.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/workflow/TransferActivitiesImpl.java",
+      "contentHash": "5b4288c28eafe242bfae460922dbeed17bb671b356c8d76e1c2dff8462efa9cb",
+      "functions": [
+        {
+          "name": "TransferActivitiesImpl",
+          "params": [
+            "router",
+            "stateService"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "freeze",
+          "params": [
+            "transferId"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "confirmDebit",
+          "params": [
+            "transferId"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "credit",
+          "params": [
+            "transferId"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "cancelFreeze",
+          "params": [
+            "transferId"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "buildRequest",
+          "params": [
+            "order"
+          ],
+          "returnType": "AssetOperationRequest",
+          "exported": false,
+          "lineCount": 6
+        }
+      ],
+      "classes": [
+        {
+          "name": "TransferActivitiesImpl",
+          "methods": [
+            "TransferActivitiesImpl",
+            "freeze",
+            "confirmDebit",
+            "credit",
+            "cancelFreeze",
+            "buildRequest"
+          ],
+          "properties": [
+            "router",
+            "stateService"
+          ],
+          "exported": true,
+          "lineCount": 85
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.common.AccountType",
+          "specifiers": [
+            "AccountType"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.ApiResponse",
+          "specifiers": [
+            "ApiResponse"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AssetOperationRequest",
+          "specifiers": [
+            "AssetOperationRequest"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AssetOperationResponse",
+          "specifiers": [
+            "AssetOperationResponse"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferDirection",
+          "specifiers": [
+            "TransferDirection"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferMode",
+          "specifiers": [
+            "TransferMode"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.domain.TransferOrder",
+          "specifiers": [
+            "TransferOrder"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.service.AccountClientRouter",
+          "specifiers": [
+            "AccountClientRouter"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.service.TransferOrderStateService",
+          "specifiers": [
+            "TransferOrderStateService"
+          ]
+        },
+        {
+          "source": "io.temporal.failure.ApplicationFailure",
+          "specifiers": [
+            "ApplicationFailure"
+          ]
+        },
+        {
+          "source": "lombok.extern.slf4j.Slf4j",
+          "specifiers": [
+            "Slf4j"
+          ]
+        },
+        {
+          "source": "org.springframework.stereotype.Component",
+          "specifiers": [
+            "Component"
+          ]
+        }
+      ],
+      "exports": [
+        "TransferActivitiesImpl",
+        "freeze",
+        "confirmDebit",
+        "credit",
+        "cancelFreeze",
+        "TransferActivitiesImpl"
+      ],
+      "totalLines": 110,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/workflow/TransferWorkflow.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/workflow/TransferWorkflow.java",
+      "contentHash": "fa78b3d0f8e2244f426dd46a53333f2211cbf20fbb24c34d26098183b8830707",
+      "functions": [],
+      "classes": [
+        {
+          "name": "TransferWorkflow",
+          "methods": [
+            "execute",
+            "review"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 8
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.common.TransferMode",
+          "specifiers": [
+            "TransferMode"
+          ]
+        },
+        {
+          "source": "io.temporal.workflow.SignalMethod",
+          "specifiers": [
+            "SignalMethod"
+          ]
+        },
+        {
+          "source": "io.temporal.workflow.WorkflowInterface",
+          "specifiers": [
+            "WorkflowInterface"
+          ]
+        },
+        {
+          "source": "io.temporal.workflow.WorkflowMethod",
+          "specifiers": [
+            "WorkflowMethod"
+          ]
+        }
+      ],
+      "exports": [
+        "TransferWorkflow"
+      ],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/java/com/demo/transfer/transfer/workflow/TransferWorkflowImpl.java": {
+      "filePath": "transfer-service/src/main/java/com/demo/transfer/transfer/workflow/TransferWorkflowImpl.java",
+      "contentHash": "5e5bf62f0275b625209a6e5c25d01e2ff867177fc312474bd5bce38c2f31ffd6",
+      "functions": [
+        {
+          "name": "execute",
+          "params": [
+            "transferId",
+            "transferMode"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "review",
+          "params": [
+            "decision"
+          ],
+          "returnType": "void",
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "classes": [
+        {
+          "name": "TransferWorkflowImpl",
+          "methods": [
+            "execute",
+            "review"
+          ],
+          "properties": [
+            "log",
+            "activities",
+            "reviewDecision"
+          ],
+          "exported": true,
+          "lineCount": 47
+        }
+      ],
+      "imports": [
+        {
+          "source": "com.demo.transfer.common.TransferMode",
+          "specifiers": [
+            "TransferMode"
+          ]
+        },
+        {
+          "source": "io.temporal.activity.ActivityOptions",
+          "specifiers": [
+            "ActivityOptions"
+          ]
+        },
+        {
+          "source": "io.temporal.common.RetryOptions",
+          "specifiers": [
+            "RetryOptions"
+          ]
+        },
+        {
+          "source": "io.temporal.workflow.Workflow",
+          "specifiers": [
+            "Workflow"
+          ]
+        },
+        {
+          "source": "java.time.Duration",
+          "specifiers": [
+            "Duration"
+          ]
+        },
+        {
+          "source": "org.slf4j.Logger",
+          "specifiers": [
+            "Logger"
+          ]
+        }
+      ],
+      "exports": [
+        "execute",
+        "review",
+        "TransferWorkflowImpl"
+      ],
+      "totalLines": 63,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/main/resources/application.yml": {
+      "filePath": "transfer-service/src/main/resources/application.yml",
+      "contentHash": "5237df8a7f628fd10ba92eae7bb9e617c1b58ecfd0fb9a3f138d9bac0d5b0dd6",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 30,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/test/java/com/demo/transfer/transfer/integration/TransferScenarioIntegrationTest.java": {
+      "filePath": "transfer-service/src/test/java/com/demo/transfer/transfer/integration/TransferScenarioIntegrationTest.java",
+      "contentHash": "8fe8bdbba9b22293a15d6055dd64cdddee527b407d2326d208581fd12915dd6a",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 203,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/test/java/com/demo/transfer/transfer/repository/TransferRepositoryTest.java": {
+      "filePath": "transfer-service/src/test/java/com/demo/transfer/transfer/repository/TransferRepositoryTest.java",
+      "contentHash": "8974c32db297f5d861bcb86bd01e1bb482fc0369559661220a6fcefcb956bdb9",
+      "functions": [
+        {
+          "name": "savesAndFindsTransferByTransferId",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 9
+        },
+        {
+          "name": "rejectsDuplicateTransferId",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 9
+        },
+        {
+          "name": "appendsStepLogsForTransfer",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 7
+        },
+        {
+          "name": "order",
+          "params": [
+            "transferId"
+          ],
+          "returnType": "TransferOrder",
+          "exported": false,
+          "lineCount": 4
+        }
+      ],
+      "classes": [
+        {
+          "name": "TransferRepositoryTest",
+          "methods": [
+            "savesAndFindsTransferByTransferId",
+            "rejectsDuplicateTransferId",
+            "appendsStepLogsForTransfer",
+            "order"
+          ],
+          "properties": [
+            "orderRepository",
+            "stepLogRepository",
+            "entityManager"
+          ],
+          "exported": false,
+          "lineCount": 50
+        }
+      ],
+      "imports": [
+        {
+          "source": "org.assertj.core.api.Assertions.assertThat",
+          "specifiers": [
+            "assertThat"
+          ]
+        },
+        {
+          "source": "org.assertj.core.api.Assertions.assertThatThrownBy",
+          "specifiers": [
+            "assertThatThrownBy"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AccountType",
+          "specifiers": [
+            "AccountType"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferMode",
+          "specifiers": [
+            "TransferMode"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferStatus",
+          "specifiers": [
+            "TransferStatus"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.domain.TransferOrder",
+          "specifiers": [
+            "TransferOrder"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.domain.TransferStepLog",
+          "specifiers": [
+            "TransferStepLog"
+          ]
+        },
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "javax.persistence.EntityManager",
+          "specifiers": [
+            "EntityManager"
+          ]
+        },
+        {
+          "source": "org.junit.jupiter.api.Test",
+          "specifiers": [
+            "Test"
+          ]
+        },
+        {
+          "source": "org.springframework.beans.factory.annotation.Autowired",
+          "specifiers": [
+            "Autowired"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.autoconfigure.domain.EntityScan",
+          "specifiers": [
+            "EntityScan"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest",
+          "specifiers": [
+            "DataJpaTest"
+          ]
+        },
+        {
+          "source": "org.springframework.dao.DataIntegrityViolationException",
+          "specifiers": [
+            "DataIntegrityViolationException"
+          ]
+        },
+        {
+          "source": "org.springframework.data.jpa.repository.config.EnableJpaRepositories",
+          "specifiers": [
+            "EnableJpaRepositories"
+          ]
+        },
+        {
+          "source": "org.springframework.test.context.ContextConfiguration",
+          "specifiers": [
+            "ContextConfiguration"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 71,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/test/java/com/demo/transfer/transfer/web/TransferControllerTest.java": {
+      "filePath": "transfer-service/src/test/java/com/demo/transfer/transfer/web/TransferControllerTest.java",
+      "contentHash": "f9cd5fa49dba72effa1dff7e1a9873357eb23de65a8a304b437ed318c8d4ddcf",
+      "functions": [
+        {
+          "name": "cleanOrders",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "returnsFailureAndDoesNotCreateOrderWhenOrderCreationFailsBeforePersistence",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "marksOrderInitFailedWhenWorkflowStartFailsAfterOrderCreated",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "keepsOrderCreatedWhenUnexpectedExceptionHappensAfterWorkflowStartSucceeds",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 24
+        },
+        {
+          "name": "request",
+          "params": [
+            "amount"
+          ],
+          "returnType": "CreateTransferRequest",
+          "exported": false,
+          "lineCount": 4
+        }
+      ],
+      "classes": [
+        {
+          "name": "TransferControllerTest",
+          "methods": [
+            "cleanOrders",
+            "returnsFailureAndDoesNotCreateOrderWhenOrderCreationFailsBeforePersistence",
+            "marksOrderInitFailedWhenWorkflowStartFailsAfterOrderCreated",
+            "keepsOrderCreatedWhenUnexpectedExceptionHappensAfterWorkflowStartSucceeds",
+            "request"
+          ],
+          "properties": [
+            "TASK_QUEUE",
+            "controller",
+            "orderRepository",
+            "stateService",
+            "router",
+            "accountAClient",
+            "accountBClient",
+            "workflowClient"
+          ],
+          "exported": false,
+          "lineCount": 114
+        }
+      ],
+      "imports": [
+        {
+          "source": "org.assertj.core.api.Assertions.assertThat",
+          "specifiers": [
+            "assertThat"
+          ]
+        },
+        {
+          "source": "org.mockito.Mockito.verifyNoInteractions",
+          "specifiers": [
+            "verifyNoInteractions"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.ApiResponse",
+          "specifiers": [
+            "ApiResponse"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferDirection",
+          "specifiers": [
+            "TransferDirection"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferMode",
+          "specifiers": [
+            "TransferMode"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferStatus",
+          "specifiers": [
+            "TransferStatus"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.client.AccountAClient",
+          "specifiers": [
+            "AccountAClient"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.client.AccountBClient",
+          "specifiers": [
+            "AccountBClient"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.domain.TransferOrder",
+          "specifiers": [
+            "TransferOrder"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.repository.TransferOrderRepository",
+          "specifiers": [
+            "TransferOrderRepository"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.service.AccountClientRouter",
+          "specifiers": [
+            "AccountClientRouter"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.service.TransferOrderStateService",
+          "specifiers": [
+            "TransferOrderStateService"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.workflow.TransferActivities",
+          "specifiers": [
+            "TransferActivities"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.workflow.TransferWorkflowImpl",
+          "specifiers": [
+            "TransferWorkflowImpl"
+          ]
+        },
+        {
+          "source": "io.temporal.client.WorkflowClient",
+          "specifiers": [
+            "WorkflowClient"
+          ]
+        },
+        {
+          "source": "io.temporal.testing.TestWorkflowEnvironment",
+          "specifiers": [
+            "TestWorkflowEnvironment"
+          ]
+        },
+        {
+          "source": "io.temporal.worker.Worker",
+          "specifiers": [
+            "Worker"
+          ]
+        },
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "java.util.UUID",
+          "specifiers": [
+            "UUID"
+          ]
+        },
+        {
+          "source": "org.junit.jupiter.api.BeforeEach",
+          "specifiers": [
+            "BeforeEach"
+          ]
+        },
+        {
+          "source": "org.junit.jupiter.api.Test",
+          "specifiers": [
+            "Test"
+          ]
+        },
+        {
+          "source": "org.springframework.beans.factory.annotation.Autowired",
+          "specifiers": [
+            "Autowired"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.autoconfigure.domain.EntityScan",
+          "specifiers": [
+            "EntityScan"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest",
+          "specifiers": [
+            "DataJpaTest"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.test.mock.mockito.MockBean",
+          "specifiers": [
+            "MockBean"
+          ]
+        },
+        {
+          "source": "org.springframework.context.annotation.Import",
+          "specifiers": [
+            "Import"
+          ]
+        },
+        {
+          "source": "org.springframework.data.jpa.repository.config.EnableJpaRepositories",
+          "specifiers": [
+            "EnableJpaRepositories"
+          ]
+        },
+        {
+          "source": "org.springframework.test.context.ContextConfiguration",
+          "specifiers": [
+            "ContextConfiguration"
+          ]
+        },
+        {
+          "source": "org.springframework.transaction.annotation.Propagation",
+          "specifiers": [
+            "Propagation"
+          ]
+        },
+        {
+          "source": "org.springframework.transaction.annotation.Transactional",
+          "specifiers": [
+            "Transactional"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 149,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/test/java/com/demo/transfer/transfer/workflow/TransferActivitiesImplTest.java": {
+      "filePath": "transfer-service/src/test/java/com/demo/transfer/transfer/workflow/TransferActivitiesImplTest.java",
+      "contentHash": "7e428192ca38664751468757591beec0c8fa666ae5d79c43279ee4f5e55282ad",
+      "functions": [
+        {
+          "name": "setUp",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "freezeManualReviewSetsWaitReview",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "freezeAutoWithdrawLeavesStatusUnchanged",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "freezeBusinessFailureSetsFreezeFailedAndThrowsNonRetryableFailure",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 16
+        },
+        {
+          "name": "confirmDebitSetsDebitSuccess",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "confirmDebitFailureThrows",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 9
+        },
+        {
+          "name": "creditSetsSuccess",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "creditFailureSetsCreditFailedAndThrows",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "cancelFreezeSetsRejected",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "cancelFreezeFailureThrows",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 9
+        },
+        {
+          "name": "order",
+          "params": [
+            "mode"
+          ],
+          "returnType": "TransferOrder",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "save",
+          "params": [
+            "order"
+          ],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "reload",
+          "params": [],
+          "returnType": "TransferOrder",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "ok",
+          "params": [
+            "type"
+          ],
+          "returnType": "ApiResponse<AssetOperationResponse>",
+          "exported": false,
+          "lineCount": 3
+        }
+      ],
+      "classes": [
+        {
+          "name": "TransferActivitiesImplTest",
+          "methods": [
+            "setUp",
+            "freezeManualReviewSetsWaitReview",
+            "freezeAutoWithdrawLeavesStatusUnchanged",
+            "freezeBusinessFailureSetsFreezeFailedAndThrowsNonRetryableFailure",
+            "confirmDebitSetsDebitSuccess",
+            "confirmDebitFailureThrows",
+            "creditSetsSuccess",
+            "creditFailureSetsCreditFailedAndThrows",
+            "cancelFreezeSetsRejected",
+            "cancelFreezeFailureThrows",
+            "order",
+            "save",
+            "reload",
+            "ok"
+          ],
+          "properties": [
+            "TRANSFER_ID",
+            "activities",
+            "orderRepository",
+            "accountAClient",
+            "accountBClient"
+          ],
+          "exported": false,
+          "lineCount": 147
+        }
+      ],
+      "imports": [
+        {
+          "source": "org.assertj.core.api.Assertions.assertThat",
+          "specifiers": [
+            "assertThat"
+          ]
+        },
+        {
+          "source": "org.assertj.core.api.Assertions.assertThatThrownBy",
+          "specifiers": [
+            "assertThatThrownBy"
+          ]
+        },
+        {
+          "source": "org.mockito.ArgumentMatchers.any",
+          "specifiers": [
+            "any"
+          ]
+        },
+        {
+          "source": "org.mockito.Mockito.when",
+          "specifiers": [
+            "when"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AccountType",
+          "specifiers": [
+            "AccountType"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.ApiResponse",
+          "specifiers": [
+            "ApiResponse"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.AssetOperationResponse",
+          "specifiers": [
+            "AssetOperationResponse"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.OperationType",
+          "specifiers": [
+            "OperationType"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferMode",
+          "specifiers": [
+            "TransferMode"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferStatus",
+          "specifiers": [
+            "TransferStatus"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.client.AccountAClient",
+          "specifiers": [
+            "AccountAClient"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.client.AccountBClient",
+          "specifiers": [
+            "AccountBClient"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.domain.TransferOrder",
+          "specifiers": [
+            "TransferOrder"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.repository.TransferOrderRepository",
+          "specifiers": [
+            "TransferOrderRepository"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.service.AccountClientRouter",
+          "specifiers": [
+            "AccountClientRouter"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.transfer.service.TransferOrderStateService",
+          "specifiers": [
+            "TransferOrderStateService"
+          ]
+        },
+        {
+          "source": "io.temporal.failure.ApplicationFailure",
+          "specifiers": [
+            "ApplicationFailure"
+          ]
+        },
+        {
+          "source": "java.math.BigDecimal",
+          "specifiers": [
+            "BigDecimal"
+          ]
+        },
+        {
+          "source": "org.junit.jupiter.api.BeforeEach",
+          "specifiers": [
+            "BeforeEach"
+          ]
+        },
+        {
+          "source": "org.junit.jupiter.api.Test",
+          "specifiers": [
+            "Test"
+          ]
+        },
+        {
+          "source": "org.springframework.beans.factory.annotation.Autowired",
+          "specifiers": [
+            "Autowired"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.autoconfigure.domain.EntityScan",
+          "specifiers": [
+            "EntityScan"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest",
+          "specifiers": [
+            "DataJpaTest"
+          ]
+        },
+        {
+          "source": "org.springframework.boot.test.mock.mockito.MockBean",
+          "specifiers": [
+            "MockBean"
+          ]
+        },
+        {
+          "source": "org.springframework.context.annotation.Import",
+          "specifiers": [
+            "Import"
+          ]
+        },
+        {
+          "source": "org.springframework.data.jpa.repository.config.EnableJpaRepositories",
+          "specifiers": [
+            "EnableJpaRepositories"
+          ]
+        },
+        {
+          "source": "org.springframework.test.context.ContextConfiguration",
+          "specifiers": [
+            "ContextConfiguration"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 179,
+      "hasStructuralAnalysis": true
+    },
+    "transfer-service/src/test/java/com/demo/transfer/transfer/workflow/TransferWorkflowImplTest.java": {
+      "filePath": "transfer-service/src/test/java/com/demo/transfer/transfer/workflow/TransferWorkflowImplTest.java",
+      "contentHash": "e48f31f2214f4ba242862a3ca17ef5f921bc9351b22f1f000a131ea67897d841",
+      "functions": [
+        {
+          "name": "setUp",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "tearDown",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "autoWithdrawRunsFullSequence",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 6
+        },
+        {
+          "name": "manualReviewApprovedRunsFullSequence",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "manualReviewRejectedCancelsFreeze",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "activityFailureTriggersRetryUntilSuccess",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 10
+        },
+        {
+          "name": "freezeNonRetryableFailureTerminatesWorkflowWithoutRetryingOrCompensation",
+          "params": [],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 14
+        },
+        {
+          "name": "execute",
+          "params": [
+            "mode"
+          ],
+          "returnType": "void",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "stub",
+          "params": [],
+          "returnType": "TransferWorkflow",
+          "exported": false,
+          "lineCount": 8
+        }
+      ],
+      "classes": [
+        {
+          "name": "TransferWorkflowImplTest",
+          "methods": [
+            "setUp",
+            "tearDown",
+            "autoWithdrawRunsFullSequence",
+            "manualReviewApprovedRunsFullSequence",
+            "manualReviewRejectedCancelsFreeze",
+            "activityFailureTriggersRetryUntilSuccess",
+            "freezeNonRetryableFailureTerminatesWorkflowWithoutRetryingOrCompensation",
+            "execute",
+            "stub"
+          ],
+          "properties": [
+            "TASK_QUEUE",
+            "TRANSFER_ID",
+            "testEnv",
+            "activities"
+          ],
+          "exported": false,
+          "lineCount": 126
+        }
+      ],
+      "imports": [
+        {
+          "source": "org.assertj.core.api.Assertions.assertThat",
+          "specifiers": [
+            "assertThat"
+          ]
+        },
+        {
+          "source": "org.assertj.core.api.Assertions.assertThatThrownBy",
+          "specifiers": [
+            "assertThatThrownBy"
+          ]
+        },
+        {
+          "source": "com.demo.transfer.common.TransferMode",
+          "specifiers": [
+            "TransferMode"
+          ]
+        },
+        {
+          "source": "io.temporal.client.WorkflowClient",
+          "specifiers": [
+            "WorkflowClient"
+          ]
+        },
+        {
+          "source": "io.temporal.client.WorkflowFailedException",
+          "specifiers": [
+            "WorkflowFailedException"
+          ]
+        },
+        {
+          "source": "io.temporal.client.WorkflowOptions",
+          "specifiers": [
+            "WorkflowOptions"
+          ]
+        },
+        {
+          "source": "io.temporal.failure.ApplicationFailure",
+          "specifiers": [
+            "ApplicationFailure"
+          ]
+        },
+        {
+          "source": "io.temporal.testing.TestWorkflowEnvironment",
+          "specifiers": [
+            "TestWorkflowEnvironment"
+          ]
+        },
+        {
+          "source": "io.temporal.worker.Worker",
+          "specifiers": [
+            "Worker"
+          ]
+        },
+        {
+          "source": "java.util.ArrayList",
+          "specifiers": [
+            "ArrayList"
+          ]
+        },
+        {
+          "source": "java.util.List",
+          "specifiers": [
+            "List"
+          ]
+        },
+        {
+          "source": "org.junit.jupiter.api.AfterEach",
+          "specifiers": [
+            "AfterEach"
+          ]
+        },
+        {
+          "source": "org.junit.jupiter.api.BeforeEach",
+          "specifiers": [
+            "BeforeEach"
+          ]
+        },
+        {
+          "source": "org.junit.jupiter.api.Test",
+          "specifiers": [
+            "Test"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 145,
+      "hasStructuralAnalysis": true
+    }
+  }
+}
