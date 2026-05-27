@@ -127,7 +127,7 @@ mysql -uroot -proot account_b < docs/sql/account_schema.sql
 使用 Docker Compose 启动的 MySQL 时，可以直接执行：
 
 ```bash
-docker compose exec mysql mysql -uroot -proot <<'SQL'
+docker compose exec -T mysql mysql -uroot -proot <<'SQL'
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE transfer.transfer_step_log;
 TRUNCATE TABLE transfer.transfer_order;
