@@ -41,9 +41,3 @@ Thumbs.db
 .cursor/
 .cursorrules
 .moc/
-
-.agents/
-.codex-backups/
-.claude/
-.agents
-openspec/
