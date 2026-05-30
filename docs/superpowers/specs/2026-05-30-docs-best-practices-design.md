@@ -2,7 +2,7 @@
 
 - 日期：2026-05-30
 - 定位：教学/参考示例工程
-- 风格约束：简要、避免重复描述（DRY，单一来源 + 链接）
+- 风格约束：简要、尽量减少重复描述（DRY，单一来源 + 链接为主）。注意是"尽量减少"而非"完全禁止"：当一份内容曝光位置的价值高于同步成本时（如落地页的架构图），允许保留差异化的精简副本。
 
 ## 目标
 
@@ -51,21 +51,26 @@ docs/
 
 `docs/decisions/README.md` 提供 ADR 列表索引与一句话摘要。
 
+**demo §12「关键讲解点」的处理**：不直接删除。ADR 与 §12 受众不同——ADR 是给"改系统的人"读的决策档案（重背景/权衡/后果），§12 是给"讲系统的人"用的现场演示话术（重一句话点透）。§12 保留为**指向 ADR 的一句话摘要清单**（如"为什么不用分布式事务 → 见 ADR-0001"），既去重又不破坏演示连贯性。
+
 ## 二、Mermaid 可视化图
 
 每张图只在一处作为**单一来源**，其他文档链接过去。
 
 | 图 | 类型 | 落在哪 | 替换掉 |
 | --- | --- | --- | --- |
-| 组件架构图 | `graph` | docs/README | README / overview / demo 三处 ASCII 拓扑 |
+| 组件架构图（完整版） | `graph` | docs/README | demo / overview 的 ASCII 拓扑 |
+| 组件架构图（精简版） | `graph` | 根 README | 根 README 现有 ASCII 拓扑 |
 | 转账主流程时序图 | `sequenceDiagram` | overview §5 | §5 的 ASCII 流程 |
 | 状态机图 | `stateDiagram-v2` | overview §6 | 补充现有状态表（表保留做说明） |
 
-根 `README.md` 与 demo 的拓扑 ASCII 删除，改为"架构图见文档中心"。
+根 `README.md` 作为仓库落地页，保留一张**精简架构图**（3 服务 + 3 库，一句话），帮助第一眼建立心智模型；完整带说明的架构图放在 docs/README，两者定位不同而非重复。demo / overview 的 ASCII 拓扑删除，改为"架构图见文档中心"。
 
 ## 三、术语表 `concepts/glossary.md`
 
-锚点式条目，每条 2–3 句 + 指向项目中的体现。涵盖：Saga、编排式 vs 协同式、幂等 / 幂等键、悲观锁、乐观锁（version）、冻结 / 确认扣减 / 解冻 / 入账、最终一致 vs 强一致、补偿事务、财务流水、Feign。其他文档首次出现术语时链接到此处。
+锚点式条目，每条 2–3 句 + 指向项目中的体现。涵盖：Saga、编排式 vs 协同式、幂等 / 幂等键、悲观锁、乐观锁（version）、冻结 / 确认扣减 / 解冻 / 入账、最终一致 vs 强一致、补偿事务、财务流水、Feign。
+
+**链接范围**：只在 overview 和 docs/README 这两个"主干"文档里链接术语；demo / api 这类操作文档不强求逐处插链接，避免分散编辑带来的维护负担与漏改。
 
 ## 四、文档导航重构
 
@@ -81,7 +86,7 @@ docs/
 
 | 内容 | 处理 |
 | --- | --- |
-| 拓扑图（三处） | 合一 → 仅 docs/README |
+| 拓扑图（三处） | 完整版仅 docs/README；根 README 保留差异化精简版；demo / overview 删除改链接 |
 | 排查 SQL | 仅留 debug-api；demo §2.7 改为链接 |
 | 启动 / 端口 / 环境变量 | README 为单一来源；其他文档链接 |
 | "为什么"段落 | 收敛到 ADR，原处精简为结论 + 链接 |
@@ -89,6 +94,6 @@ docs/
 ## 验收标准
 
 - 新增 `docs/concepts/glossary.md`、`docs/decisions/`（README + 5 篇 ADR）。
-- overview 的主流程与状态机改为 Mermaid；架构图统一到 docs/README。
+- overview 的主流程与状态机改为 Mermaid；完整架构图在 docs/README，根 README 保留精简 Mermaid 架构图。
 - 根 README、demo 中重复的拓扑 / SQL 删除并改为链接，无内容回退。
 - 全文交叉链接可达，无死链；无代码与 SQL 脚本改动。
