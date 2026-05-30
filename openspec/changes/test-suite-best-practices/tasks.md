@@ -15,12 +15,12 @@
 
 ## 3. 快速轨补层（无需 Docker）
 
-- [ ] 3.1 `AccountAssetControllerTest`（`@WebMvcTest`）：`freeze`/`confirm-debit`/`cancel-freeze`/`credit` 四端点的校验失败、成功、`ApiResponse` 结构
-- [ ] 3.2 `TransferControllerTest`（`@WebMvcTest`）：`create`/`review`/`withdraw-result`/`retry`/`get` 五端点
-- [ ] 3.3 `AccountClientRouterTest`（纯单元）：每种 `TransferDirection` 到源/目标 `AccountType` 与 `AccountOperationsClient` 的全分支路由
-- [ ] 3.4 `TransferRetrySchedulerTest`：直接调用调度方法触发失败单重试（不依赖真实 `@Scheduled` 间隔）
-- [ ] 3.5 复核现有 `*Test`（Saga/Retry/Repository 的纯逻辑部分）保持 H2 快速轨，无 Docker 可跑
-- [ ] 3.6 验证：`mvn -q test`（模拟无 Docker）全绿
+- [x] 3.1 `AccountAssetControllerTest`（`@WebMvcTest`，6 用例）：四端点成功、校验失败 400 不触达 service、业务失败 200+success=false；另加 account-service 测试锚点 `AccountServiceTestApplication`（库模块无启动类，切片测试需 `@SpringBootConfiguration`）
+- [x] 3.2 `TransferControllerTest`（`@WebMvcTest`，7 用例）：五端点成功、create 校验失败 400、业务异常 200+success=false、review 路径转账号透传校验
+- [x] 3.3 `AccountClientRouterTest`（纯单元，3 用例）：方向→源/目标 `AccountType`、`AccountType`→客户端全分支
+- [x] 3.4 `TransferRetrySchedulerTest`（纯单元，3 用例）：仅扫描三失败态、逐单重试、单笔异常不阻断其余、空集不调用
+- [x] 3.5 复核现有 `*Test` 保持 H2 快速轨（未改动，仍无 Docker 可跑）
+- [x] 3.6 验证：`mvn clean test`（无 Docker）EXIT=0，快速轨 55 用例全绿
 
 ## 4. 保真轨用例（需 Docker）
 
