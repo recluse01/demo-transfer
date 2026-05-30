@@ -41,7 +41,7 @@ cd transfer-service  && mvn spring-boot:run
 - 账户操作幂等键为 `transfer_id + operation_type`；重复请求返回成功但 `applied=false`。
 - **核心原则：源账户冻结金额一旦确认扣减，目标入账失败不做反向补偿，停在 `CREDIT_FAILED` 持续重试入账。**
 - A/B 服务刻意共用同一份 `account-service`，避免两边资产逻辑漂移。
-- 状态机、流程图、表结构、失败恢复等细节见 `docs/design/service-implementation-overview.md`。
+- 状态机、时序图、表结构、失败恢复等细节见 `docs/design/service-implementation-overview.md`；以上各决策「为什么」的单一来源是 ADR（`docs/decisions/`）。
 
 ## 4. 关键编码约定
 
@@ -67,8 +67,9 @@ cd transfer-service  && mvn spring-boot:run
 
 ## 7. 文档索引
 
+- [文档中心](docs/README.md)：全局导航入口（组件架构图 + 阅读路径），先看这里。
 - [README](README.md)：构建、启动、演示请求、数据库初始化、验证。
-- [服务实现总览](docs/design/service-implementation-overview.md)：架构、状态机、幂等、失败恢复。
-- [设计文档索引](docs/design/README.md)
-- [接口调试文档](docs/api/transfer-debug-api.md)
-- [演示文档](docs/demo/cross-account-transfer-demo.md)
+- [服务实现总览](docs/design/service-implementation-overview.md)：时序图、状态机、幂等、失败恢复。
+- [架构决策记录（ADR）](docs/decisions/README.md)：关键设计「为什么」的单一来源。
+- [术语表 / 概念索引](docs/concepts/glossary.md)
+- [接口调试文档](docs/api/transfer-debug-api.md) · [演示文档](docs/demo/cross-account-transfer-demo.md)
