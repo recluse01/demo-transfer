@@ -21,6 +21,12 @@
         <spring.boot.version>2.7.18</spring.boot.version>
         <spring.cloud.version>2021.0.9</spring.cloud.version>
         <mysql.version>8.0.33</mysql.version>
+        <!-- Testcontainers 1.19.x 是最后兼容 JDK8 的系列；1.20+ 已弃用 Java 8 -->
+        <testcontainers.version>1.19.8</testcontainers.version>
+        <!-- WireMock 2.35.x 为 JDK8 兼容线；3.x 需要 Java 11 -->
+        <wiremock.version>2.35.2</wiremock.version>
+        <!-- surefire 与 failsafe 保持同版本，2.22.2 已支持 JUnit5 平台 -->
+        <maven-surefire.version>2.22.2</maven-surefire.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -47,6 +53,20 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- Testcontainers BOM：统一管理 testcontainers:mysql / junit-jupiter 版本 -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- WireMock 版本统一管理，子模块引用时不再写版本 -->
+            <dependency>
+                <groupId>com.github.tomakehurst</groupId>
+                <artifactId>wiremock-jre8-standalone</artifactId>
+                <version>${wiremock.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -70,9 +90,30 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.22.2</version>
+                    <version>${maven-surefire.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${maven-surefire.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <!-- 保真轨：failsafe 默认匹配 **/*IT.java，绑定到 integration-test/verify。
+                 surefire 默认跑 *Test 并排除 *IT，二者互不重叠。 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 </project>

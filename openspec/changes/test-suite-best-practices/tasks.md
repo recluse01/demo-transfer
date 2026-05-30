@@ -1,11 +1,11 @@
 ## 1. 构建基础设施
 
-- [ ] 1.1 根 `pom.xml` 的 `dependencyManagement` 引入 `org.testcontainers:testcontainers-bom:1.19.x` 并统一管理 WireMock 版本
-- [ ] 1.2 根 `pom.xml` 配置 `maven-failsafe-plugin`（绑定 `integration-test`/`verify`，匹配 `**/*IT.java`），确认 `maven-surefire-plugin` 仅匹配 `**/*Test.java`
-- [ ] 1.3 `account-service`/`transfer-service` 的 `pom.xml`：保留 `h2`，新增 `org.testcontainers:mysql`、`org.testcontainers:junit-jupiter`（test scope）
-- [ ] 1.4 `transfer-service` 的 `pom.xml` 新增 `wiremock-jre8-standalone`（test scope，JDK8 兼容）
-- [ ] 1.5 各模块新增 `src/test/resources/application-test.yml`（保真轨 `ddl-auto: none`、降日志噪音）
-- [ ] 1.6 验证：`mvn -q -DskipTests install` 成功，依赖解析无冲突
+- [x] 1.1 根 `pom.xml` 的 `dependencyManagement` 引入 `org.testcontainers:testcontainers-bom:1.19.8` 并统一管理 WireMock 版本（`2.35.2`）
+- [x] 1.2 根 `pom.xml` 配置 `maven-failsafe-plugin`（绑定 `integration-test`/`verify`，默认匹配 `**/*IT.java`），`maven-surefire-plugin` 默认仅跑 `*Test` 并排除 `*IT`
+- [x] 1.3 `account-service`/`transfer-service` 的 `pom.xml`：保留 `h2`，新增 `org.testcontainers:mysql`、`org.testcontainers:junit-jupiter`（test scope）；account-service 补 `mysql-connector`（test scope，保真轨驱动）
+- [x] 1.4 `transfer-service` 的 `pom.xml` 新增 `wiremock-jre8-standalone`（test scope，JDK8 兼容）
+- [x] 1.5 各模块新增 `src/test/resources/application-test.yml`（`test` profile 专属：保真轨 `ddl-auto: none`、降日志噪音；不影响 H2 快速轨）
+- [x] 1.6 验证：`mvn -DskipTests install` 成功（EXIT=0），依赖解析到目标版本；`mvn clean test` 快速轨 36 用例全绿
 
 ## 2. 保真轨基础设施
 
