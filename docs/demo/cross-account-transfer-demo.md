@@ -478,7 +478,7 @@ mvn -q -pl transfer-service -am test \
 | 讲解点 | 一句话 | 详见 |
 | --- | --- | --- |
 | 为什么不用分布式事务 | Saga 状态机 + 幂等重试达到最终一致 | [ADR-0001](../decisions/0001-orchestrated-saga.md) |
-| 为什么冻结在源账户 | 审核/自动完成期间锁定资金，避免重复使用 | overview §5 |
+| 为什么冻结在源账户 | 审核/自动完成期间锁定资金，避免重复使用 | [overview §5](../design/service-implementation-overview.md#5-正常流程) |
 | 为什么每步都写流水 | 资产审计与排查需要完整轨迹 | [术语表·财务流水](../concepts/glossary.md#财务流水finance_ledger) |
 | 为什么要幂等 | 超时、重试、重复点击都不能重复扣款/入账 | [ADR-0004](../decisions/0004-idempotency-by-transferid-operationtype.md) |
 | 为什么 CREDIT_FAILED 只重试入账 | 已确认扣减，反向补偿引入新资金风险 | [ADR-0002](../decisions/0002-credit-failed-retry-no-compensation.md) |

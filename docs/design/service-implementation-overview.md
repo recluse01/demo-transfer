@@ -4,7 +4,7 @@
 
 ## 1. 一句话架构
 
-系统用 `transfer-service` 编排 Saga 流程，用两个账户服务分别提交本地事务：A 账户库只由 `account-a-service` 修改，B 账户库只由 `account-b-service` 修改，跨库一致性靠转账单状态、账户操作幂等和失败重试收敛。
+系统用 `transfer-service` 编排 Saga 流程，用两个账户服务分别提交本地事务：A 账户库只由 `account-a-service` 修改，B 账户库只由 `account-b-service` 修改，跨库一致性靠转账单状态、账户操作幂等和失败重试收敛。为何选择编排式 Saga 而非 XA/Seata/TCC，见 [ADR-0001](../decisions/0001-orchestrated-saga.md)。
 
 > 组件架构图见 [文档中心](../README.md#组件架构)。
 
@@ -87,14 +87,17 @@ A 转 B 和 B 转 A 只差源账户、目标账户相反。路由由 `AccountCli
 
 ### 人工审核驳回
 
-```text
-POST /transfers
-  -> source.freeze()
-  -> transfer_order = WAIT_REVIEW
-
-POST /transfers/{id}/review approved=false
-  -> source.cancelFreeze()
-  -> transfer_order = REJECTED
+```mermaid
+sequenceDiagram
+    participant C as 客户端
+    participant T as transfer-service
+    participant S as 源账户服务
+    C->>T: POST /transfers
+    T->>S: freeze()
+    Note over T: transfer_order = WAIT_REVIEW
+    C->>T: POST /review approved=false
+    T->>S: cancelFreeze()
+    Note over T: transfer_order = REJECTED
 ```
 
 ### 站内自动完成
@@ -126,7 +129,8 @@ stateDiagram-v2
     CREATED --> WAIT_REVIEW: 冻结成功(人工)
     CREATED --> DEBIT_SUCCESS: 站内自动确认扣减
     WAIT_REVIEW --> DEBIT_SUCCESS: 审核通过
-    WAIT_REVIEW --> REJECTED: 审核驳回(解冻)
+    WAIT_REVIEW --> REJECTED: 审核驳回解冻成功
+    WAIT_REVIEW --> CANCEL_FAILED: 审核驳回但解冻失败
     CREATED --> DEBIT_FAILED: 确认扣减失败
     DEBIT_FAILED --> DEBIT_SUCCESS: 重试扣减成功
     DEBIT_SUCCESS --> SUCCESS: 目标入账成功
@@ -135,7 +139,8 @@ stateDiagram-v2
     CANCEL_FAILED --> REJECTED: 重试解冻成功
     WITHDRAW_PENDING --> DEBIT_SUCCESS: 兼容旧流程提币成功
     WITHDRAW_PENDING --> WITHDRAW_FAILED: 兼容旧流程提币失败
-    WITHDRAW_FAILED --> REJECTED: 解冻
+    WITHDRAW_FAILED --> REJECTED: 解冻成功
+    WITHDRAW_FAILED --> CANCEL_FAILED: 解冻失败
     REJECTED --> [*]
     SUCCESS --> [*]
 ```
@@ -164,7 +169,7 @@ stateDiagram-v2
 2. 用悲观锁读取 `account_balance`，检查余额并更新可用/冻结金额。
 3. 写入 `finance_ledger` 和 `asset_operation`。
 
-这样可以抵抗 Feign 超时、转账服务重试、人工重复点击导致的重复请求。重复请求会返回成功，但 `AssetOperationResponse.applied=false`，表示没有再次应用资产变动。
+这样可以抵抗 Feign 超时、转账服务重试、人工重复点击导致的重复请求。重复请求会返回成功，但 `AssetOperationResponse.applied=false`，表示没有再次应用资产变动。幂等键为何取 `transferId + operationType`，见 [ADR-0004](../decisions/0004-idempotency-by-transferid-operationtype.md)。
 
 ## 8. 失败恢复
 
