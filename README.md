@@ -10,10 +10,23 @@
 - `account-service`：账户资产共享实现，被 A/B 两个服务复用。
 - `common`：公共 DTO、枚举和响应结构。
 
+## 架构概览
+
+```mermaid
+graph LR
+    T["transfer-service<br/>Saga 编排"] -- Feign --> A[account-a-service]
+    T -- Feign --> B[account-b-service]
+    A --> ADB[(account_a)]
+    B --> BDB[(account_b)]
+    T --> TDB[(transfer)]
+```
+
+完整带说明的架构图与文档导航见 [文档中心](docs/README.md)。
+
 ## 文档入口
 
+- [文档中心](docs/README.md)（推荐入口）
 - [服务实现总览](docs/design/service-implementation-overview.md)
-- [设计文档索引](docs/design/README.md)
 - [接口调试文档](docs/api/transfer-debug-api.md)
 - [演示文档](docs/demo/cross-account-transfer-demo.md)
 
