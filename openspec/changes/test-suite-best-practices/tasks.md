@@ -9,9 +9,9 @@
 
 ## 2. 保真轨基础设施
 
-- [ ] 2.1 在 `account-service` 与 `transfer-service` 各建共享基类 `AbstractMySqlIntegrationTest`：静态单例 `MySQLContainer` + `@DynamicPropertySource` 注入连接串
-- [ ] 2.2 基类容器挂载真实 DDL `docker/mysql/init/01-demo-transfer.sql` 初始化，`ddl-auto: none`
-- [ ] 2.3 编写一个最小冒烟 `*IT` 继承基类，验证容器启动、schema 建立、连接可用（`mvn -q verify -Dtest=... -Dsurefire.failIfNoSpecifiedTests=false` 或仅跑该 IT）
+- [x] 2.1 在 `account-service`（连 `account_a`）与 `transfer-service`（连 `transfer`）各建基类 `AbstractMySqlIntegrationTest`：静态单例 `MySQLContainer`（mysql:8.0.36）+ `@DynamicPropertySource` 注入连接串，以 root 访问多库
+- [x] 2.2 基类容器挂载真实 DDL `docker/mysql/init/01-demo-transfer.sql` 至 `/docker-entrypoint-initdb.d`（与 compose 一致，单一事实来源）；`application-test.yml` 设 `ddl-auto: none`
+- [x] 2.3 两模块各写最小冒烟 IT（account 读 account_a 种子余额并校验 DECIMAL 精度；transfer 校验 transfer_order 表可查询）；`mvn verify` 双轨全绿（account: 11+1IT；transfer: 23+1IT）
 
 ## 3. 快速轨补层（无需 Docker）
 
