@@ -33,10 +33,10 @@
 
 ## 5. 覆盖率门禁
 
-- [ ] 5.1 根 `pom.xml` 配置 `jacoco-maven-plugin`：`prepare-agent` + `prepare-agent-integration` + 合并 `report` + `check` 绑定 `verify`
-- [ ] 5.2 配置门禁规则：整体行覆盖 ≥70%、`**/service/**` ≥80%
-- [ ] 5.3 配置排除：`**/common/**`、`**/config/**`、`**/*Application*`、OpenApi 配置
-- [ ] 5.4 验证：`mvn -q verify` 门禁通过；故意降阈值反证门禁能使构建失败后还原
+- [x] 5.1 根 `pom.xml` 配置 `jacoco-maven-plugin` 0.8.11：`prepare-agent`(surefire) + `prepare-agent-integration`(failsafe) + `merge` 合并双轨 exec + 合并 `report` + `check` 绑定 `verify`（commit 3d33b5c）
+- [x] 5.2 门禁规则：BUNDLE 行覆盖 ≥70%、service 包行覆盖 ≥80%（service 规则 includes 修正为点分隔 `**.service`/`**.service.*`，否则空洞通过，commit 45b8007）
+- [x] 5.3 排除：`**/common/**`、`**/config/**`（含 OpenApiConfig）、`**/*Application*`
+- [x] 5.4 验证：`mvn clean verify` BUILD SUCCESS（account service=100%/整体91.5%，transfer service=93%/整体95.8%）；两条规则均实证可咬合（bundle 与 package 各自点名违规）后还原 70/80；快速轨 36 用例不受影响
 
 ## 6. 文档与收尾
 
