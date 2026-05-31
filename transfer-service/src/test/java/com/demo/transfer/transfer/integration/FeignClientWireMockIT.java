@@ -18,7 +18,9 @@ import com.demo.transfer.transfer.support.AbstractMySqlIntegrationTest;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import feign.FeignException;
+import feign.RetryableException;
 import java.math.BigDecimal;
+import java.net.SocketTimeoutException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,8 +38,11 @@ import org.springframework.test.context.DynamicPropertySource;
  *   <li>请求序列化 + 响应反序列化（正常 200+success=true 路径）；</li>
  *   <li>业务失败响应解码（HTTP 200 + success=false）；</li>
  *   <li>下游 5xx 错误时 Feign 抛出 {@link FeignException}；</li>
- *   <li>WireMock 固定延迟生效，验证慢响应场景。</li>
+ *   <li>响应延迟超过 Feign readTimeout 时抛出 {@link RetryableException}（读超时）。</li>
  * </ul>
+ *
+ * <p>读超时阈值（300ms）由 {@link #registerWireMockUrls} 通过 @DynamicPropertySource 注册的
+ * {@code feign.client.config.default.readTimeout} 提供（详见该方法的说明）。</p>
  *
  * <p>继承 {@link AbstractMySqlIntegrationTest} 以满足完整 Spring 上下文的数据库依赖（JPA/scheduler）；
  * Feign 指向 WireMock 而非真实账户服务。
@@ -69,15 +74,25 @@ class FeignClientWireMockIT extends AbstractMySqlIntegrationTest {
     }
 
     /**
-     * 将 Feign URL 配置指向 WireMock 动态端口。
+     * 将 Feign URL 指向 WireMock 动态端口，并配置较短的读超时用于超时验证。
      *
      * <p>父类 {@link AbstractMySqlIntegrationTest#registerDatasource} 已注册 datasource 属性；
      * 本方法额外注册 account.a.url / account.b.url，两个 @DynamicPropertySource 方法合并生效。
+     *
+     * <p>读超时 readTimeout 设为 300ms。本版本 spring-cloud-openfeign-core 3.1.9 的
+     * {@code FeignClientProperties} 仍以 {@code @ConfigurationProperties("feign.client")} 绑定，
+     * 故前缀用 {@code feign.client.config.default}（而非新版文档的 spring.cloud.openfeign.client）。
+     * 通过 @DynamicPropertySource 注册可确保该属性以最高优先级进入 Environment，
+     * 被 FeignClientProperties 的 Map 绑定可靠读取（写在 application-test.yml 中会因
+     * FeignClientProperties 早期绑定时机错过 test profile，导致 config map 为空、超时不生效）。
+     * 其余 IT 的 WireMock 响应均为即时返回，不会被 300ms 误伤。
      */
     @DynamicPropertySource
     static void registerWireMockUrls(DynamicPropertyRegistry registry) {
         registry.add("account.a.url", () -> "http://localhost:" + wireMockA.port());
         registry.add("account.b.url", () -> "http://localhost:" + wireMockB.port());
+        registry.add("feign.client.config.default.connectTimeout", () -> "1000");
+        registry.add("feign.client.config.default.readTimeout", () -> "300");
     }
 
     @Autowired
@@ -250,37 +265,37 @@ class FeignClientWireMockIT extends AbstractMySqlIntegrationTest {
     }
 
     // ----------------------------------------------------------------
-    // 4. WireMock 固定延迟生效验证
+    // 4. 读超时：响应延迟超过 readTimeout(300ms) → 抛出超时异常
     // ----------------------------------------------------------------
 
     @Test
-    void wireMockFixedDelayIsObservable() {
-        // 注入 100ms 固定延迟，验证调用耗时 > 50ms（确认延迟机制正常工作）
+    void responseDelayExceedingReadTimeoutThrowsTimeout() {
+        // 注入 1000ms 固定延迟，远大于测试 profile 中配置的 readTimeout=300ms，
+        // 故 Feign 在读取响应时应触发 SocketTimeoutException，并被包装成 RetryableException。
         wireMockA.stubFor(post(urlEqualTo("/internal/accounts/assets/freeze"))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withFixedDelay(100)
+                        .withFixedDelay(1000)
                         .withHeader("Content-Type", "application/json")
                         .withBody("{"
                                 + "\"success\":true,"
                                 + "\"code\":\"OK\","
                                 + "\"message\":\"success\","
                                 + "\"data\":{"
-                                + "  \"transferId\":\"t-delay\","
+                                + "  \"transferId\":\"t-timeout\","
                                 + "  \"operationType\":\"FREEZE\","
                                 + "  \"applied\":true,"
                                 + "  \"message\":\"延迟响应\""
                                 + "}}")));
 
         AssetOperationRequest req = new AssetOperationRequest(
-                "t-delay", "user-1", "USDT", new BigDecimal("10.00"), TransferDirection.A_TO_B);
+                "t-timeout", "user-1", "USDT", new BigDecimal("10.00"), TransferDirection.A_TO_B);
 
-        long startMs = System.currentTimeMillis();
-        ApiResponse<AssetOperationResponse> resp = accountAClient.freeze(req);
-        long elapsedMs = System.currentTimeMillis() - startMs;
-
-        // 响应正常返回（未超默认超时），但耗时应大于注入的 50ms
-        assertThat(resp.isSuccess()).isTrue();
-        assertThat(elapsedMs).as("WireMock 固定延迟 100ms 应导致调用耗时 > 50ms").isGreaterThan(50L);
+        // 超时应抛出 feign.RetryableException，其 root cause 为 SocketTimeoutException。
+        // 已验证：50ms 延迟（< 300ms readTimeout）不抛异常、正常返回；
+        // 1000ms 延迟（> 300ms readTimeout）则在 ~340ms 处中断并抛出本异常，证明断言由超时阈值驱动。
+        assertThatThrownBy(() -> accountAClient.freeze(req))
+                .isInstanceOf(RetryableException.class)
+                .hasRootCauseInstanceOf(SocketTimeoutException.class);
     }
 }
