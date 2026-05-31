@@ -24,12 +24,12 @@
 
 ## 4. 保真轨用例（需 Docker）
 
-- [ ] 4.1 `AccountAssetIdempotencyIT`：真实唯一索引下 `transfer_id + operation_type` 重复请求返回 `applied=false`，无二次副作用
-- [ ] 4.2 `AccountAmountPrecisionIT`：`DECIMAL(32,8)` 高精度金额（如 `0.00000001`）写入读回精确相等、标度保持
-- [ ] 4.3 `FeignClientWireMockIT`：WireMock 桩 A/B 服务，验证 Feign 序列化/反序列化、下游错误解码、超时
-- [ ] 4.4 `TransferScenarioIT`（`@SpringBootTest` + WireMock + Testcontainers）：正常完成、人工审核通过/拒绝、`CREDIT_FAILED` 持续重试收敛且不反向补偿
-- [ ] 4.5 将现有 Repository/集成测试中依赖真实库语义的断言迁入对应 `*IT`
-- [ ] 4.6 验证：`mvn -q verify`（Docker 在位）保真轨全绿
+- [x] 4.1 `AccountAssetIdempotencyIT`（3 用例）：真实唯一索引下重复请求返回 `applied=false`、余额/流水仅变更一次；直接重复插入触发 `DataIntegrityViolationException`（commit c480587/0a7fe15）
+- [x] 4.2 `AccountAmountPrecisionIT`（4 用例）：`DECIMAL(32,8)` 高精度金额经 `EntityManager.clear()` 强制 MySQL 往返后读回精确相等、scale=8、plainString 一致
+- [x] 4.3 `FeignClientWireMockIT`（7 用例）：Feign 序列化/反序列化、业务失败(200+success=false)解码、HTTP 5xx→FeignException、真实读超时(300ms)→RetryableException（commit b8f864d/93fcd9d）
+- [x] 4.4 `TransferScenarioIT`（4 用例）：正常完成、审核通过/拒绝、`CREDIT_FAILED`→重试→`SUCCESS` 且**两次断言 cancel-freeze 零调用**（不反向补偿）
+- [x] 4.5 评审结论：现有 H2 `*Test` 无依赖真实库语义的断言，无需迁移/重复，保持原样
+- [x] 4.6 验证：`mvn verify`（Docker 在位）保真轨全绿——account failsafe 8、transfer failsafe 12，双评审（规格+质量）通过
 
 ## 5. 覆盖率门禁
 
