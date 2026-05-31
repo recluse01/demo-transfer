@@ -20,6 +20,7 @@
 | `application-test.yml` 去重 | **不做**——两份相同但极小，保留按模块各一份 |
 | CI 平台 | GitHub Actions（远程为 `github.com/recluse01/demo-transfer`） |
 | CI 结构 | **单 job** 跑 `mvn verify`（覆盖双轨 + 门禁），非 2-job |
+| OpenSpec 边界 | 先将已完成的 `test-suite-best-practices` 归档，或为本次优化新建独立 change（建议 `optimize-test-architecture-ci`），避免与已完成的测试体系升级混在同一变更里 |
 | 第三梯队（PIT/并行/Pact 等） | **不做**——对基础示例属过度工程 |
 
 ## 3. 工作项设计
@@ -42,31 +43,36 @@
 
 - **问题**：`MySQLContainer` 在 Spring 上下文加载前的 static 块就启动，`application-test.yml` 的日志级别管不到它，导致 IT 输出被 docker-java DEBUG 刷屏（实测约 95KB）。
 - **效果**：本地与 CI 的 IT 日志显著清爽，便于排障。
+- **边界**：只压制 Docker/Testcontainers 的 DEBUG 噪音，保留应用包、Spring 关键启动信息和 WARN/ERROR；验收目标是「无 docker-java DEBUG 刷屏」，不是让测试输出完全静默。
 
 ### 3.3 保真 IT 隔离硬化
 
 - **问题**：`transfer-service` 的 `MySqlContainerSmokeIT` 断言 `orderRepository.count() == 0`，依赖「全局空表」，与 `TransferScenarioIT` 的 `@AfterEach deleteAll` 存在隐性顺序耦合，将来漏清理或开并行即脆。
 - **改法**：冒烟 IT 改为以「按一个不存在的唯一键查询返回空 + 表可计数（不抛异常）」证明「schema 存在、可查询」，不再依赖全局空表。
 - **审计**：确认所有**写库**的 IT 使用唯一业务键或事务回滚，不污染共享单例容器（account 侧写库用例已用 `@Transactional` 回滚或唯一键，确认即可）。
+- **验收重点**：`MySqlContainerSmokeIT` 单独运行、在全量 `mvn verify` 中运行、以及在其他写库 IT 之后运行都不依赖表为空。
 
 ### 3.4 WireMock/JSON 夹具去重
 
 - **问题**：`FeignClientWireMockIT` 多处手拼 `ApiResponse<AssetOperationResponse>` JSON 字符串，缺少 `TransferScenarioIT` 已有的 `successBody(...)` 之类辅助，重复且易因拼错导致反序列化失败。
-- **改法**：在 transfer-service 测试内抽取共享的 stub / 响应体辅助方法（**模块内**，不跨模块、不引入新依赖）。`TransferScenarioIT` 已有的 `successBody` 模式可作参照；评估是否值得提升为两个 IT 共用的小工具类（仅当真正减少重复时）。
+- **改法**：优先在 `FeignClientWireMockIT` 类内抽取响应体 helper；只有当 `TransferScenarioIT` 与 `FeignClientWireMockIT` 都能明显减少重复时，才提升为 transfer-service 测试源码内的小工具类。坚持**模块内**、不跨模块、不引入新依赖。
+- **边界**：不为了抽象而统一所有 WireMock stub。保留场景测试中能直接表达业务流程的局部 stub，避免测试可读性下降。
 
 ### 3.5 容器复用提速
 
 - 两个保真基类的 `MySQLContainer` 链式加 `.withReuse(true)`。
 - 开发者本地在 `~/.testcontainers.properties` 设 `testcontainers.reuse.enable=true`（**opt-in**）后，容器跨多次本地运行复用，省去每次约 10s 启动。
 - **CI 零影响**：CI 不设该属性 → 仍是全新容器 + Ryuk 自动清理，行为与现在一致、无风险。
-- 在测试策略文档说明本地开启方式。
+- **正确性边界**：容器复用只能是本地提速手段，不能成为测试正确性的前提。开启复用后，数据库状态可能跨 JVM 残留，且已存在的复用容器不会重新执行 `/docker-entrypoint-initdb.d` 初始化脚本；因此所有写库 IT 必须继续依赖事务回滚、唯一业务键或显式清理。
+- 在测试策略文档说明本地开启方式、适用场景，以及遇到脏数据/DDL 漂移时删除 reusable container 后重跑的处理方式。
 
 ## 4. 验证标准
 
 - `mvn test`（模拟无 Docker）全绿；`mvn verify`（Docker 在位）全绿、JaCoCo 门禁通过——行为相对现状不退化（纯增量 + 加固）。
 - 推送验证分支后，GitHub Actions 上 `ci.yml` 跑通 `mvn verify`、门禁生效、JaCoCo artifact 成功上传。
-- 抽查 IT 日志：无 docker-java DEBUG 刷屏。
-- `MySqlContainerSmokeIT` 不再依赖全局空表，单独运行与全量运行均通过。
+- 抽查 IT 日志：无 docker-java DEBUG 刷屏，同时 WARN/ERROR 与关键失败上下文仍可见。
+- `MySqlContainerSmokeIT` 不再依赖全局空表，单独运行、全量运行、置于写库 IT 之后运行均通过。
+- 本地开启 Testcontainers reuse 后，写库 IT 仍不依赖残留状态；文档明确脏容器清理方式。
 
 ## 5. 交付物
 
@@ -74,6 +80,7 @@
 - `account-service`、`transfer-service` 各一份 `src/test/resources/logback-test.xml`
 - 改动：两个 `MySqlContainerSmokeIT`（隔离硬化）、两个保真基类（`withReuse`）、`FeignClientWireMockIT`（夹具去重）
 - 更新 `docs/design/testing-strategy.md`：补「CI」与「容器复用本地开启方式」两小节
+- OpenSpec 交付：本优化使用独立 change 承载；若 `test-suite-best-practices` 已确认完成，应先归档再开始本变更，保持变更边界清晰。
 - 按阶段提交（CI / 日志 / 隔离 / 夹具 / 复用 / 文档），中文 Conventional Commits，提交在 `claude/v1-test`
 
 ## 6. 不做（YAGNI）
