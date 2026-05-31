@@ -40,7 +40,7 @@
 
 ## 6. 文档与收尾
 
-- [ ] 6.1 新增 `docs/design/testing-strategy.md`：金字塔分层、`*Test`/`*IT` 约定、双轨如何跑、Docker 前置
-- [ ] 6.2 在 `CLAUDE.md` 第 7 节文档索引登记测试策略文档
-- [ ] 6.3 按阶段（1→2→3→4→5→6）拆分提交，遵循中文 Conventional Commits
-- [ ] 6.4 最终验证：`mvn test` 无 Docker 全绿 且 `mvn verify` 有 Docker 全绿含门禁
+- [x] 6.1 新增 `docs/design/testing-strategy.md`：金字塔分层、`*Test`/`*IT` 约定、双轨如何跑、Docker 前置、保真基类、精度模式、WireMock、核心原则测试、JaCoCo 门控、新增测试速查表
+- [x] 6.2 在 `CLAUDE.md`（软链接 AGENTS.md）第 7 节文档索引登记测试策略文档，软链接保持完好
+- [x] 6.3 按阶段（1→2→3→4→5→6）拆分提交，遵循中文 Conventional Commits
+- [x] 6.4 最终验证：`mvn clean verify` BUILD SUCCESS——快速轨(account17/transfer36) + 保真轨(account8/transfer12) 全绿，JaCoCo 三模块均 "All coverage checks have been met"
