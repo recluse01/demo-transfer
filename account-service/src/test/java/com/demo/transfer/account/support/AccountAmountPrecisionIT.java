@@ -13,6 +13,7 @@ import com.demo.transfer.common.AssetOperationResponse;
 import com.demo.transfer.common.OperationType;
 import com.demo.transfer.common.TransferDirection;
 import java.math.BigDecimal;
+import javax.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -52,6 +53,9 @@ class AccountAmountPrecisionIT extends AbstractMySqlIntegrationTest {
     @Autowired
     private FinanceLedgerRepository ledgerRepository;
 
+    @Autowired
+    private EntityManager entityManager;
+
     // -------------------------------------------------------------------------
     // 测试 1：余额表 available_amount 高精度写入读回
     // -------------------------------------------------------------------------
@@ -67,6 +71,9 @@ class AccountAmountPrecisionIT extends AbstractMySqlIntegrationTest {
         // 写入最小精度余额
         AccountBalance balance = AccountBalance.create("user-precision-1", "USDT", MIN_PRECISION);
         balanceRepository.saveAndFlush(balance);
+
+        // 清空一级缓存，强制下面的查询从 MySQL 真实回读（否则返回内存中字面量 BigDecimal，断言空洞）
+        entityManager.clear();
 
         // 从数据库读回
         AccountBalance loaded = balanceRepository.findByUserIdAndAssetCode("user-precision-1", "USDT")
@@ -103,6 +110,11 @@ class AccountAmountPrecisionIT extends AbstractMySqlIntegrationTest {
         AssetOperationResponse response = service.freeze(req);
         assertThat(response.isApplied()).isTrue();
 
+        // 先 flush 把服务层脏数据写入数据库会话，再 clear 清空一级缓存，
+        // 强制下面从 MySQL 真实回读冻结/可用金额（直接 clear 会丢弃未 flush 的脏更新）
+        entityManager.flush();
+        entityManager.clear();
+
         // 验证 frozen_amount
         AccountBalance after = balanceRepository.findByUserIdAndAssetCode("user-precision-2", "USDT")
                 .orElseThrow(AssertionError::new);
@@ -132,6 +144,9 @@ class AccountAmountPrecisionIT extends AbstractMySqlIntegrationTest {
                 "it-precision-op-1", OperationType.CREDIT, "user-1", "USDT",
                 MIN_PRECISION, "precision test");
         operationRepository.saveAndFlush(op);
+
+        // 清空一级缓存，强制从 MySQL 真实回读 amount
+        entityManager.clear();
 
         AssetOperation loaded = operationRepository.findByTransferIdAndOperationType(
                 "it-precision-op-1", OperationType.CREDIT)
@@ -168,6 +183,11 @@ class AccountAmountPrecisionIT extends AbstractMySqlIntegrationTest {
 
         AssetOperationResponse response = service.credit(req);
         assertThat(response.isApplied()).isTrue();
+
+        // 先 flush 把服务层脏数据写入数据库会话，再 clear 清空一级缓存，
+        // 强制下面从 MySQL 真实回读入账后的可用余额（直接 clear 会丢弃未 flush 的脏更新）
+        entityManager.flush();
+        entityManager.clear();
 
         AccountBalance after = balanceRepository.findByUserIdAndAssetCode("user-1", "USDT")
                 .orElseThrow(AssertionError::new);

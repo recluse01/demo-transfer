@@ -74,6 +74,7 @@ class AccountAssetIdempotencyIT extends AbstractMySqlIntegrationTest {
         AccountBalance balance = balanceRepository.findByUserIdAndAssetCode("user-1", "USDT")
                 .orElseThrow(() -> new AssertionError("种子余额不存在"));
         BigDecimal initialAvailable = balance.getAvailableAmount();
+        BigDecimal initialFrozen = balance.getFrozenAmount();
 
         AssetOperationRequest req = buildRequest("it-idempotency-freeze-1", "10.00000001");
 
@@ -91,7 +92,7 @@ class AccountAssetIdempotencyIT extends AbstractMySqlIntegrationTest {
         assertThat(after.getAvailableAmount())
                 .isEqualByComparingTo(initialAvailable.subtract(new BigDecimal("10.00000001")));
         assertThat(after.getFrozenAmount())
-                .isEqualByComparingTo(new BigDecimal("10.00000001"));
+                .isEqualByComparingTo(initialFrozen.add(new BigDecimal("10.00000001")));
 
         // 流水仅写入一条
         assertThat(ledgerRepository.countByTransferIdAndOperationType("it-idempotency-freeze-1", OperationType.FREEZE))
