@@ -1,0 +1,35 @@
+# 持续集成：每次 push 到分支与每个 pull_request 上自动执行双轨测试与 JaCoCo 门禁。
+# 单 job 跑 `mvn -B verify`，一条命令覆盖快速轨（surefire *Test）+ 保真轨（failsafe *IT / Testcontainers）
+# + JaCoCo 合并覆盖率门禁；ubuntu-latest runner 自带 Docker，Testcontainers 开箱即用。
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      # Temurin 8 对齐编译目标 1.8；启用 Maven 依赖缓存加速构建。
+      - name: 配置 Temurin 8 + Maven 缓存
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+
+      # 一条 verify 覆盖快速轨 + 保真轨 + JaCoCo merge/check 门禁；任一失败即 CI 失败。
+      - name: 执行 mvn verify
+        run: mvn -B verify
+
+      # 失败时也上传，便于排查覆盖率明细。
+      - name: 上传 JaCoCo 覆盖率报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: '**/target/site/jacoco/'
