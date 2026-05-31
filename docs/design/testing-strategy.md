@@ -300,6 +300,21 @@ Testcontainers 会自动拉取 `mysql:8.0.36` 镜像并管理容器生命周期�
 - 不依赖测试类或测试方法执行顺序；任何顺序依赖都应改为显式初始化和清理。
 - `@SpringBootTest` 会加载完整应用配置。若测试只需要手动触发重试，使用 `@MockBean TransferRetryScheduler` 替换真实调度器，避免后台 `@Scheduled` 线程和测试步骤竞态。
 
+### 7.1 容器复用（本地 opt-in 提速）
+
+两个保真基类的 `MySQLContainer` 都链式加了 `.withReuse(true)`，但**复用默认不生效**——它只是一个开关，是否复用由开发者本地配置决定：
+
+- **开启方式（仅本地）**：在 `~/.testcontainers.properties` 写入 `testcontainers.reuse.enable=true`。开启后，跨多次 `mvn verify` 运行复用同一个 MySQL 容器（不再每次重启/重新初始化），显著缩短反复跑保真轨的等待。
+- **适用场景**：本地反复调试保真 IT。**CI 不设该属性** → `withReuse(true)` 形同未开，仍每次启动全新容器并由 Ryuk 自动清理，行为零变化。
+- **正确性边界（重要）**：复用的容器**不会**重新执行 `/docker-entrypoint-initdb.d` 初始化脚本，且数据可能跨 JVM 残留。因此测试的正确性**绝不能**依赖容器初始状态或「表为空」——这正是「保真轨隔离规则」要求所有写库 IT 靠唯一业务键、事务回滚或显式清理来保证隔离的原因。容器复用只是提速手段，不是正确性前提。
+- **脏数据 / DDL 漂移的处理**：若本地开启复用后遇到脏数据，或修改了 `01-demo-transfer.sql` 的 DDL（复用容器不会重新初始化、看不到新 DDL），手动删除该 reusable 容器后重跑即可：
+
+  ```bash
+  # 列出 testcontainers 复用容器（带 org.testcontainers.* 标签），删除后下次运行会全新初始化
+  docker ps -a --filter "label=org.testcontainers.reuse.enable=true"
+  docker rm -f <容器ID>
+  ```
+
 ## 8. `entityManager.clear()` 精度验证模式
 
 验证 `DECIMAL(32,8)` 精度时，必须先清空 JPA 一级缓存，否则读到的是内存中的字面量 `BigDecimal`，断言变成空洞的自我比较。
@@ -411,6 +426,17 @@ grep -o '<sourcefile name="[^"]*Response[^"]*"' transfer-service/target/site/jac
 ```
 
 以上命令应无输出。若出现 `CreateTransferRequest`、`ReviewTransferRequest` 等条目，说明 `report` 与 `check` 的排除配置不一致或未生效。
+
+### 11.1 CI：门禁在每次 push/PR 自动兑现
+
+`mvn verify` 的 JaCoCo 门禁只在本地兑现就只有一半价值。`.github/workflows/ci.yml` 让它在每次 push 与 PR 上自动执行：
+
+- **触发**：`push`（任意分支）与 `pull_request`。
+- **单 job**：`ubuntu-latest` 上跑一个 job，`actions/checkout` → `actions/setup-java`（**Temurin 8**，对齐编译目标 `1.8`，并启用 Maven 依赖缓存）→ `mvn -B verify`。
+- **为什么单 job 而非拆快速轨/保真轨两 job**：runner 自带 Docker，Testcontainers 开箱即用，一条 `mvn -B verify` 即覆盖快速轨（surefire `*Test`）+ 保真轨（failsafe `*IT`）+ JaCoCo 合并门禁；拆 job 需跨 job 传产物、重复配缓存，对一个基础示例不值得。
+- **门禁生效**：任一 `*Test`/`*IT` 失败，或 JaCoCo `check` 不达标，`mvn verify` 即非零退出，CI 标记失败。
+- **覆盖率 artifact**：收尾用 `actions/upload-artifact`（`if: always()`，失败时也上传）打包各模块的 `**/target/site/jacoco/` HTML 报告，可在 workflow 运行页下载查看覆盖率明细。
+- **与本地容器复用的关系**：CI 不设 `testcontainers.reuse.enable`，故 `withReuse(true)` 在 CI 形同未开，始终全新容器 + Ryuk 清理（见 [7.1](#71-容器复用本地-opt-in-提速)）。
 
 ---
 
