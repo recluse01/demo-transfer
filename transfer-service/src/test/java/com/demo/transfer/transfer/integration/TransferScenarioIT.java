@@ -115,8 +115,8 @@ class TransferScenarioIT extends AbstractMySqlIntegrationTest {
 
     @AfterEach
     void cleanDatabase() {
-        // 清理本次测试写入的数据，避免污染共享 MySQL 容器（单例模式），
-        // 防止 MySqlContainerSmokeIT 等其他 IT 因非空表断言失败。
+        // 显式清理本次测试写入的数据，保证写库 IT 彼此隔离、不污染共享 MySQL 容器（单例模式，
+        // 本地开启 withReuse 后还会跨 JVM 复用）。这是「写库 IT 靠显式清理保证隔离」不变量的体现。
         stepLogRepository.deleteAll();
         orderRepository.deleteAll();
     }
