@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  测试期日志配置。
+
+  MySQLContainer 在 Spring 上下文加载前的 static 块即启动，application-test.yml 的
+  logging.level 此时尚未生效，管不到容器启动期的 docker-java DEBUG 刷屏。logback-test.xml
+  在日志框架 classpath 初始化时就被读取，故在此压制 testcontainers / docker-java 噪音。
+
+  目标是「无 docker-java DEBUG 刷屏」，而非完全静默：保留应用包、Spring 关键启动信息，
+  以及所有 WARN/ERROR 失败上下文。
+-->
+<configuration>
+    <!-- 复用 Spring Boot 默认控制台格式与 CONSOLE appender -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <!-- 压制容器栈噪音到 WARN（WARN/ERROR 仍可见） -->
+    <logger name="org.testcontainers" level="WARN"/>
+    <logger name="com.github.dockerjava" level="WARN"/>
+    <logger name="tc" level="WARN"/>
+
+    <!-- 应用包保留 INFO，便于观察关键流程 -->
+    <logger name="com.demo.transfer" level="INFO"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
