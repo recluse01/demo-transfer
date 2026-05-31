@@ -220,12 +220,16 @@
                                         </limit>
                                     </limits>
                                 </rule>
-                                <!-- 规则 B：service 包行覆盖 ≥ 80%（PACKAGE 元素，includes 精确匹配） -->
+                                <!-- 规则 B：service 包行覆盖 ≥ 80%（PACKAGE 元素）。
+                                     注意：PACKAGE 元素以点分隔包名匹配（如 com.demo.transfer.account.service），
+                                     glob 的 ** 不跨 `.`，故必须用点分隔模式：
+                                       **.service    匹配 service 包自身
+                                       **.service.*  匹配其子包（如存在） -->
                                 <rule>
                                     <element>PACKAGE</element>
                                     <includes>
-                                        <include>**/service</include>
-                                        <include>**/service/**</include>
+                                        <include>**.service</include>
+                                        <include>**.service.*</include>
                                     </includes>
                                     <limits>
                                         <limit>
