@@ -73,3 +73,4 @@ cd transfer-service  && mvn spring-boot:run
 - [架构决策记录（ADR）](docs/decisions/README.md)：关键设计「为什么」的单一来源。
 - [术语表 / 概念索引](docs/concepts/glossary.md)
 - [接口调试文档](docs/api/transfer-debug-api.md) · [演示文档](docs/demo/cross-account-transfer-demo.md)
+- [测试策略](docs/design/testing-strategy.md)：测试金字塔、双轨命名约定、保真基类、WireMock、JaCoCo 门控、新增测试速查。
