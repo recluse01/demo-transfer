@@ -118,16 +118,7 @@ class FeignClientWireMockIT extends AbstractMySqlIntegrationTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody("{"
-                                + "\"success\":true,"
-                                + "\"code\":\"OK\","
-                                + "\"message\":\"success\","
-                                + "\"data\":{"
-                                + "  \"transferId\":\"t-001\","
-                                + "  \"operationType\":\"FREEZE\","
-                                + "  \"applied\":true,"
-                                + "  \"message\":\"冻结成功\""
-                                + "}}")));
+                        .withBody(successBody("t-001", "FREEZE", true, "冻结成功"))));
 
         AssetOperationRequest req = new AssetOperationRequest(
                 "t-001", "user-1", "USDT", new BigDecimal("10.00"), TransferDirection.A_TO_B);
@@ -152,16 +143,7 @@ class FeignClientWireMockIT extends AbstractMySqlIntegrationTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody("{"
-                                + "\"success\":true,"
-                                + "\"code\":\"OK\","
-                                + "\"message\":\"success\","
-                                + "\"data\":{"
-                                + "  \"transferId\":\"t-002\","
-                                + "  \"operationType\":\"CREDIT\","
-                                + "  \"applied\":true,"
-                                + "  \"message\":\"入账成功\""
-                                + "}}")));
+                        .withBody(successBody("t-002", "CREDIT", true, "入账成功"))));
 
         AssetOperationRequest req = new AssetOperationRequest(
                 "t-002", "user-1", "USDT", new BigDecimal("5.50"), TransferDirection.A_TO_B);
@@ -185,11 +167,7 @@ class FeignClientWireMockIT extends AbstractMySqlIntegrationTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody("{"
-                                + "\"success\":false,"
-                                + "\"code\":\"ACCOUNT_OPERATION_FAILED\","
-                                + "\"message\":\"insufficient balance\","
-                                + "\"data\":null}")));
+                        .withBody(businessFailureBody("ACCOUNT_OPERATION_FAILED", "insufficient balance"))));
 
         AssetOperationRequest req = new AssetOperationRequest(
                 "t-003", "user-1", "USDT", new BigDecimal("99999.00"), TransferDirection.A_TO_B);
@@ -210,16 +188,7 @@ class FeignClientWireMockIT extends AbstractMySqlIntegrationTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody("{"
-                                + "\"success\":true,"
-                                + "\"code\":\"OK\","
-                                + "\"message\":\"success\","
-                                + "\"data\":{"
-                                + "  \"transferId\":\"t-004\","
-                                + "  \"operationType\":\"CONFIRM_DEBIT\","
-                                + "  \"applied\":false,"
-                                + "  \"message\":\"幂等命中，未重复执行\""
-                                + "}}")));
+                        .withBody(successBody("t-004", "CONFIRM_DEBIT", false, "幂等命中，未重复执行"))));
 
         AssetOperationRequest req = new AssetOperationRequest(
                 "t-004", "user-1", "USDT", new BigDecimal("10.00"), TransferDirection.A_TO_B);
@@ -277,16 +246,7 @@ class FeignClientWireMockIT extends AbstractMySqlIntegrationTest {
                         .withStatus(200)
                         .withFixedDelay(1000)
                         .withHeader("Content-Type", "application/json")
-                        .withBody("{"
-                                + "\"success\":true,"
-                                + "\"code\":\"OK\","
-                                + "\"message\":\"success\","
-                                + "\"data\":{"
-                                + "  \"transferId\":\"t-timeout\","
-                                + "  \"operationType\":\"FREEZE\","
-                                + "  \"applied\":true,"
-                                + "  \"message\":\"延迟响应\""
-                                + "}}")));
+                        .withBody(successBody("t-timeout", "FREEZE", true, "延迟响应"))));
 
         AssetOperationRequest req = new AssetOperationRequest(
                 "t-timeout", "user-1", "USDT", new BigDecimal("10.00"), TransferDirection.A_TO_B);
@@ -297,5 +257,42 @@ class FeignClientWireMockIT extends AbstractMySqlIntegrationTest {
         assertThatThrownBy(() -> accountAClient.freeze(req))
                 .isInstanceOf(RetryableException.class)
                 .hasRootCauseInstanceOf(SocketTimeoutException.class);
+    }
+
+    // ----------------------------------------------------------------
+    // 响应体夹具：仅覆盖两种合法 ApiResponse 形态（成功体 / 业务失败体）。
+    // 模拟反序列化失败的非标准体（纯文本 "Service Unavailable"、{"error":...}）
+    // 刻意保持各用例内手写，不进 helper——否则抹掉「下游返回非标准体」的测试意图。
+    // 仅在本类内去重（类内 helper），不提升为跨类工具：TransferScenarioIT 的 successBody
+    // 签名与意图不同（固定 transferId、只变 operationType），强行统一属过度抽象。
+    // ----------------------------------------------------------------
+
+    /**
+     * 构造业务成功的合法 {@link ApiResponse} JSON 响应体（HTTP 200 + success=true）。
+     * 通过 {@code applied} 参数同时覆盖正常成功与幂等命中（applied=false）两种成功形态。
+     */
+    private static String successBody(String transferId, String operationType, boolean applied, String message) {
+        return "{"
+                + "\"success\":true,"
+                + "\"code\":\"OK\","
+                + "\"message\":\"success\","
+                + "\"data\":{"
+                + "  \"transferId\":\"" + transferId + "\","
+                + "  \"operationType\":\"" + operationType + "\","
+                + "  \"applied\":" + applied + ","
+                + "  \"message\":\"" + message + "\""
+                + "}}";
+    }
+
+    /**
+     * 构造业务失败的合法 {@link ApiResponse} JSON 响应体（HTTP 200 + success=false + data=null），
+     * 模拟账户服务以 200 表达业务错误（如余额不足）。
+     */
+    private static String businessFailureBody(String code, String message) {
+        return "{"
+                + "\"success\":false,"
+                + "\"code\":\"" + code + "\","
+                + "\"message\":\"" + message + "\","
+                + "\"data\":null}";
     }
 }
