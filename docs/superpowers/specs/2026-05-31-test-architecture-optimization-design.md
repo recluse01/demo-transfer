@@ -47,16 +47,19 @@
 
 ### 3.3 保真 IT 隔离硬化
 
-- **问题**：`transfer-service` 的 `MySqlContainerSmokeIT` 断言 `orderRepository.count() == 0`，依赖「全局空表」，与 `TransferScenarioIT` 的 `@AfterEach deleteAll` 存在隐性顺序耦合，将来漏清理或开并行即脆。
-- **改法**：冒烟 IT 改为以「按一个不存在的唯一键查询返回空 + 表可计数（不抛异常）」证明「schema 存在、可查询」，不再依赖全局空表。
-- **审计**：确认所有**写库**的 IT 使用唯一业务键或事务回滚，不污染共享单例容器（account 侧写库用例已用 `@Transactional` 回滚或唯一键，确认即可）。
-- **验收重点**：`MySqlContainerSmokeIT` 单独运行、在全量 `mvn verify` 中运行、以及在其他写库 IT 之后运行都不依赖表为空。
+- **范围澄清**：两个模块的冒烟 IT 隔离性并不相同，本工作项**只改 `transfer-service` 侧**：
+  - `transfer-service` 的 `MySqlContainerSmokeIT` 断言 `orderRepository.count() == 0`，依赖「全局空表」，与 `TransferScenarioIT` 的 `@AfterEach deleteAll` 存在隐性顺序耦合，将来漏清理或开并行即脆 —— **需要硬化**。
+  - `account-service` 的 `MySqlContainerSmokeIT` 查的是 DDL 播种的种子行（`findByUserIdAndAssetCode("user-1","USDT")`），本就不依赖「空表」，隔离上没有同类耦合 —— **不改代码，仅纳入下方审计确认**。
+- **改法（仅 transfer 侧）**：冒烟 IT 改为以「按一个不存在的唯一键查询返回空 + 表可计数（不抛异常）」证明「schema 存在、可查询」，不再依赖全局空表。
+- **审计**：确认所有**写库**的 IT 使用唯一业务键或事务回滚，不污染共享单例容器（account 侧写库用例及其种子查询用 `@Transactional` 回滚或唯一键，确认即可）。
+- **验收重点**：transfer 侧 `MySqlContainerSmokeIT` 单独运行、在全量 `mvn verify` 中运行、以及在其他写库 IT 之后运行都不依赖表为空。
 
 ### 3.4 WireMock/JSON 夹具去重
 
 - **问题**：`FeignClientWireMockIT` 多处手拼 `ApiResponse<AssetOperationResponse>` JSON 字符串，缺少 `TransferScenarioIT` 已有的 `successBody(...)` 之类辅助，重复且易因拼错导致反序列化失败。
 - **改法**：优先在 `FeignClientWireMockIT` 类内抽取响应体 helper；只有当 `TransferScenarioIT` 与 `FeignClientWireMockIT` 都能明显减少重复时，才提升为 transfer-service 测试源码内的小工具类。坚持**模块内**、不跨模块、不引入新依赖。
-- **边界**：不为了抽象而统一所有 WireMock stub。保留场景测试中能直接表达业务流程的局部 stub，避免测试可读性下降。
+- **helper 覆盖范围**：`TransferScenarioIT` 现有的 `successBody(operationType)` 只产 `success:true` 的标准 `ApiResponse` 体；`FeignClientWireMockIT` 还需要一类**业务失败体**（`success:false`、`data:null`），因此 helper 应覆盖「成功体 + 失败体」两种合法 `ApiResponse`。
+- **边界**：不为了抽象而统一所有 WireMock stub。两类**故意非标准**的桩——纯文本 5xx 体（如 `"Service Unavailable"`）与 `{"error":...}`——是用来模拟反序列化失败 / 非 `ApiResponse` 响应的，**必须保持手写、不进 helper**，否则会抹掉测试意图。保留场景测试中能直接表达业务流程的局部 stub，避免测试可读性下降。
 
 ### 3.5 容器复用提速
 
@@ -78,7 +81,7 @@
 
 - `.github/workflows/ci.yml`
 - `account-service`、`transfer-service` 各一份 `src/test/resources/logback-test.xml`
-- 改动：两个 `MySqlContainerSmokeIT`（隔离硬化）、两个保真基类（`withReuse`）、`FeignClientWireMockIT`（夹具去重）
+- 改动：`transfer-service` 的 `MySqlContainerSmokeIT`（隔离硬化；account 侧仅审计确认、不改）、两个保真基类（`withReuse`）、`FeignClientWireMockIT`（夹具去重）
 - 更新 `docs/design/testing-strategy.md`：补「CI」与「容器复用本地开启方式」两小节
 - OpenSpec 交付：本优化使用独立 change 承载；若 `test-suite-best-practices` 已确认完成，应先归档再开始本变更，保持变更边界清晰。
 - 按阶段提交（CI / 日志 / 隔离 / 夹具 / 复用 / 文档），中文 Conventional Commits，提交在 `claude/v1-test`
