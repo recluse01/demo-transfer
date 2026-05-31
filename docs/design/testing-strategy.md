@@ -28,7 +28,7 @@
 ```bash
 mvn test
 # 或仅跑某模块
-mvn test -pl account-service
+mvn test -pl account-service -am
 ```
 
 全部 `*Test` 均基于 H2 内存库 / Mockito，无外部依赖，开发机随时可跑，通常数秒完成。
@@ -43,7 +43,7 @@ docker info
 mvn verify
 
 # 仅跑某模块的 IT
-mvn verify -pl transfer-service
+mvn verify -pl transfer-service -am
 ```
 
 Testcontainers 会自动拉取 `mysql:8.0.36` 镜像并管理容器生命周期，无需手动 `docker compose up`。首次运行需要网络下载镜像，后续使用本地缓存。

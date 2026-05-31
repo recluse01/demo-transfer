@@ -134,6 +134,8 @@
                   - **/common/**          DTOs、枚举
                   - **/config/**          Spring 配置类、OpenApiConfig
                   - **/*Application*      SpringBoot 启动类
+                  - **/*Request* / **/*Response*
+                                            Web/客户端 DTO
             -->
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -190,6 +192,8 @@
                                 <exclude>**/common/**</exclude>
                                 <exclude>**/config/**</exclude>
                                 <exclude>**/*Application*</exclude>
+                                <exclude>**/*Request*</exclude>
+                                <exclude>**/*Response*</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -207,6 +211,8 @@
                                 <exclude>**/common/**</exclude>
                                 <exclude>**/config/**</exclude>
                                 <exclude>**/*Application*</exclude>
+                                <exclude>**/*Request*</exclude>
+                                <exclude>**/*Response*</exclude>
                             </excludes>
                             <rules>
                                 <!-- 规则 A：整体（BUNDLE）行覆盖 ≥ 70% -->

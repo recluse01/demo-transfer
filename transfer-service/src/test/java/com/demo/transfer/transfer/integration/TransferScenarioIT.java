@@ -13,6 +13,7 @@ import com.demo.transfer.common.TransferStatus;
 import com.demo.transfer.transfer.domain.TransferOrder;
 import com.demo.transfer.transfer.repository.TransferOrderRepository;
 import com.demo.transfer.transfer.repository.TransferStepLogRepository;
+import com.demo.transfer.transfer.schedule.TransferRetryScheduler;
 import com.demo.transfer.transfer.service.TransferRetryService;
 import com.demo.transfer.transfer.service.TransferSagaService;
 import com.demo.transfer.transfer.support.AbstractMySqlIntegrationTest;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
@@ -100,6 +102,9 @@ class TransferScenarioIT extends AbstractMySqlIntegrationTest {
 
     @Autowired
     private TransferStepLogRepository stepLogRepository;
+
+    @MockBean
+    private TransferRetryScheduler retryScheduler;
 
     @BeforeEach
     void resetWireMock() {
