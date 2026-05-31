@@ -33,7 +33,11 @@ public abstract class AbstractMySqlIntegrationTest {
         MYSQL = new MySQLContainer<>(IMAGE)
                 .withCopyFileToContainer(
                         MountableFile.forHostPath(INIT_SCRIPT_HOST_PATH),
-                        "/docker-entrypoint-initdb.d/01-demo-transfer.sql");
+                        "/docker-entrypoint-initdb.d/01-demo-transfer.sql")
+                // 本地 opt-in 提速：仅当开发者在 ~/.testcontainers.properties 设
+                // testcontainers.reuse.enable=true 时才跨运行复用容器；CI 不设该属性 → 仍全新容器 + Ryuk 清理。
+                // 复用容器不会重新执行初始化脚本、数据可能跨 JVM 残留，故写库 IT 必须靠唯一键/事务回滚/显式清理保证隔离。
+                .withReuse(true);
         MYSQL.start();
     }
 
