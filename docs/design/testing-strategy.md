@@ -92,6 +92,110 @@
 - **快速轨**把 MySQL 换成 H2、把 Feign/下游换成 Mockito mock——一切在内存里，极快。
 - **保真轨**用真实 MySQL 容器 + WireMock 桩代真实 HTTP——只有「数据库怎么存」和「Feign 怎么收发」用真的，A/B 服务本身仍是替身（不真起三个进程，成本可控）。
 
+### 3.1 Mermaid 流程图速览
+
+下面几张图从「怎么选测试」「命令怎么分流」「保真 IT 怎么跑」「核心 Saga 用例怎么断言」「覆盖率怎么合并」五个角度建立心智模型。读完本小节后，再看后面的命令、基类和示例会更容易对上号。
+
+**新增测试时怎么选轨道：**
+
+```mermaid
+flowchart TD
+    A[要验证一个行为] --> B{是否涉及纯 Java 逻辑?}
+    B -->|是| C[纯单元测试 *Test<br/>JUnit 5 + Mockito<br/>mvn test]
+
+    B -->|否| D{是否只验证 Controller 协议层?}
+    D -->|是| E[Web 切片 *Test<br/>@WebMvcTest + MockMvc<br/>mvn test]
+
+    D -->|否| F{是否只验证 Repository 常规映射/查询?}
+    F -->|是| G[持久层切片 *Test<br/>@DataJpaTest + H2<br/>mvn test]
+
+    F -->|否| H{是否依赖 MySQL 真实行为<br/>或跨 HTTP/Feign 调用?}
+    H -->|是| I[保真集成 *IT<br/>Testcontainers MySQL + WireMock<br/>mvn verify]
+
+    H -->|否| J[优先放快速轨 *Test<br/>保持反馈快]
+```
+
+**Maven 测试分流：**
+
+```mermaid
+flowchart LR
+    A[开发者执行命令] --> B{命令}
+
+    B -->|mvn test| C[surefire]
+    C --> D[匹配 *Test]
+    D --> E[快速轨<br/>H2 / Mockito / MockMvc]
+    E --> F[target/jacoco.exec]
+
+    B -->|mvn verify| G[surefire 先跑]
+    G --> H[*Test 快速轨]
+    H --> I[failsafe 再跑]
+    I --> J[匹配 *IT]
+    J --> K[保真轨<br/>真实 MySQL / WireMock]
+    K --> L[target/jacoco-it.exec]
+
+    F --> M[JaCoCo merge]
+    L --> M
+    M --> N[jacoco-merged.exec]
+    N --> O[report + check 覆盖率门控]
+```
+
+**四层测试金字塔：**
+
+```mermaid
+flowchart BT
+    U[纯单元测试<br/>大量、最快<br/>JUnit 5 + Mockito] --> S[切片测试<br/>适量、较快<br/>@DataJpaTest / @WebMvcTest]
+    S --> I[保真集成测试<br/>少量、慢、信心最高<br/>@SpringBootTest + MySQL + WireMock]
+
+    U -.示例.-> U1[AccountClientRouterTest<br/>TransferRetrySchedulerTest]
+    S -.示例.-> S1[AccountRepositoryTest<br/>AccountAssetControllerTest]
+    I -.示例.-> I1[TransferScenarioIT<br/>AccountAmountPrecisionIT]
+```
+
+**一个保真 IT 的启动流程：**
+
+```mermaid
+sequenceDiagram
+    participant Test as 测试类
+    participant Base as AbstractMySqlIntegrationTest
+    participant MySQL as Testcontainers MySQL
+    participant WM as WireMock A/B
+    participant Spring as Spring Context
+    participant Saga as TransferSagaService
+
+    Base->>MySQL: static 单例容器启动
+    Test->>WM: @BeforeAll 启动两个 WireMockServer
+    Test->>Spring: @DynamicPropertySource 注入 datasource 和 account.a/b.url
+    Spring->>Spring: 启动完整上下文
+    Spring->>Saga: 装配真实 service/repository/Feign
+    Test->>Spring: @MockBean 替换 TransferRetryScheduler
+    Test->>WM: @BeforeEach resetAll
+    Test->>Saga: 执行业务步骤
+    Saga->>MySQL: 读写真实 transfer 库
+    Saga->>WM: Feign HTTP 调用账户服务桩
+    Test->>MySQL: 断言订单状态
+    Test->>WM: verify 下游请求次数
+    Test->>MySQL: @AfterEach 清理测试数据
+```
+
+**核心 Saga 测试：入账失败不补偿，只重试：**
+
+```mermaid
+flowchart TD
+    A[创建人工审核转账单] --> B[源账户 freeze 成功]
+    B --> C[订单状态 WAIT_REVIEW]
+    C --> D[审核通过]
+    D --> E[源账户 confirm-debit 成功]
+    E --> F[目标账户 credit 第一次失败]
+    F --> G[订单状态 CREDIT_FAILED]
+    G --> H{是否调用 cancel-freeze?}
+    H -->|预期 0 次| I[证明不做反向补偿]
+    I --> J[手动触发 retryOne]
+    J --> K[目标账户 credit 第二次成功]
+    K --> L[订单状态 SUCCESS]
+    L --> M[再次断言 cancel-freeze 仍为 0 次]
+    M --> N[断言 credit 共 2 次<br/>confirm-debit 仅 1 次]
+```
+
 ## 4. 工具速览（每个工具解决什么问题）
 
 | 工具 / 注解 | 一句话 | 解决什么问题 | 本项目何处用 |
