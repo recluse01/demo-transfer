@@ -436,6 +436,7 @@ grep -o '<sourcefile name="[^"]*Response[^"]*"' transfer-service/target/site/jac
 - **为什么单 job 而非拆快速轨/保真轨两 job**：runner 自带 Docker，Testcontainers 开箱即用，一条 `mvn -B verify` 即覆盖快速轨（surefire `*Test`）+ 保真轨（failsafe `*IT`）+ JaCoCo 合并门禁；拆 job 需跨 job 传产物、重复配缓存，对一个基础示例不值得。
 - **门禁生效**：任一 `*Test`/`*IT` 失败，或 JaCoCo `check` 不达标，`mvn verify` 即非零退出，CI 标记失败。
 - **覆盖率 artifact**：收尾用 `actions/upload-artifact`（`if: always()`，失败时也上传）打包各模块的 `**/target/site/jacoco/` HTML 报告，可在 workflow 运行页下载查看覆盖率明细。
+- **PR 增量覆盖率评论**：仅 `pull_request` 触发，复用上述 `jacoco.xml` 经 `Madrapps/jacoco-report` 在 PR 上贴/更新一条「📊 覆盖率报告」评论，展示整体 + 改动文件覆盖率。该步 `continue-on-error: true`，是 **best-effort 展示、不卡构建**——XML 缺失、action 异常或 fork/受限 token 时静默跳过，`mvn verify` 与 JaCoCo `check` 仍是 CI 唯一的判定依据。
 - **与本地容器复用的关系**：CI 不设 `testcontainers.reuse.enable`，故 `withReuse(true)` 在 CI 形同未开，始终全新容器 + Ryuk 清理（见 [7.1](#71-容器复用本地-opt-in-提速)）。
 
 ---

@@ -10,6 +10,10 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    # 显式声明权限：coverage-report 步骤需 pull-requests: write 才能用 GITHUB_TOKEN 贴 PR 评论。
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -33,3 +37,18 @@ jobs:
         with:
           name: jacoco-report
           path: '**/target/site/jacoco/'
+
+      # 仅 PR：复用上一步已产出的合并 jacoco.xml，在 PR 上贴/更新一条增量覆盖率评论。
+      # best-effort 展示——continue-on-error 保证此步在 XML 缺失、action 异常或权限受限时
+      # 绝不影响 CI 结论；min-coverage-* 仅驱动评论标记，不构成新的硬门禁（唯一硬门禁仍是 check-merged）。
+      - name: PR 增量覆盖率评论
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: Madrapps/jacoco-report@v1.7.2
+        with:
+          paths: ${{ github.workspace }}/**/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 80
+          title: 📊 覆盖率报告
+          update-comment: true
