@@ -63,6 +63,24 @@
   跑在 runner 内、仅用 `GITHUB_TOKEN` 贴评论，数据不出 GitHub，与已在用的
   `checkout`/`setup-java`/`upload-artifact` 同类。
 
+## 实现计划
+
+1. 更新 `.github/workflows/ci.yml` 的 `verify` job：
+   - 在 job 级别声明 `permissions: { contents: read, pull-requests: write }`；
+   - 在 `mvn -B verify` 和 artifact 上传之后新增 `Madrapps/jacoco-report@v1.7.2` 步骤；
+   - 步骤条件使用 `if: always() && github.event_name == 'pull_request'`，仅在 PR 上尝试生成评论；
+   - 步骤级别加 `continue-on-error: true`，`with` 中也显式配置 `continue-on-error: true`，确保第三方 action 异常、缺失 XML、权限受限时不影响主 CI 结论；
+   - 配置 `skip-if-no-changes: true`，文档/配置类 PR 没有可计算覆盖率变更时不刷无意义评论；
+   - 保持 `min-coverage-overall: 70`、`min-coverage-changed-files: 80` 仅用于展示，不新增增量覆盖率硬门禁。
+2. 更新 `docs/design/testing-strategy.md` 的 CI 小节：
+   - 记录 PR 覆盖率评论的来源、触发条件和 best-effort 语义；
+   - 说明外部 fork、Dependabot 或组织策略限制 `GITHUB_TOKEN` 写权限时，覆盖率评论可能跳过，但 `mvn verify` 和 JaCoCo 硬门禁仍是 CI 的判定依据；
+   - 补充保真轨用例不得依赖 wall-clock 紧阈值的约定，避免慢 CI 环境误伤。
+3. 提交前检查：
+   - 本地执行 YAML 结构检查或至少人工核对缩进；
+   - 确认 workflow 未改变 `push` 事件的构建结论；
+   - 测试 PR 上验证评论会创建、重复推送会更新、无覆盖率改动时会跳过。
+
 ## 验证
 
 开一个测试 PR（故意改动一两个有覆盖的文件），确认：
