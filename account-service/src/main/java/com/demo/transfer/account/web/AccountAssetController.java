@@ -58,7 +58,8 @@ public class AccountAssetController {
 
     private ApiResponse<AssetOperationResponse> execute(Handler handler) {
         try {
-            return ApiResponse.ok(handler.apply());
+            AssetOperationResponse response = handler.apply();
+            return ApiResponse.ok(response);
         } catch (IllegalStateException ex) {
             return ApiResponse.fail("ACCOUNT_OPERATION_FAILED", ex.getMessage());
         }
