@@ -78,8 +78,7 @@ public class TransferController {
 
     private ApiResponse<TransferOrder> execute(Handler handler) {
         try {
-            TransferOrder order = handler.apply();
-            return ApiResponse.ok(order);
+            return ApiResponse.ok(handler.apply());
         } catch (RuntimeException ex) {
             return ApiResponse.fail("TRANSFER_OPERATION_FAILED", ex.getMessage());
         }
