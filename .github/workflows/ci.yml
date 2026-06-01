@@ -44,7 +44,7 @@ jobs:
       - name: PR 增量覆盖率评论
         if: always() && github.event_name == 'pull_request'
         continue-on-error: true
-        uses: Madrapps/jacoco-report@v1.7.2
+        uses: Madrapps/jacoco-report@50d3aff4548aa991e6753342d9ba291084e63848  # v1.7.2
         with:
           paths: ${{ github.workspace }}/**/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}

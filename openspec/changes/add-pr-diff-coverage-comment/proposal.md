@@ -22,4 +22,4 @@
 
 - **`.github/workflows/ci.yml`**：为 `verify` job 加 `permissions` 块 + 一个 coverage-report step。**这是唯一的代码改动面**。
 - 不碰 `pom.xml`、不碰任何测试/生产代码、不引入运行时依赖。`Madrapps/jacoco-report` 是 marketplace action，跑在 runner 内、仅用 `GITHUB_TOKEN` 贴评论，数据不出 GitHub，与已在用的 `checkout`/`setup-java`/`upload-artifact` 同类。
-- 外部依赖：固定 tag `@v1.7.2`（与项目其它 action 用 major tag 的约定一致）；失效时回退方案是自写脚本解析 XML（路线 B）。
+- 外部依赖：第三方 `Madrapps/jacoco-report` 钉到完整 commit SHA（`@50d3aff…  # v1.7.2`），第一方 action 保持 major tag（见 design.md D5）；失效时回退方案是自写脚本解析 XML（路线 B）。

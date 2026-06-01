@@ -56,9 +56,12 @@ step 条件 `if: always() && github.event_name == 'pull_request'`。
 
 `verify` job 加 `permissions: { contents: read, pull-requests: write }`，否则 `GITHUB_TOKEN` 无权在 PR 贴评论（尤其组织策略把默认 token 限为只读时）。
 
-### D5：action 版本用 major/固定 tag `@v1.7.2`
+### D5：第三方 action 用 SHA 钉版，第一方保持 major tag
 
-与项目其它 action（`checkout@v4`/`setup-java@v4`）的 tag 钉版约定一致，不上 SHA 钉版（YAGNI；失效回退见 D1 路线 B）。
+`Madrapps/jacoco-report` 钉到完整 commit SHA（`@50d3aff4548aa991e6753342d9ba291084e63848  # v1.7.2`）；GitHub 第一方 action（`checkout@v4`/`setup-java@v4`/`upload-artifact@v4`）保持 major tag。
+
+*为什么区别对待*：第三方 action 的可变 tag（如 `v1.7.2`）可被维护者账号失陷或 tag 重指攻击篡改，而本步骤带 `pull-requests: write` 的 `GITHUB_TOKEN`、跑在 `pull_request` 上，被篡改代码会以该 token 执行——SHA 钉版以一行成本消除此风险。第一方 action 由 GitHub 维护、信任面不同，沿用 major tag 取其自动获得补丁更新的便利。
+*初版曾决定统一用 tag*（YAGNI + 一致性），后因自动化安全审查指出第三方未钉 SHA 而修正；这是有意识的取舍，非疏漏。失效回退仍见 D1 路线 B。
 
 ## Risks / Trade-offs
 
