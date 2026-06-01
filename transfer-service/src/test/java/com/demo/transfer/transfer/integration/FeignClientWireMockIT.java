@@ -41,7 +41,7 @@ import org.springframework.test.context.DynamicPropertySource;
  *   <li>响应延迟超过 Feign readTimeout 时抛出 {@link RetryableException}（读超时）。</li>
  * </ul>
  *
- * <p>读超时阈值（300ms）由 {@link #registerWireMockUrls} 通过 @DynamicPropertySource 注册的
+ * <p>读超时阈值（2000ms）由 {@link #registerWireMockUrls} 通过 @DynamicPropertySource 注册的
  * {@code feign.client.config.default.readTimeout} 提供（详见该方法的说明）。</p>
  *
  * <p>继承 {@link AbstractMySqlIntegrationTest} 以满足完整 Spring 上下文的数据库依赖（JPA/scheduler）；
@@ -85,14 +85,19 @@ class FeignClientWireMockIT extends AbstractMySqlIntegrationTest {
      * 通过 @DynamicPropertySource 注册可确保该属性以最高优先级进入 Environment，
      * 被 FeignClientProperties 的 Map 绑定可靠读取（写在 application-test.yml 中会因
      * FeignClientProperties 早期绑定时机错过 test profile，导致 config map 为空、超时不生效）。
-     * 其余 IT 的 WireMock 响应均为即时返回，不会被 300ms 误伤。
+     *
+     * <p>readTimeout 取 2000ms 而非贴着延迟测试的紧阈值：该配置对本类所有用例全局生效，
+     * 其余即时返回的用例若共享一个紧阈值，会在慢 CI runner 上被首次调用的尾延迟（TCP 连接 +
+     * WireMock/Jetty 冷启动）误伤而抛 {@link RetryableException}。放宽到 2000ms 给即时响应留足
+     * 余量（约 6x 现实尾延迟），而超时验证由 {@link #responseDelayExceedingReadTimeoutThrowsTimeout}
+     * 注入远超该阈值的固定延迟（3000ms）来可靠触发——超时仍被测到，但不再把时序脆弱性摊给其余用例。
      */
     @DynamicPropertySource
     static void registerWireMockUrls(DynamicPropertyRegistry registry) {
         registry.add("account.a.url", () -> "http://localhost:" + wireMockA.port());
         registry.add("account.b.url", () -> "http://localhost:" + wireMockB.port());
         registry.add("feign.client.config.default.connectTimeout", () -> "1000");
-        registry.add("feign.client.config.default.readTimeout", () -> "300");
+        registry.add("feign.client.config.default.readTimeout", () -> "2000");
     }
 
     @Autowired
@@ -239,21 +244,21 @@ class FeignClientWireMockIT extends AbstractMySqlIntegrationTest {
 
     @Test
     void responseDelayExceedingReadTimeoutThrowsTimeout() {
-        // 注入 1000ms 固定延迟，远大于测试 profile 中配置的 readTimeout=300ms，
+        // 注入 3000ms 固定延迟，远大于测试 profile 中配置的 readTimeout=2000ms，
         // 故 Feign 在读取响应时应触发 SocketTimeoutException，并被包装成 RetryableException。
         wireMockA.stubFor(post(urlEqualTo("/internal/accounts/assets/freeze"))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withFixedDelay(1000)
+                        .withFixedDelay(3000)
                         .withHeader("Content-Type", "application/json")
                         .withBody(successBody("t-timeout", "FREEZE", true, "延迟响应"))));
 
         AssetOperationRequest req = new AssetOperationRequest(
                 "t-timeout", "user-1", "USDT", new BigDecimal("10.00"), TransferDirection.A_TO_B);
 
-        // 超时应抛出 feign.RetryableException，其 root cause 为 SocketTimeoutException。
-        // 已验证：50ms 延迟（< 300ms readTimeout）不抛异常、正常返回；
-        // 1000ms 延迟（> 300ms readTimeout）则在 ~340ms 处中断并抛出本异常，证明断言由超时阈值驱动。
+        // 超时应抛出 feign.RetryableException，其 root cause 为 SocketTimeoutException：
+        // 3000ms 延迟 > 2000ms readTimeout，Feign 在 ~2s 处读超时中断并抛出本异常，
+        // 与即时返回的用例（响应远低于 2000ms、正常返回）形成对照，证明断言由超时阈值驱动。
         assertThatThrownBy(() -> accountAClient.freeze(req))
                 .isInstanceOf(RetryableException.class)
                 .hasRootCauseInstanceOf(SocketTimeoutException.class);
