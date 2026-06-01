@@ -61,10 +61,6 @@ public class AccountAssetController {
             AssetOperationResponse response = handler.apply();
             return ApiResponse.ok(response);
         } catch (IllegalStateException ex) {
-            if (ex.getMessage() == null) {
-                String fallbackMessage = "账户操作失败";
-                return ApiResponse.fail("ACCOUNT_OPERATION_FAILED", fallbackMessage);
-            }
             return ApiResponse.fail("ACCOUNT_OPERATION_FAILED", ex.getMessage());
         }
     }
