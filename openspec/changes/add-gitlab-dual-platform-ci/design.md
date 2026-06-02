@@ -70,6 +70,14 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
    - 出现 `git clone --mirror` 与 `git push --mirror`；
    - 作业最终成功；
    - 日志中**没有** `rejected`、`remote rejected`、`non-fast-forward`、`deny updating a hidden ref` 等 ref 被拒绝迹象。
+5. **API 验收（可选，拿到 GitLab token 时更快）**：
+
+   ```bash
+   GITLAB_BASE_URL=https://gitlab.example.com \
+   GITLAB_PROJECT_ID=group/project \
+   GITLAB_TOKEN=xxxx \
+   ./openspec/changes/add-gitlab-dual-platform-ci/gitlab-acceptance-check.sh
+   ```
 
 > 若 GitLab 已出现该提交但未触发 `verify`，优先检查 `.gitlab-ci.yml` 是否已位于 GitLab 目标分支、以及 push 事件是否被项目级流水线规则拦截。
 
@@ -107,6 +115,10 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
 2. `mvn -v` 输出 `Java version: 1.8`；
 3. `mvn -B verify` 全绿；
 4. 产物中已上传 `**/target/site/jacoco/`。
+
+若已具备 GitLab API token，也可复用同一个
+`openspec/changes/add-gitlab-dual-platform-ci/gitlab-acceptance-check.sh`
+脚本，一次性同时校验 mirror 与 verify 两条证据链。
 
 长期清理（任务 3.6）可在 runner 主机上加定时任务，例如每天凌晨执行一次：
 
