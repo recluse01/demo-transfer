@@ -41,3 +41,4 @@ verify:
     when: always
     paths:
       - "**/target/site/jacoco/"
+
