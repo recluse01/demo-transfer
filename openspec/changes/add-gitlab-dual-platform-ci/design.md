@@ -36,6 +36,16 @@ shell executor 直连本机 `/var/run/docker.sock`，是 Testcontainers / Ryuk *
 ### D4：两平台互不成为硬门禁
 GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hub 任一前提不满足时，`verify` 在 GitLab 不可用，降级为「GitLab 只跑快速轨或暂不跑、保真轨由 GitHub Actions 兜底」，不阻塞 GitHub 主流程。
 
+### D5：Docker v28 API 协商——pom 覆盖 docker-java 与 CI 钉 `api.version` 的关系
+runner 机器的 Docker 守护进程为 v28，最低只接受 API **1.44**；而 Testcontainers 1.19.8 内置的 docker-java 3.3.6 默认发 API **1.32**，被直接拒绝，保真轨容器起不来。这一根因有两道处置，**当前同时生效、互为补充**：
+
+1. **库层（`pom.xml`，commit `2190f58`）**：在 `testcontainers-bom` 之前导入 `docker-java-bom` 3.4.0，覆盖 TC 内置的 3.3.6。3.4.0 修复了 API 协商，是治本的一道；编译目标仍 1.8，不破坏 JDK 8。这是本 change 唯一触及的非 CI 文件（已记入 proposal 的 What Changes / Impact）。
+2. **CI 层（`.gitlab-ci.yml`，commit `0ff6484`）**：作业启动前把 runner 用户 `$HOME/.docker-java.properties` 的 `api.version` 显式钉为 `1.44`。这是 docker-java 官方支持的覆盖入口，作为显式兜底——不依赖库默认协商行为，确保即便将来 TC/docker-java 版本回退或默认值变化，连上的仍是 Docker v28 接受的 API。
+
+演进过程（仅作背景）：最早 `3aeeedd` 试过在 CI 设 `DOCKER_API_VERSION` 环境变量，但 docker-java 不认该 env、无效；`2190f58` 改走 pom 覆盖并删掉无效 env；`0ff6484` 再补 `.docker-java.properties` 显式钉版本。
+
+> 待核实：升到 docker-java 3.4.0 后，其默认协商是否已足以连上 Docker v28——若确认充分，CI 层的 `api.version=1.44` 可作为冗余项移除，只保留 pom 一道。当前保守起见两道并存（belt-and-suspenders），不影响正确性。
+
 ## Risks / Trade-offs
 
 - **Docker Hub 不可达**（最可能卡点）→ 降级或配镜像加速；已在 spec 场景中显式覆盖。
