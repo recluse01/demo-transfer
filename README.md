@@ -2,6 +2,12 @@
 
 这是一个基于 Spring Boot、Feign、MySQL 和编排式 Saga 的跨服务账户划转基础示例。
 
+## Release / 下载
+
+- 最新发布页：[GitHub Releases](https://github.com/recluse01/demo-transfer/releases/latest)
+- 当前版本：[`v1.1.0`](https://github.com/recluse01/demo-transfer/releases/tag/v1.1.0)
+- 发布附件：[`demo-transfer-v1.1.0.zip`](https://github.com/recluse01/demo-transfer/releases/download/v1.1.0/demo-transfer-v1.1.0.zip)
+
 ## 服务说明
 
 - `transfer-service`：转账入口服务，也是 Saga 流程编排者。
