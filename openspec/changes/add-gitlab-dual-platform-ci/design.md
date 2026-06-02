@@ -54,14 +54,21 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
 
 > 当前进度：第 1~3 步完成；定时 mirror 流水线已跑通（#1472 Passed）。
 > `claude/v1-test` 已额外推送验收提交 `1bb8f97 fix(ci): 显式推导 GitLab verify 的 JAVA_HOME`，
-> 用于触发 GitHub→GitLab mirror 与后续 `verify`。第 4~6 步仍需在 GitLab / runner 外部环境完成。
+> 后续又推送 `0ff6484 fix(ci): 对齐 GitLab verify 的 docker-java API 版本`，
+> 用于修复 runner 上 Docker v28 对旧 API 1.32 的拒绝。当前 GitLab 最新 schedule pipeline `1546`
+> 的 `mirror-from-github` job `5908` 已成功，最新 verify push pipeline `1525` 的 job `5887`
+> 已在 shell executor runner 上跑绿，日志确认 JDK 8、Maven 与 `mvn -B verify` 全部通过。
+> 现阶段剩余未核销项仅为：3.4 手工执行 `runner-selfcheck.sh` 与 3.6 长期清理定时任务。
 > 另：`runner-selfcheck.sh` 已在当前开发机以普通用户执行通过（`docker pull mysql:8.0.36`、`docker ps`、
 > `java -version`、`mvn -v` 均成功），证明脚本本身可运行；但这**不构成** `gitlab-runner` 用户、
 > Linux 主机上的任务 3.4 完成证据。
-> 新证据：GitLab `claude/v1-test` 分支已确认包含 `1bb8f97`；最新 schedule pipeline `1521`
-> 的 `mirror-from-github` job `5883` 成功，trace 中未发现 ref rejected 迹象。当前剩余主阻塞
-> 集中在 `verify`：push pipeline `1522` 的 job `5884` 已跑到测试阶段，但因 Testcontainers 通过
-> docker-java 发出过旧的 Docker API 1.32，被 runner 上的 Docker v28（最低 1.44）拒绝。
+> 新证据：GitLab `claude/v1-test` 分支已确认包含 `1bb8f97`；schedule pipeline `1521`
+> / mirror job `5883` 与后续 schedule pipeline `1546` / mirror job `5908` 均成功，
+> trace 中未发现 ref rejected 迹象。`verify` 方面，push pipeline `1522` 的 job `5884`
+> 曾因 docker-java 使用过旧 Docker API 1.32 被 runner 上 Docker v28 拒绝；该问题已通过
+> `0ff6484` 在作业启动前写入 `$HOME/.docker-java.properties` `api.version=1.44` 修复。
+> 修复后 push pipeline `1525` 的 verify job `5887` 已成功完成，日志确认 shell executor、
+> JDK 8、Maven、Testcontainers 与 `BUILD SUCCESS` 证据链完整。
 
 ## Acceptance / Ops Runbook
 
@@ -124,6 +131,14 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
 2. `mvn -v` 输出 `Java version: 1.8`；
 3. `mvn -B verify` 全绿；
 4. 产物中已上传 `**/target/site/jacoco/`。
+
+当前已取得的实测证据（push pipeline `1525` / verify job `5887`）：
+
+1. runner 日志显示 `Using Shell (bash) executor`；
+2. `java -version` 输出 `openjdk version "1.8.0_492"`；
+3. `mvn -v` 输出 `Apache Maven 3.6.3` 且 `Java version: 1.8.0_492`；
+4. `mvn -B verify` 最终 `BUILD SUCCESS`；
+5. JaCoCo 产物上传成功（`**/target/site/jacoco/`）。
 
 若已具备 GitLab API token，也可复用同一个
 `openspec/changes/add-gitlab-dual-platform-ci/gitlab-acceptance-check.sh`

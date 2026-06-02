@@ -83,20 +83,30 @@ assert_trace_not_contains() {
   local trace="$1"
   local pattern="$2"
   local message="$3"
-  if printf '%s' "$trace" | grep -Eiq "$pattern"; then
+  local trace_file
+  trace_file="$(mktemp)"
+  printf '%s' "$trace" | sed -E 's/\x1B\[[0-9;]*[[:alpha:]]//g' >"$trace_file"
+  if grep -aEiq "$pattern" "$trace_file"; then
+    rm -f "$trace_file"
     echo "[error] $message" >&2
     exit 1
   fi
+  rm -f "$trace_file"
 }
 
 assert_trace_contains() {
   local trace="$1"
   local pattern="$2"
   local message="$3"
-  if ! printf '%s' "$trace" | grep -Eiq "$pattern"; then
+  local trace_file
+  trace_file="$(mktemp)"
+  printf '%s' "$trace" | sed -E 's/\x1B\[[0-9;]*[[:alpha:]]//g' >"$trace_file"
+  if ! grep -aEiq "$pattern" "$trace_file"; then
+    rm -f "$trace_file"
     echo "[error] $message" >&2
     exit 1
   fi
+  rm -f "$trace_file"
 }
 
 echo "[step] 校验 GitLab 分支是否已包含提交 $EXPECTED_COMMIT"
