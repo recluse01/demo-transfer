@@ -23,6 +23,10 @@
         <mysql.version>8.0.33</mysql.version>
         <!-- Testcontainers 1.19.x 是最后兼容 JDK8 的系列；1.20+ 已弃用 Java 8 -->
         <testcontainers.version>1.19.8</testcontainers.version>
+        <!-- 单独覆盖 docker-java 到 3.4.x（其编译目标仍是 JDK8）：TC 1.19.8 内置的 3.3.6 默认发
+             Docker API 1.32，会被 Docker v28（最低 1.44）拒绝；升 docker-java 修复 API 协商，
+             同时保持 TC 1.19.x 不破坏 JDK8 兼容。 -->
+        <docker-java.version>3.4.0</docker-java.version>
         <!-- WireMock 2.35.x 为 JDK8 兼容线；3.x 需要 Java 11 -->
         <wiremock.version>2.35.2</wiremock.version>
         <!-- surefire 与 failsafe 保持同版本，2.22.2 已支持 JUnit5 平台 -->
@@ -52,6 +56,15 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring.cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- docker-java BOM 先于 testcontainers-bom 导入：import 范围先声明者优先，
+                 从而把 TC 内置的 docker-java 覆盖为 ${docker-java.version}。 -->
+            <dependency>
+                <groupId>com.github.docker-java</groupId>
+                <artifactId>docker-java-bom</artifactId>
+                <version>${docker-java.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
