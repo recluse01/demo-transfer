@@ -79,15 +79,13 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
 
    ```bash
    sudo -u gitlab-runner -H bash -lc '
-     docker pull mysql:8.0.36 &&
-     docker ps &&
-     java -version &&
-     mvn -v
+     cd /path/to/demo-transfer &&
+     ./openspec/changes/add-gitlab-dual-platform-ci/runner-selfcheck.sh
    '
    ```
 
 5. **通过标准**：
-   - `docker pull mysql:8.0.36` 成功，说明 Docker Hub 基本可达；
+   - 脚本中的 `docker pull mysql:8.0.36` 成功，说明 Docker Hub 基本可达；
    - `docker ps` 无权限错误；
    - `java -version` 显示 JDK 8；
    - `mvn -v` 显示 Maven 可用，且 Java version 为 `1.8.x`。
