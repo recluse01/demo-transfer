@@ -1,0 +1,35 @@
+# 双平台并存：GitHub 为主仓，GitLab 只读镜像 + 跑测试（Free 版自实现 pull mirror）。
+# - mirror 作业：仅定时流水线触发，从公网 GitHub 全量镜像回本 GitLab 仓库。
+# - verify 作业：push / MR 触发，跑双轨测试 + JaCoCo 门禁（需带 Docker 的 runner，见方案 A）。
+# 防环：mirror 的 push 产生 push 事件，只触发 verify、不会再触发 mirror。
+stages:
+  - mirror
+  - test
+
+# 定时流水线触发：从公网 GitHub 全量镜像回本 GitLab 仓库。
+# 需在 Settings → CI/CD → Variables 配 GITLAB_PUSH_TOKEN
+#（Project Access Token，角色 Maintainer，勾 write_repository，masked）。
+mirror-from-github:
+  stage: mirror
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  variables:
+    GIT_STRATEGY: none
+    GITHUB_REPO: "https://github.com/recluse01/demo-transfer.git"
+  script:
+    - git clone --mirror "$GITHUB_REPO" repo.git
+    - cd repo.git
+    - git push --mirror "https://oauth2:${GITLAB_PUSH_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+
+# push / MR 触发：双轨测试 + JaCoCo 门禁。依赖带 Docker 的 runner（方案 A），未就绪前 pending。
+verify:
+  stage: test
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  script:
+    - mvn -B verify
+  artifacts:
+    when: always
+    paths:
+      - "**/target/site/jacoco/"
