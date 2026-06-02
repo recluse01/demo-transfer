@@ -55,6 +55,9 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
 > 当前进度：第 1~3 步完成；定时 mirror 流水线已跑通（#1472 Passed）。
 > `claude/v1-test` 已额外推送验收提交 `1bb8f97 fix(ci): 显式推导 GitLab verify 的 JAVA_HOME`，
 > 用于触发 GitHub→GitLab mirror 与后续 `verify`。第 4~6 步仍需在 GitLab / runner 外部环境完成。
+> 另：`runner-selfcheck.sh` 已在当前开发机以普通用户执行通过（`docker pull mysql:8.0.36`、`docker ps`、
+> `java -version`、`mvn -v` 均成功），证明脚本本身可运行；但这**不构成** `gitlab-runner` 用户、
+> Linux 主机上的任务 3.4 完成证据。
 
 ## Acceptance / Ops Runbook
 
