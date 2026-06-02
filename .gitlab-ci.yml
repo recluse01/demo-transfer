@@ -30,9 +30,14 @@ verify:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
+    # shell executor 可能不 source profile；显式推导并导出 JAVA_HOME，避免 Maven 误用其他 JDK。
+    - 'export JAVA_HOME="$(java -XshowSettings:properties -version 2>&1 | sed -n ''s/^[[:space:]]*java.home = //p'' | head -n 1)"'
+    - 'case "$JAVA_HOME" in */jre) export JAVA_HOME="${JAVA_HOME%/jre}" ;; esac'
+    - 'export PATH="$JAVA_HOME/bin:$PATH"'
+    - 'java -version'
+    - 'mvn -v'
     - mvn -B verify
   artifacts:
     when: always
     paths:
       - "**/target/site/jacoco/"
-
