@@ -52,4 +52,66 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
 5. 配 `GITLAB_PUSH_TOKEN` + Pipeline Schedule（`*/5 * * * *`，目标分支含 `.gitlab-ci.yml`）。
 6. 自检 `docker pull mysql:8.0.36` / `docker ps` / `java -version` / `mvn -v` 三项全过后解锁 `verify`。
 
-> 当前进度：第 1~3 步完成；定时 mirror 流水线已跑通（#1472 Passed）。第 4~6 步进行中。
+> 当前进度：第 1~3 步完成；定时 mirror 流水线已跑通（#1472 Passed）。
+> `claude/v1-test` 已额外推送验收提交 `1bb8f97 fix(ci): 显式推导 GitLab verify 的 JAVA_HOME`，
+> 用于触发 GitHub→GitLab mirror 与后续 `verify`。第 4~6 步仍需在 GitLab / runner 外部环境完成。
+> 另：`runner-selfcheck.sh` 已在当前开发机以普通用户执行通过（`docker pull mysql:8.0.36`、`docker ps`、
+> `java -version`、`mvn -v` 均成功），证明脚本本身可运行；但这**不构成** `gitlab-runner` 用户、
+> Linux 主机上的任务 3.4 完成证据。
+
+## Acceptance / Ops Runbook
+
+### A1：GitHub→GitLab 镜像验收（对应任务 2.1 / 2.2）
+
+1. **GitHub 侧基准提交**：`claude/v1-test` 分支历史中必须包含验收提交 `1bb8f97`。
+2. **触发方式**：等待下一次 `Pipeline Schedule`，或在 GitLab UI 手动运行一次 `schedule` 流水线（目标分支仍为 `claude/v1-test`）。
+3. **提交验收**：在 GitLab 仓库的 `claude/v1-test` 分支 `Commits` 中确认出现 `1bb8f97`。
+4. **日志验收**：打开 `mirror-from-github` 作业日志，确认：
+   - 出现 `git clone --mirror` 与 `git push --mirror`；
+   - 作业最终成功；
+   - 日志中**没有** `rejected`、`remote rejected`、`non-fast-forward`、`deny updating a hidden ref` 等 ref 被拒绝迹象。
+
+> 若 GitLab 已出现该提交但未触发 `verify`，优先检查 `.gitlab-ci.yml` 是否已位于 GitLab 目标分支、以及 push 事件是否被项目级流水线规则拦截。
+
+### A2：runner 机器落地与自检（对应任务 3.1 ~ 3.4）
+
+1. **注册 runner（shell executor）**：确认项目级 runner 为 `shell` 执行器，并勾选 `Run untagged jobs`。
+2. **Docker 权限**：执行 `sudo usermod -aG docker gitlab-runner` 后重启 runner 进程或整机，避免 `docker.sock` 权限被拒。
+3. **JDK / Maven 安装**：安装 Temurin 8 与 Maven，并确保 `gitlab-runner` 用户可直接调用 `java`、`mvn`。
+4. **以 `gitlab-runner` 用户自检**：
+
+   ```bash
+   sudo -u gitlab-runner -H bash -lc '
+     cd /path/to/demo-transfer &&
+     ./openspec/changes/add-gitlab-dual-platform-ci/runner-selfcheck.sh
+   '
+   ```
+
+5. **通过标准**：
+   - 脚本中的 `docker pull mysql:8.0.36` 成功，说明 Docker Hub 基本可达；
+   - `docker ps` 无权限错误；
+   - `java -version` 显示 JDK 8；
+   - `mvn -v` 显示 Maven 可用，且 Java version 为 `1.8.x`。
+
+### A3：`verify` 作业验收（对应任务 3.5 / 3.6）
+
+当前 `.gitlab-ci.yml` 中，`verify` 作业已显式：
+
+- 通过 `java -XshowSettings:properties -version` 提取 `java.home`；
+- 如有尾部 `/jre` 则裁掉，导出为 `JAVA_HOME`；
+- 打印 `java -version` 与 `mvn -v` 后再执行 `mvn -B verify`。
+
+验收时应在 `verify` 日志中确认：
+
+1. `java -version` 输出 JDK 8；
+2. `mvn -v` 输出 `Java version: 1.8`；
+3. `mvn -B verify` 全绿；
+4. 产物中已上传 `**/target/site/jacoco/`。
+
+长期清理（任务 3.6）可在 runner 主机上加定时任务，例如每天凌晨执行一次：
+
+```bash
+docker system prune -af --volumes
+```
+
+用于回收 Testcontainers 残留镜像、匿名卷与停止容器，避免单机 shell executor 长期膨胀。

@@ -10,15 +10,15 @@
 - [x] 1.7 验证定时 mirror 流水线跑通（#1472 Passed）
 
 ## 2. 端到端镜像验证
-- [ ] 2.1 在 GitHub 推一个测试提交，等调度/手动跑一次，确认 GitLab Commits 出现该提交
+- [ ] 2.1 在 GitHub 推一个测试提交（已推 `1bb8f97` / 当前分支头 `4f0a814`），等调度/手动跑一次，确认 GitLab Commits 出现该提交
 - [ ] 2.2 检查 mirror 作业日志，确认 `git push --mirror` 无 ref 被拒 warning
 
 ## 3. runner 与 verify（方案 A）
 - [ ] 3.1 准备一台内网 Linux 机器，注册 shell executor runner（勾 Run untagged jobs）
 - [ ] 3.2 安装 Docker，`usermod -aG docker gitlab-runner` 并重启 runner
 - [ ] 3.3 安装 Temurin 8 与 Maven
-- [ ] 3.4 自检：`docker pull mysql:8.0.36`、`docker ps`、`java -version`、`mvn -v`（以 gitlab-runner 用户）三项全过
-- [ ] 3.5 `verify` 作业内显式设 `JAVA_HOME`，触发一次 push 流水线确认 `mvn -B verify` 全绿
+- [ ] 3.4 自检：以 `gitlab-runner` 用户执行 `openspec/changes/add-gitlab-dual-platform-ci/runner-selfcheck.sh`，其中 `docker pull mysql:8.0.36`、`docker ps`、`java -version`、`mvn -v` 全过
+- [ ] 3.5 `verify` 作业内显式设 `JAVA_HOME`（已提交于 `1bb8f97`），触发一次 push 流水线确认 `mvn -B verify` 全绿
 - [ ] 3.6 长期清理：加 `docker system prune` 定时任务
 
 ## 4. 后续（本 change 非目标，单独提）
