@@ -29,6 +29,10 @@ verify:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  variables:
+    # 新版 Docker 守护进程（v28+）最低 API 1.44，Testcontainers 1.19.8 内置 docker-java 默认 1.32 会被拒；
+    # 显式对齐到守护进程支持的版本即可，无需升级 Testcontainers。
+    DOCKER_API_VERSION: "1.44"
   script:
     # shell executor 可能不 source profile；显式推导并导出 JAVA_HOME，避免 Maven 误用其他 JDK。
     - 'export JAVA_HOME="$(java -XshowSettings:properties -version 2>&1 | sed -n ''s/^[[:space:]]*java.home = //p'' | head -n 1)"'
