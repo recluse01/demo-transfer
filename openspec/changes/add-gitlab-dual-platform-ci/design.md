@@ -58,6 +58,10 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
 > 另：`runner-selfcheck.sh` 已在当前开发机以普通用户执行通过（`docker pull mysql:8.0.36`、`docker ps`、
 > `java -version`、`mvn -v` 均成功），证明脚本本身可运行；但这**不构成** `gitlab-runner` 用户、
 > Linux 主机上的任务 3.4 完成证据。
+> 新证据：GitLab `claude/v1-test` 分支已确认包含 `1bb8f97`；最新 schedule pipeline `1521`
+> 的 `mirror-from-github` job `5883` 成功，trace 中未发现 ref rejected 迹象。当前剩余主阻塞
+> 集中在 `verify`：push pipeline `1522` 的 job `5884` 已跑到测试阶段，但因 Testcontainers 通过
+> docker-java 发出过旧的 Docker API 1.32，被 runner 上的 Docker v28（最低 1.44）拒绝。
 
 ## Acceptance / Ops Runbook
 
@@ -108,6 +112,8 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
 
 当前 `.gitlab-ci.yml` 中，`verify` 作业已显式：
 
+- 先维护 `$HOME/.docker-java.properties` 中的 `api.version=1.44`，
+  让 docker-java 以 runner 上 Docker v28 可接受的 API 版本建连；
 - 通过 `java -XshowSettings:properties -version` 提取 `java.home`；
 - 如有尾部 `/jre` 则裁掉，导出为 `JAVA_HOME`；
 - 打印 `java -version` 与 `mvn -v` 后再执行 `mvn -B verify`。

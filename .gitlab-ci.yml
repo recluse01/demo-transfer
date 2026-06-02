@@ -34,6 +34,19 @@ verify:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
+    # docker-java 官方支持通过 $HOME/.docker-java.properties 的 api.version 覆盖远端 API 版本；
+    # 这里将 runner 用户的 api.version 固定为 Docker v28 仍接受的 1.44，避免 TC 1.19.8 走到 1.32。
+    - |
+      DOCKER_JAVA_PROPS="$HOME/.docker-java.properties"
+      TMP_PROPS="$DOCKER_JAVA_PROPS.tmp"
+      if [ -f "$DOCKER_JAVA_PROPS" ]; then
+        grep -v '^api\.version=' "$DOCKER_JAVA_PROPS" > "$TMP_PROPS" || true
+      else
+        : > "$TMP_PROPS"
+      fi
+      printf 'api.version=1.44\n' >> "$TMP_PROPS"
+      mv "$TMP_PROPS" "$DOCKER_JAVA_PROPS"
+      cat "$DOCKER_JAVA_PROPS"
     # shell executor 可能不 source profile；显式推导并导出 JAVA_HOME，避免 Maven 误用其他 JDK。
     - 'export JAVA_HOME="$(java -XshowSettings:properties -version 2>&1 | sed -n ''s/^[[:space:]]*java.home = //p'' | head -n 1)"'
     - 'case "$JAVA_HOME" in */jre) export JAVA_HOME="${JAVA_HOME%/jre}" ;; esac'
@@ -45,4 +58,3 @@ verify:
     when: always
     paths:
       - "**/target/site/jacoco/"
-

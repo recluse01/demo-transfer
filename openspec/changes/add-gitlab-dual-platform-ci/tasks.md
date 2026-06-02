@@ -11,7 +11,7 @@
 
 ## 2. 端到端镜像验证
 - [x] 2.1 在 GitHub 推一个测试提交（已推 `1bb8f97`，并已确认 GitLab `claude/v1-test` 分支包含该提交；当前观察到 GitLab 分支头为 `2190f58`）
-- [ ] 2.2 检查 mirror 作业日志，确认 `git push --mirror` 无 ref 被拒 warning
+- [x] 2.2 检查 mirror 作业日志，确认 `git push --mirror` 无 ref 被拒 warning（schedule pipeline `1521` / mirror job `5883` 成功，trace 无 `rejected|remote rejected|non-fast-forward|deny updating a hidden ref`）
 
 ## 3. runner 与 verify（方案 A）
 - [ ] 3.1 准备一台内网 Linux 机器，注册 shell executor runner（勾 Run untagged jobs）
