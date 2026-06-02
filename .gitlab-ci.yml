@@ -17,6 +17,8 @@ mirror-from-github:
     GIT_STRATEGY: none
     GITHUB_REPO: "https://github.com/recluse01/demo-transfer.git"
   script:
+    # shell executor 复用构建目录且 GIT_STRATEGY:none 不清理，先删上次残留保证幂等。
+    - rm -rf repo.git
     - git clone --mirror "$GITHUB_REPO" repo.git
     - cd repo.git
     - git push --mirror "https://oauth2:${GITLAB_PUSH_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
