@@ -11,7 +11,7 @@
 
 - 新增 `.gitlab-ci.yml`：两个作业靠 `rules` 隔离——
   - `mirror-from-github`：仅 `schedule` 触发，`git clone --mirror` 公网 GitHub + `git push --mirror` 回本 GitLab 仓库，**Free 版自实现 pull mirror**。
-  - `verify`：仅 `push` / `merge_request_event` 触发，跑 `mvn -B verify`（快速轨 + 保真轨 + JaCoCo 合并门禁），上传 JaCoCo 报告 artifact。
+  - `verify`：`push` / `merge_request_event` / `web` 触发，跑 `mvn -B verify`（快速轨 + 保真轨 + JaCoCo 合并门禁），上传 JaCoCo 报告 artifact；其中 `web` 允许在 GitLab UI 直接 `Run pipeline` 手动重跑。
   - 防环：mirror 的 push 产生 push 事件，只触发 verify、不会再触发 mirror。
 - 修改 `pom.xml`：在 `testcontainers-bom` 之前导入 `docker-java-bom` 3.4.0，覆盖 TC 1.19.8 内置的 3.3.6。旧 docker-java 默认发 Docker API 1.32，被 runner 上 Docker v28（最低 1.44）拒绝导致保真轨容器起不来；3.4.0 修复 API 协商，且其编译目标仍为 1.8，不破坏 JDK 8。这是本 change **唯一**触及的非 CI 文件，属依赖管理变更、不动任何生产/测试源码。
 - 运维落地（非代码产物，记录在 design.md）：在内网一台 Linux 机器上注册 **shell executor** runner（方案 A），装 Docker + Temurin 8 + Maven，并把 `gitlab-runner` 用户加入 docker 组；配置 `GITLAB_PUSH_TOKEN`（Project Access Token，write_repository）与每 5 分钟的 Pipeline Schedule。

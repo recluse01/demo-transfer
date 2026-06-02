@@ -7,6 +7,10 @@
 - **WHEN** 一个提交经镜像进入 GitLab 并触发 push 流水线，且 runner 已具备 Docker + JDK 8 + Maven
 - **THEN** GitLab 执行 `mvn -B verify`，与 GitHub Actions 一致地跑快速轨、保真轨与 JaCoCo 门禁，任一失败使该 GitLab 流水线失败
 
+#### Scenario: GitLab UI 手动触发 verify
+- **WHEN** 维护者在 GitLab UI 对目标分支执行 `Run pipeline`（source=`web`），且 runner 已具备 Docker + JDK 8 + Maven
+- **THEN** GitLab 同样执行 `mvn -B verify`，用于手工重跑或在无新提交时主动验证当前分支状态
+
 #### Scenario: 两平台互不成为硬门禁
 - **WHEN** 某一平台的流水线失败或暂不可用
 - **THEN** 另一平台的 CI 结论不受其影响，GitHub 主仓流程不被 GitLab 侧阻塞
@@ -24,7 +28,7 @@
 
 #### Scenario: 镜像与测试互不成环
 - **WHEN** 镜像作业 `push --mirror` 向 GitLab 推入新提交
-- **THEN** 该 push 事件仅触发 `verify`（push/MR 触发），而 `verify` 不会再触发镜像作业（仅 schedule 触发），不形成循环
+- **THEN** 该 push 事件仅触发 `verify`（push/MR/web 触发中的 `push` 路径），而 `verify` 不会再触发镜像作业（仅 schedule 触发），不形成循环
 
 #### Scenario: GitLab 端只读
 - **WHEN** 有人直接在 GitLab 端修改被镜像的分支

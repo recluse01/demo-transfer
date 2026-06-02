@@ -23,16 +23,17 @@ mirror-from-github:
     - cd repo.git
     - git push --mirror "https://oauth2:${GITLAB_PUSH_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
 
-# push / MR 触发：双轨测试 + JaCoCo 门禁。依赖带 Docker 的 runner（方案 A），未就绪前 pending。
+# push / MR / Web 手动触发：双轨测试 + JaCoCo 门禁。依赖带 Docker 的 runner（方案 A），未就绪前 pending。
 verify:
   stage: test
   rules:
     # tag 触发的流水线一律跳过 verify：保真轨依赖分支上的 runner/Docker 环境，
-    # 旧 tag 还可能缺少最新 CI 配置；verify 只在分支与 MR 上跑。
+    # 旧 tag 还可能缺少最新 CI 配置；verify 仅在分支 push、MR 或 GitLab UI 手动运行时触发。
     - if: '$CI_COMMIT_TAG'
       when: never
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
   script:
     # docker-java 官方支持通过 $HOME/.docker-java.properties 的 api.version 覆盖远端 API 版本；
     # 这里将 runner 用户的 api.version 固定为 Docker v28 仍接受的 1.44，避免 TC 1.19.8 走到 1.32。

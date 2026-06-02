@@ -150,37 +150,44 @@ assert_trace_not_contains "$mirror_trace" 'rejected|remote rejected|non-fast-for
   "mirror-from-github 日志中出现 ref 被拒绝迹象"
 echo "[info] mirror-from-github trace 未发现 ref rejected 相关报错"
 
-echo "[step] 检查最新可用的 push pipeline 与 verify 作业"
-push_pipelines_json="$(api_get "/pipelines?ref=$(urlencode "$GITLAB_REF")&source=push&per_page=20")"
-push_pipeline_id=""
-push_pipeline_status=""
-push_pipeline_sha=""
+echo "[step] 检查最新可用的 verify pipeline 与 verify 作业"
+verify_pipelines_json="$(api_get "/pipelines?ref=$(urlencode "$GITLAB_REF")&per_page=40")"
+verify_pipeline_id=""
+verify_pipeline_status=""
+verify_pipeline_sha=""
+verify_pipeline_source=""
 verify_job_id=""
 verify_job_status=""
 verify_trace=""
 
-while IFS=$'\t' read -r pipeline_id pipeline_sha pipeline_status; do
+while IFS=$'\t' read -r pipeline_id pipeline_sha pipeline_status pipeline_source; do
   [ -n "$pipeline_id" ] || continue
   push_jobs_json="$(api_get "/pipelines/$pipeline_id/jobs?per_page=100")"
   verify_job_id="$(find_job_id "$push_jobs_json" "verify")"
   if [ -n "$verify_job_id" ]; then
-    push_pipeline_id="$pipeline_id"
-    push_pipeline_status="$pipeline_status"
-    push_pipeline_sha="$pipeline_sha"
+    verify_pipeline_id="$pipeline_id"
+    verify_pipeline_status="$pipeline_status"
+    verify_pipeline_sha="$pipeline_sha"
+    verify_pipeline_source="$pipeline_source"
     verify_job_status="$(printf '%s' "$push_jobs_json" | jq -r --arg id "$verify_job_id" '
       map(select((.id | tostring) == $id)) | .[0].status // empty
     ')"
     verify_trace="$(api_get "/jobs/$verify_job_id/trace")"
     break
   fi
-done < <(printf '%s' "$push_pipelines_json" | jq -r '.[] | [.id, .sha, .status] | @tsv')
+done < <(printf '%s' "$verify_pipelines_json" | jq -r '
+  map(select(.source == "push" or .source == "merge_request_event" or .source == "web"))
+  | .[]
+  | [.id, .sha, .status, .source]
+  | @tsv
+')
 
-if [ -z "$push_pipeline_id" ] || [ -z "$verify_job_id" ]; then
-  echo "[error] 未找到 ref=$GITLAB_REF source=push 且包含 verify 作业的 pipeline" >&2
+if [ -z "$verify_pipeline_id" ] || [ -z "$verify_job_id" ]; then
+  echo "[error] 未找到 ref=$GITLAB_REF 且 source 属于 push/merge_request_event/web 的 verify pipeline" >&2
   exit 1
 fi
 
-echo "[info] 最新 verify 所在 push pipeline: id=$push_pipeline_id sha=$push_pipeline_sha status=$push_pipeline_status"
+echo "[info] 最新 verify 所在 pipeline: id=$verify_pipeline_id sha=$verify_pipeline_sha status=$verify_pipeline_status source=$verify_pipeline_source"
 echo "[info] verify: job_id=$verify_job_id status=$verify_job_status"
 
 assert_trace_contains "$verify_trace" 'openjdk version "1\.8|java version "1\.8|Java version: 1\.8' \

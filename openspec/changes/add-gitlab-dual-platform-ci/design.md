@@ -19,7 +19,7 @@
 ### D1：用「定时 CI job + git clone/push --mirror」自实现 pull mirror
 Free 版无原生 pull mirror。Push mirror（GitLab→GitHub，Free 可用）方向相反且会反向覆盖公共主仓，已删除。选定：GitLab 定时流水线触发 `mirror-from-github`，`git clone --mirror` GitHub 后 `git push --mirror` 回本仓库，用 `GITLAB_PUSH_TOKEN`（Project Access Token，`write_repository`）写回。
 
-**防环**：mirror 的 push 是 push 事件 → 只触发 `verify`（`if push/MR`），`verify` 不会再触发 `mirror`（`if schedule`）。无新提交时 `push --mirror` 为空操作、不触发流水线。
+**防环**：mirror 的 push 是 push 事件 → 触发 `verify`（`if push/MR/web` 中的 `push` 分支）；`verify` 自身不会再触发 `mirror`（`if schedule`）。无新提交时 `push --mirror` 为空操作、不触发流水线。额外放开 `web` 仅用于 GitLab UI 手动 `Run pipeline`，不影响防环。
 
 **前提**：`.gitlab-ci.yml` 必须先存在于 GitLab 调度的目标分支上，调度才有配置可跑——首次靠本地 `git push gitlab --all` 引导（不删重建项目）。当前文件在 `claude/v1-test`，故调度目标分支选该分支，或先合并到 `main`。
 
@@ -107,7 +107,7 @@ runner 机器的 Docker 守护进程为 v28，最低只接受 API **1.44**；而
    > 该脚本要求 token 具备 `read_api` 或 `api` scope；仅 `read_repository` /
    > `write_repository` 不足以读取 pipeline、job 与 trace。
 
-> 若 GitLab 已出现该提交但未触发 `verify`，优先检查 `.gitlab-ci.yml` 是否已位于 GitLab 目标分支、以及 push 事件是否被项目级流水线规则拦截。
+> 若 GitLab 已出现该提交但未触发 `verify`，优先检查 `.gitlab-ci.yml` 是否已位于 GitLab 目标分支、以及 push 事件是否被项目级流水线规则拦截。若只是想手工重跑，可直接在 GitLab UI 对目标分支执行 `Run pipeline`（source=`web`）。
 
 ### A2：runner 机器落地与自检（对应任务 3.1 ~ 3.4）
 
