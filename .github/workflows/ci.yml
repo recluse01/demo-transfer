@@ -1,0 +1,54 @@
+# 持续集成：每次 push 到分支与每个 pull_request 上自动执行双轨测试与 JaCoCo 门禁。
+# 单 job 跑 `mvn -B verify`，一条命令覆盖快速轨（surefire *Test）+ 保真轨（failsafe *IT / Testcontainers）
+# + JaCoCo 合并覆盖率门禁；ubuntu-latest runner 自带 Docker，Testcontainers 开箱即用。
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    # 显式声明权限：coverage-report 步骤需 pull-requests: write 才能用 GITHUB_TOKEN 贴 PR 评论。
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      # Temurin 8 对齐编译目标 1.8；启用 Maven 依赖缓存加速构建。
+      - name: 配置 Temurin 8 + Maven 缓存
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+
+      # 一条 verify 覆盖快速轨 + 保真轨 + JaCoCo merge/check 门禁；任一失败即 CI 失败。
+      - name: 执行 mvn verify
+        run: mvn -B verify
+
+      # 失败时也上传，便于排查覆盖率明细。
+      - name: 上传 JaCoCo 覆盖率报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: '**/target/site/jacoco/'
+
+      # 仅 PR：复用上一步已产出的合并 jacoco.xml，在 PR 上贴/更新一条增量覆盖率评论。
+      # best-effort 展示——continue-on-error 保证此步在 XML 缺失、action 异常或权限受限时
+      # 绝不影响 CI 结论；min-coverage-* 仅驱动评论标记，不构成新的硬门禁（唯一硬门禁仍是 check-merged）。
+      - name: PR 增量覆盖率评论
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: Madrapps/jacoco-report@50d3aff4548aa991e6753342d9ba291084e63848  # v1.7.2
+        with:
+          paths: ${{ github.workspace }}/**/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 80
+          title: 📊 覆盖率报告
+          update-comment: true

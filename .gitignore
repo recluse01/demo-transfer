@@ -41,3 +41,8 @@ Thumbs.db
 .cursor/
 .cursorrules
 .moc/
+
+# 本地环境变量（含真实凭证，禁止提交）
+.env
+.env.local
+.env.*.local

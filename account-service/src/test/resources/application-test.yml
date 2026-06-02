@@ -1,0 +1,15 @@
+# 保真轨（Testcontainers 真实 MySQL）专用配置。
+# 仅在 @ActiveProfiles("test") 的 *IT 下生效；H2 快速轨不激活本 profile，保持默认 create-drop。
+spring:
+  jpa:
+    hibernate:
+      # schema 由真实 DDL 脚本初始化，Hibernate 不再建表，确保与生产一致
+      ddl-auto: none
+    show-sql: false
+# 降低容器与 SQL 日志噪音
+logging:
+  level:
+    org.testcontainers: WARN
+    com.github.dockerjava: WARN
+    org.hibernate.SQL: WARN
+    tc.testcontainers: WARN

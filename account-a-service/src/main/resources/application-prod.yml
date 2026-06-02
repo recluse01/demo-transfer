@@ -1,0 +1,5 @@
+spring:
+  jpa:
+    hibernate:
+      # 生产环境禁止自动变更表结构，改用 validate；DDL 变更通过迁移脚本手动执行
+      ddl-auto: validate
