@@ -47,9 +47,28 @@ fi
 
 api_get() {
   local path="$1"
-  curl --silent --show-error --fail --location \
-    --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-    "$GITLAB_BASE_URL/api/v4/projects/$PROJECT_ID_ENCODED$path"
+  local response_file
+  local status
+  response_file="$(mktemp)"
+  status="$(
+    curl --silent --show-error --location \
+      --output "$response_file" \
+      --write-out '%{http_code}' \
+      --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+      "$GITLAB_BASE_URL/api/v4/projects/$PROJECT_ID_ENCODED$path"
+  )"
+  if [[ "$status" != 2* ]]; then
+    if [ "$status" = "403" ] && grep -q 'insufficient_scope' "$response_file"; then
+      echo "[error] GitLab token 缺少 API 读取权限；请补充 read_api 或 api scope。" >&2
+    else
+      echo "[error] GitLab API 请求失败: HTTP $status, path=$path" >&2
+      cat "$response_file" >&2
+    fi
+    rm -f "$response_file"
+    exit 1
+  fi
+  cat "$response_file"
+  rm -f "$response_file"
 }
 
 find_job_id() {

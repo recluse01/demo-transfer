@@ -79,6 +79,9 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
    ./openspec/changes/add-gitlab-dual-platform-ci/gitlab-acceptance-check.sh
    ```
 
+   > 该脚本要求 token 具备 `read_api` 或 `api` scope；仅 `read_repository` /
+   > `write_repository` 不足以读取 pipeline、job 与 trace。
+
 > 若 GitLab 已出现该提交但未触发 `verify`，优先检查 `.gitlab-ci.yml` 是否已位于 GitLab 目标分支、以及 push 事件是否被项目级流水线规则拦截。
 
 ### A2：runner 机器落地与自检（对应任务 3.1 ~ 3.4）

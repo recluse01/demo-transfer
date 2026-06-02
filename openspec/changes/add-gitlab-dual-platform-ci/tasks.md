@@ -10,7 +10,7 @@
 - [x] 1.7 验证定时 mirror 流水线跑通（#1472 Passed）
 
 ## 2. 端到端镜像验证
-- [ ] 2.1 在 GitHub 推一个测试提交（已推 `1bb8f97` / 当前分支头 `4f0a814`），等调度/手动跑一次，确认 GitLab Commits 出现该提交
+- [x] 2.1 在 GitHub 推一个测试提交（已推 `1bb8f97`，并已确认 GitLab `claude/v1-test` 分支包含该提交；当前观察到 GitLab 分支头为 `2190f58`）
 - [ ] 2.2 检查 mirror 作业日志，确认 `git push --mirror` 无 ref 被拒 warning
 
 ## 3. runner 与 verify（方案 A）
