@@ -60,7 +60,9 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
 > 已在 shell executor runner 上跑绿，日志确认 JDK 8、Maven 与 `mvn -B verify` 全部通过。
 > 随后又已在 runner 主机构建目录 `/home/gitlab-runner/builds/E-2rrftSv/0/neil-demo/demo/demo-transfer`
 > 以 `gitlab-runner` 用户手工执行 `runner-selfcheck.sh`，`docker pull mysql:8.0.36`、`docker ps`、
-> `java -version`、`mvn -v` 全部通过。现阶段剩余未核销项仅为：3.6 长期清理定时任务。
+> `java -version`、`mvn -v` 全部通过。随后又确认 runner 主机 `root` crontab 已配置
+> `0 3 * * * /usr/bin/docker system prune -af --volumes > ~/.docker/logs 2>&1`。
+> 本 change 范围内的 1.x ~ 3.x 任务现已全部核销完成。
 > 另：`runner-selfcheck.sh` 已在当前开发机以普通用户执行通过（`docker pull mysql:8.0.36`、`docker ps`、
 > `java -version`、`mvn -v` 均成功），证明脚本本身可运行；但这**不构成** `gitlab-runner` 用户、
 > Linux 主机上的任务 3.4 完成证据。
@@ -163,3 +165,10 @@ docker system prune -af --volumes
 ```
 
 用于回收 Testcontainers 残留镜像、匿名卷与停止容器，避免单机 shell executor 长期膨胀。
+当前 runner 主机已观察到的实际 crontab 为：
+
+```cron
+0 3 * * * /usr/bin/docker system prune -af --volumes > ~/.docker/logs 2>&1
+```
+
+后续若要增强可维护性，建议将输出重定向改为显式绝对路径，例如 `/var/log/docker-prune.log`。
