@@ -58,7 +58,9 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
 > 用于修复 runner 上 Docker v28 对旧 API 1.32 的拒绝。当前 GitLab 最新 schedule pipeline `1546`
 > 的 `mirror-from-github` job `5908` 已成功，最新 verify push pipeline `1525` 的 job `5887`
 > 已在 shell executor runner 上跑绿，日志确认 JDK 8、Maven 与 `mvn -B verify` 全部通过。
-> 现阶段剩余未核销项仅为：3.4 手工执行 `runner-selfcheck.sh` 与 3.6 长期清理定时任务。
+> 随后又已在 runner 主机构建目录 `/home/gitlab-runner/builds/E-2rrftSv/0/neil-demo/demo/demo-transfer`
+> 以 `gitlab-runner` 用户手工执行 `runner-selfcheck.sh`，`docker pull mysql:8.0.36`、`docker ps`、
+> `java -version`、`mvn -v` 全部通过。现阶段剩余未核销项仅为：3.6 长期清理定时任务。
 > 另：`runner-selfcheck.sh` 已在当前开发机以普通用户执行通过（`docker pull mysql:8.0.36`、`docker ps`、
 > `java -version`、`mvn -v` 均成功），证明脚本本身可运行；但这**不构成** `gitlab-runner` 用户、
 > Linux 主机上的任务 3.4 完成证据。
@@ -114,6 +116,16 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
    - `docker ps` 无权限错误；
    - `java -version` 显示 JDK 8；
    - `mvn -v` 显示 Maven 可用，且 Java version 为 `1.8.x`。
+
+当前已取得的实测证据（runner 主机手工自检）：
+
+1. 执行用户为 `gitlab-runner`；
+2. `docker` 路径为 `/usr/bin/docker`，`java` 路径为 `/usr/lib/jvm/java-8-openjdk-amd64/bin/java`，`mvn` 路径为 `/usr/bin/mvn`；
+3. `JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64`；
+4. `docker pull mysql:8.0.36` 返回 `Image is up to date`；
+5. `docker ps` 可正常返回容器列表，无权限错误；
+6. `java -version` 为 `openjdk version "1.8.0_492"`；
+7. `mvn -v` 为 `Apache Maven 3.6.3` 且 `Java version: 1.8.0_492`。
 
 ### A3：`verify` 作业验收（对应任务 3.5 / 3.6）
 

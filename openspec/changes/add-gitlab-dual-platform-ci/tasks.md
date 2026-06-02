@@ -17,7 +17,7 @@
 - [x] 3.1 准备一台内网 Linux 机器，注册 shell executor runner（GitLab push pipeline `1525` / verify job `5887` 日志显示 `Using Shell (bash) executor`，runner 在线执行）
 - [x] 3.2 安装 Docker，`usermod -aG docker gitlab-runner` 并重启 runner（由 job `5887` 中 Testcontainers 成功拉起 MySQL / Ryuk、`mvn -B verify` 全绿间接验证 runner 用户具备 Docker 可用性）
 - [x] 3.3 安装 Temurin 8 与 Maven（job `5887` 日志已确认 `openjdk version "1.8.0_492"` 与 `Apache Maven 3.6.3`）
-- [ ] 3.4 自检：以 `gitlab-runner` 用户执行 `openspec/changes/add-gitlab-dual-platform-ci/runner-selfcheck.sh`，其中 `docker pull mysql:8.0.36`、`docker ps`、`java -version`、`mvn -v` 全过
+- [x] 3.4 自检：已在 runner 主机构建目录 `/home/gitlab-runner/builds/E-2rrftSv/0/neil-demo/demo/demo-transfer` 以 `gitlab-runner` 用户执行 `openspec/changes/add-gitlab-dual-platform-ci/runner-selfcheck.sh`，`docker pull mysql:8.0.36`、`docker ps`、`java -version`、`mvn -v` 全过
 - [x] 3.5 `verify` 作业内显式设 `JAVA_HOME`（已提交于 `1bb8f97`），并在 `0ff6484` 中补齐 docker-java API 版本对齐；push pipeline `1525` / verify job `5887` 已确认 `mvn -B verify` 全绿并上传 JaCoCo artifacts
 - [ ] 3.6 长期清理：加 `docker system prune` 定时任务
 
