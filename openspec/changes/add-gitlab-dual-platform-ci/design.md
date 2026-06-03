@@ -19,7 +19,7 @@
 ### D1：用「定时 CI job + git clone/push --mirror」自实现 pull mirror
 Free 版无原生 pull mirror。Push mirror（GitLab→GitHub，Free 可用）方向相反且会反向覆盖公共主仓，已删除。选定：GitLab 定时流水线触发 `mirror-from-github`，`git clone --mirror` GitHub 后 `git push --mirror` 回本仓库，用 `GITLAB_PUSH_TOKEN`（Project Access Token，`write_repository`）写回。
 
-**防环**：mirror 的 push 是 push 事件 → 只触发 `verify`（`if push/MR`），`verify` 不会再触发 `mirror`（`if schedule`）。无新提交时 `push --mirror` 为空操作、不触发流水线。
+**防环**：mirror 的 push 是 push 事件 → 触发 `verify`（`if push/MR/web` 中的 `push` 分支）；`verify` 自身不会再触发 `mirror`（`if schedule`）。无新提交时 `push --mirror` 为空操作、不触发流水线。额外放开 `web` 仅用于 GitLab UI 手动 `Run pipeline`，不影响防环。
 
 **前提**：`.gitlab-ci.yml` 必须先存在于 GitLab 调度的目标分支上，调度才有配置可跑——首次靠本地 `git push gitlab --all` 引导（不删重建项目）。当前文件在 `claude/v1-test`，故调度目标分支选该分支，或先合并到 `main`。
 
@@ -35,6 +35,16 @@ shell executor 直连本机 `/var/run/docker.sock`，是 Testcontainers / Ryuk *
 
 ### D4：两平台互不成为硬门禁
 GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hub 任一前提不满足时，`verify` 在 GitLab 不可用，降级为「GitLab 只跑快速轨或暂不跑、保真轨由 GitHub Actions 兜底」，不阻塞 GitHub 主流程。
+
+### D5：Docker v28 API 协商——pom 覆盖 docker-java 与 CI 钉 `api.version` 的关系
+runner 机器的 Docker 守护进程为 v28，最低只接受 API **1.44**；而 Testcontainers 1.19.8 内置的 docker-java 3.3.6 默认发 API **1.32**，被直接拒绝，保真轨容器起不来。这一根因有两道处置，**当前同时生效、互为补充**：
+
+1. **库层（`pom.xml`，commit `2190f58`）**：在 `testcontainers-bom` 之前导入 `docker-java-bom` 3.4.0，覆盖 TC 内置的 3.3.6。3.4.0 修复了 API 协商，是治本的一道；编译目标仍 1.8，不破坏 JDK 8。这是本 change 唯一触及的非 CI 文件（已记入 proposal 的 What Changes / Impact）。
+2. **CI 层（`.gitlab-ci.yml`，commit `0ff6484`）**：作业启动前把 runner 用户 `$HOME/.docker-java.properties` 的 `api.version` 显式钉为 `1.44`。这是 docker-java 官方支持的覆盖入口，作为显式兜底——不依赖库默认协商行为，确保即便将来 TC/docker-java 版本回退或默认值变化，连上的仍是 Docker v28 接受的 API。
+
+演进过程（仅作背景）：最早 `3aeeedd` 试过在 CI 设 `DOCKER_API_VERSION` 环境变量，但 docker-java 不认该 env、无效；`2190f58` 改走 pom 覆盖并删掉无效 env；`0ff6484` 再补 `.docker-java.properties` 显式钉版本。
+
+> 待核实：升到 docker-java 3.4.0 后，其默认协商是否已足以连上 Docker v28——若确认充分，CI 层的 `api.version=1.44` 可作为冗余项移除，只保留 pom 一道。当前保守起见两道并存（belt-and-suspenders），不影响正确性。
 
 ## Risks / Trade-offs
 
@@ -54,10 +64,25 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
 
 > 当前进度：第 1~3 步完成；定时 mirror 流水线已跑通（#1472 Passed）。
 > `claude/v1-test` 已额外推送验收提交 `1bb8f97 fix(ci): 显式推导 GitLab verify 的 JAVA_HOME`，
-> 用于触发 GitHub→GitLab mirror 与后续 `verify`。第 4~6 步仍需在 GitLab / runner 外部环境完成。
+> 后续又推送 `0ff6484 fix(ci): 对齐 GitLab verify 的 docker-java API 版本`，
+> 用于修复 runner 上 Docker v28 对旧 API 1.32 的拒绝。当前 GitLab 最新 schedule pipeline `1546`
+> 的 `mirror-from-github` job `5908` 已成功，最新 verify push pipeline `1525` 的 job `5887`
+> 已在 shell executor runner 上跑绿，日志确认 JDK 8、Maven 与 `mvn -B verify` 全部通过。
+> 随后又已在 runner 主机构建目录 `/home/gitlab-runner/builds/E-2rrftSv/0/neil-demo/demo/demo-transfer`
+> 以 `gitlab-runner` 用户手工执行 `runner-selfcheck.sh`，`docker pull mysql:8.0.36`、`docker ps`、
+> `java -version`、`mvn -v` 全部通过。随后又确认 runner 主机 `root` crontab 已配置
+> `0 3 * * * /usr/bin/docker system prune -af --volumes > ~/.docker/logs 2>&1`。
+> 本 change 范围内的 1.x ~ 3.x 任务现已全部核销完成。
 > 另：`runner-selfcheck.sh` 已在当前开发机以普通用户执行通过（`docker pull mysql:8.0.36`、`docker ps`、
 > `java -version`、`mvn -v` 均成功），证明脚本本身可运行；但这**不构成** `gitlab-runner` 用户、
 > Linux 主机上的任务 3.4 完成证据。
+> 新证据：GitLab `claude/v1-test` 分支已确认包含 `1bb8f97`；schedule pipeline `1521`
+> / mirror job `5883` 与后续 schedule pipeline `1546` / mirror job `5908` 均成功，
+> trace 中未发现 ref rejected 迹象。`verify` 方面，push pipeline `1522` 的 job `5884`
+> 曾因 docker-java 使用过旧 Docker API 1.32 被 runner 上 Docker v28 拒绝；该问题已通过
+> `0ff6484` 在作业启动前写入 `$HOME/.docker-java.properties` `api.version=1.44` 修复。
+> 修复后 push pipeline `1525` 的 verify job `5887` 已成功完成，日志确认 shell executor、
+> JDK 8、Maven、Testcontainers 与 `BUILD SUCCESS` 证据链完整。
 
 ## Acceptance / Ops Runbook
 
@@ -79,7 +104,10 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
    ./openspec/changes/add-gitlab-dual-platform-ci/gitlab-acceptance-check.sh
    ```
 
-> 若 GitLab 已出现该提交但未触发 `verify`，优先检查 `.gitlab-ci.yml` 是否已位于 GitLab 目标分支、以及 push 事件是否被项目级流水线规则拦截。
+   > 该脚本要求 token 具备 `read_api` 或 `api` scope；仅 `read_repository` /
+   > `write_repository` 不足以读取 pipeline、job 与 trace。
+
+> 若 GitLab 已出现该提交但未触发 `verify`，优先检查 `.gitlab-ci.yml` 是否已位于 GitLab 目标分支、以及 push 事件是否被项目级流水线规则拦截。若只是想手工重跑，可直接在 GitLab UI 对目标分支执行 `Run pipeline`（source=`web`）。
 
 ### A2：runner 机器落地与自检（对应任务 3.1 ~ 3.4）
 
@@ -101,10 +129,22 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
    - `java -version` 显示 JDK 8；
    - `mvn -v` 显示 Maven 可用，且 Java version 为 `1.8.x`。
 
+当前已取得的实测证据（runner 主机手工自检）：
+
+1. 执行用户为 `gitlab-runner`；
+2. `docker` 路径为 `/usr/bin/docker`，`java` 路径为 `/usr/lib/jvm/java-8-openjdk-amd64/bin/java`，`mvn` 路径为 `/usr/bin/mvn`；
+3. `JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64`；
+4. `docker pull mysql:8.0.36` 返回 `Image is up to date`；
+5. `docker ps` 可正常返回容器列表，无权限错误；
+6. `java -version` 为 `openjdk version "1.8.0_492"`；
+7. `mvn -v` 为 `Apache Maven 3.6.3` 且 `Java version: 1.8.0_492`。
+
 ### A3：`verify` 作业验收（对应任务 3.5 / 3.6）
 
 当前 `.gitlab-ci.yml` 中，`verify` 作业已显式：
 
+- 先维护 `$HOME/.docker-java.properties` 中的 `api.version=1.44`，
+  让 docker-java 以 runner 上 Docker v28 可接受的 API 版本建连；
 - 通过 `java -XshowSettings:properties -version` 提取 `java.home`；
 - 如有尾部 `/jre` 则裁掉，导出为 `JAVA_HOME`；
 - 打印 `java -version` 与 `mvn -v` 后再执行 `mvn -B verify`。
@@ -115,6 +155,14 @@ GitHub Actions 与 GitLab CI 各自独立出结论。runner / Docker / Docker Hu
 2. `mvn -v` 输出 `Java version: 1.8`；
 3. `mvn -B verify` 全绿；
 4. 产物中已上传 `**/target/site/jacoco/`。
+
+当前已取得的实测证据（push pipeline `1525` / verify job `5887`）：
+
+1. runner 日志显示 `Using Shell (bash) executor`；
+2. `java -version` 输出 `openjdk version "1.8.0_492"`；
+3. `mvn -v` 输出 `Apache Maven 3.6.3` 且 `Java version: 1.8.0_492`；
+4. `mvn -B verify` 最终 `BUILD SUCCESS`；
+5. JaCoCo 产物上传成功（`**/target/site/jacoco/`）。
 
 若已具备 GitLab API token，也可复用同一个
 `openspec/changes/add-gitlab-dual-platform-ci/gitlab-acceptance-check.sh`
@@ -127,3 +175,10 @@ docker system prune -af --volumes
 ```
 
 用于回收 Testcontainers 残留镜像、匿名卷与停止容器，避免单机 shell executor 长期膨胀。
+当前 runner 主机已观察到的实际 crontab 为：
+
+```cron
+0 3 * * * /usr/bin/docker system prune -af --volumes > ~/.docker/logs 2>&1
+```
+
+后续若要增强可维护性，建议将输出重定向改为显式绝对路径，例如 `/var/log/docker-prune.log`。
