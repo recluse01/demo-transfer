@@ -22,4 +22,7 @@
 - [x] 3.6 长期清理：runner 主机 `root` crontab 已存在 `0 3 * * * /usr/bin/docker system prune -af --volumes > ~/.docker/logs 2>&1`
 
 ## 4. 后续（本 change 非目标，单独提）
-- [ ] 4.1 GitLab 侧覆盖率可视化（日志正则 / cobertura 转换，替代 GitHub 的 Madrapps PR 评论）
+
+> 以下为 verify 跑通后的后续方向，**不属于本 change 交付范围**（见 proposal「非目标 / YAGNI」），留作单独 change 处理，不在此勾选：
+>
+> - GitLab 侧覆盖率可视化（日志正则 / cobertura 转换，替代 GitHub 的 Madrapps PR 评论）
