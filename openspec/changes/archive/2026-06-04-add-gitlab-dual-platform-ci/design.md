@@ -1,3 +1,7 @@
+---
+archived-with: 2026-06-04-add-gitlab-dual-platform-ci
+status: final
+---
 ## Context
 
 - 主仓：`github.com/recluse01/demo-transfer`（public），已有 GitHub Actions（`.github/workflows/ci.yml`）跑 `mvn -B verify`。
