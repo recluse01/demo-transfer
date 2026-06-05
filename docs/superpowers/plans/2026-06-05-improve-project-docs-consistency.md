@@ -15,7 +15,6 @@ archived-with: 2026-06-05-improve-project-docs-consistency
 
 **Tech Stack:** Markdown, OpenSpec, Maven, Spring Boot 2.7, Temporal Workflow.
 
-archived-with: 2026-06-05-improve-project-docs-consistency
 ---
 
 ### Task 1: Current Documentation Facts
