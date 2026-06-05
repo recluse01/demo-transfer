@@ -1,0 +1,14 @@
+{
+  "change": "improve-test-suite-best-practices",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "cc7f3c834400678727a918cb174fe2f32450b43600217645d41160876b8249ef",
+  "files": [
+    { "path": "openspec/changes/improve-test-suite-best-practices/proposal.md", "sha256": "f4a4f215ede15f28ae4c6684f5538a76e9477584ca9c65d225fb9b5c3b1bca16" },
+    { "path": "openspec/changes/improve-test-suite-best-practices/design.md", "sha256": "9573035068daf02352b420ace7c39109ee3346d93e47f8575e2a5d3d0be6c56a" },
+    { "path": "openspec/changes/improve-test-suite-best-practices/tasks.md", "sha256": "a648c1eba1e554f6b48b2899c640f05e77a2fc6481eeeffc98e604cb01bd1e18" },
+    { "path": "openspec/changes/improve-test-suite-best-practices/specs/automated-testing/spec.md", "sha256": "51ef93f205eda0d557a0fc9c9c3c46855d8bdf0fbb4b113a9c1e85e435a57971" }
+  ]
+}

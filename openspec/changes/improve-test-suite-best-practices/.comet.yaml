@@ -1,0 +1,17 @@
+workflow: full
+phase: build
+build_mode: null
+build_pause: plan-ready
+isolation: null
+verify_mode: null
+base_ref: 8199362801655a6c5c2baea8327a550d06f9d7ab
+design_doc: docs/superpowers/specs/2026-06-05-improve-test-suite-best-practices-design.md
+plan: docs/superpowers/plans/2026-06-05-improve-test-suite-best-practices.md
+verify_result: pending
+verification_report: null
+branch_status: pending
+created_at: 2026-06-05
+verified_at: null
+archived: false
+handoff_context: openspec/changes/improve-test-suite-best-practices/.comet/handoff/design-context.json
+handoff_hash: cc7f3c834400678727a918cb174fe2f32450b43600217645d41160876b8249ef
