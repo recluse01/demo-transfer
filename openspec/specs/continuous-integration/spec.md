@@ -19,6 +19,10 @@ TBD: created by archiving change optimize-test-architecture-ci. Update Purpose a
 - **WHEN** 整体或核心业务包覆盖率低于阈值，或任一用例失败
 - **THEN** JaCoCo `check` 或 failsafe `verify` 使 `mvn verify` 非零退出，CI 标记为失败
 
+#### Scenario: v2 合并后 CI 配置与 JDK 8 门禁仍保留
+- **WHEN** 将 `claude/v2` 合并到以 `claude/v1-test` 为基线的新分支
+- **THEN** `.github/workflows/ci.yml` 与 `.gitlab-ci.yml` 仍存在，并且 Temporal 依赖和测试依赖不破坏项目 `source/target 1.8` 编译与 `mvn -B verify` 门禁
+
 ### Requirement: 覆盖率报告产出为可查看 artifact
 CI SHALL 在 `mvn verify` 后将 JaCoCo 覆盖率报告（`**/target/site/jacoco/`）作为可下载 artifact 上传，便于查看覆盖率明细。
 

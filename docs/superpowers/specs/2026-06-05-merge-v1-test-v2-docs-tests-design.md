@@ -2,6 +2,8 @@
 comet_change: merge-v1-test-v2-docs-tests
 role: technical-design
 canonical_spec: openspec
+archived-with: 2026-06-05-merge-v1-test-v2-docs-tests
+status: final
 ---
 
 # 合并 claude/v1-test 与 claude/v2，并按 v1 对齐测试和文档

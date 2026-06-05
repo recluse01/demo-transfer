@@ -2,6 +2,7 @@
 change: merge-v1-test-v2-docs-tests
 design-doc: docs/superpowers/specs/2026-06-05-merge-v1-test-v2-docs-tests-design.md
 base-ref: 0c1836c79bbec65fefcad6296549742a3b3f2721
+archived-with: 2026-06-05-merge-v1-test-v2-docs-tests
 ---
 
 # Merge V1 Test V2 Docs Tests Implementation Plan
@@ -14,6 +15,7 @@ base-ref: 0c1836c79bbec65fefcad6296549742a3b3f2721
 
 **Tech Stack:** Git, Maven multi-module, JDK 8, Spring Boot 2.7.18, Temporal SDK, Testcontainers MySQL, JaCoCo, OpenSpec/Comet.
 
+archived-with: 2026-06-05-merge-v1-test-v2-docs-tests
 ---
 
 ### Task 1: Branch And Merge Setup

@@ -1,3 +1,8 @@
+## Purpose
+定义 transfer-service 使用 Temporal Workflow 编排跨账户划转的启动、Activity 重试、人工审核 Signal、确定性约束与对外接口边界。
+
+## Requirements
+
 ### Requirement: Workflow 启动
 
 系统 SHALL 在接收到 `POST /transfers` 请求时，先将 `transfer_order` 以 `CREATED` 状态持久化，再以 `transferId` 为 Workflow ID 启动 Temporal Workflow，并立即返回 `transferId`。Workflow ID 与 `transferId` SHALL 保持一一对应，确保同一笔转账不会启动两个工作流。

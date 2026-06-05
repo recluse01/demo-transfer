@@ -1,3 +1,8 @@
+## Purpose
+定义账户资产操作在并发请求下的锁顺序与幂等检查顺序，确保相同业务操作只生效一次并以成功幂等响应收敛。
+
+## Requirements
+
 ### Requirement: 幂等检查在行锁保护范围内执行
 
 `AccountAssetService` 的 `apply` 方法 SHALL 先获取 `account_balance` 的 `FOR UPDATE` 行锁，再执行 `asset_operation` 的幂等检查。幂等检查 SHALL NOT 在行锁之前执行。

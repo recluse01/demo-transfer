@@ -19,6 +19,10 @@ TBD: created by archiving change test-suite-best-practices. Update Purpose after
 - **WHEN** 一条断言依赖「H2 与 MySQL 可能不一致的行为」或「跨 HTTP 调用」
 - **THEN** 该用例 MUST 归入 `*IT` 保真轨；其余归快速轨
 
+#### Scenario: v2 合并后双轨测试资产仍保留
+- **WHEN** 将 `claude/v2` 合并到以 `claude/v1-test` 为基线的新分支
+- **THEN** 快速轨 `*Test` 与保真轨 `*IT` 的测试资源、Testcontainers MySQL 支撑和 JaCoCo 门禁仍按 v1 测试基线保留
+
 ### Requirement: 双轨数据层与真实 DDL 初始化
 持久层测试 SHALL 支持双轨：默认 H2 内存库用于快速反馈；保真轨 MUST 使用 Testcontainers 真实 MySQL，且容器 MUST 由真实 DDL 脚本（`docker/mysql/init/01-demo-transfer.sql`）初始化、`ddl-auto` 设为 `none`，使测试看到与生产一致的 schema。
 
@@ -53,7 +57,7 @@ TBD: created by archiving change test-suite-best-practices. Update Purpose after
 - **THEN** 数据库唯一索引保证至多一条生效记录
 
 ### Requirement: Saga 状态机与不补偿原则
-测试 SHALL 覆盖转账状态机的关键流转，并验证核心原则：源账户冻结金额确认扣减后，目标入账失败 MUST NOT 触发反向补偿，而是停在 `CREDIT_FAILED` 持续重试入账直至收敛。
+测试 SHALL 覆盖转账状态机的关键流转，并验证核心原则：源账户冻结金额确认扣减后，目标入账失败 MUST NOT 触发反向补偿，而是停在 `CREDIT_FAILED` 持续重试入账直至收敛。迁移到 Temporal 编排后，相关断言 SHALL 通过 Workflow、Activity、Controller 或状态服务入口表达，不再依赖已删除的旧 Saga/Retry/Scheduler 类。
 
 #### Scenario: 入账失败停在 CREDIT_FAILED 并重试收敛
 - **WHEN** 源已确认扣减、目标入账首次失败、随后重试成功
@@ -62,6 +66,10 @@ TBD: created by archiving change test-suite-best-practices. Update Purpose after
 #### Scenario: 人工审核路径
 - **WHEN** 转账走人工审核模式并被通过/拒绝
 - **THEN** 状态机分别流转到对应后继状态
+
+#### Scenario: 旧 Saga 测试迁移到 Temporal 语义
+- **WHEN** v1 测试引用已被 v2 删除的 Saga/Retry/Scheduler 类
+- **THEN** 测试被改写到 Temporal Workflow、Activity、Controller 或状态服务入口，且保留原业务断言
 
 ### Requirement: Web 层契约测试
 每个 Controller SHALL 有 `@WebMvcTest` + MockMvc 测试，覆盖入参校验失败、成功路径、HTTP 状态码与 `ApiResponse` 结构。
