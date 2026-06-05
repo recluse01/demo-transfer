@@ -19,9 +19,21 @@
 
 ## 1. 演示拓扑
 
-组件架构图见 [文档中心](../README.md#组件架构)。基础版采用编排式 Saga：
+```text
+用户请求
+  |
+  v
+transfer-service :8080
+  |-- Feign --> account-a-service :8081 --> account_a MySQL
+  |
+  |-- Feign --> account-b-service :8082 --> account_b MySQL
+  |
+  +-----------> transfer MySQL
+```
 
-- `transfer-service` 保存转账单状态。
+基础版采用 Temporal Workflow 编排 Saga：
+
+- `transfer-service` 保存转账单状态，并由 Workflow/Activity 推进流程。
 - `account-a-service` 只操作 A 账户库。
 - `account-b-service` 只操作 B 账户库。
 - 每次资产变动都会写一条 `finance_ledger`。
@@ -141,7 +153,34 @@ VALUES
 SQL
 ```
 
-### 2.6 启动服务
+### 2.6 重置 Temporal 数据
+
+如果需要清空历史 Workflow、Signal、重试任务和可见性查询数据，可以重置 Temporal 使用的数据库。
+
+重置前先停止 Java 服务，避免 Worker 在清库期间继续连接 Temporal。使用 Docker Compose 启动的 Temporal 时，可以执行：
+
+```bash
+docker compose stop temporal-ui temporal
+
+docker compose exec -T mysql mysql -uroot -proot <<'SQL'
+DROP DATABASE IF EXISTS temporal_visibility;
+DROP DATABASE IF EXISTS temporal;
+
+CREATE DATABASE temporal DEFAULT CHARACTER SET utf8mb4;
+CREATE DATABASE temporal_visibility DEFAULT CHARACTER SET utf8mb4;
+SQL
+
+docker compose up -d temporal temporal-ui
+```
+
+说明：
+
+- `temporal` 保存 Workflow 执行历史、任务队列和内部状态。
+- `temporal_visibility` 保存 Temporal UI 和查询使用的可见性数据。
+- `temporalio/auto-setup` 容器重新启动后会自动初始化 Temporal schema。
+- 如果同时重置演示业务数据，建议先执行本节，再执行“重置演示余额”，最后重新启动 Java 服务。
+
+### 2.7 启动服务
 
 三个终端分别启动：
 
@@ -157,11 +196,60 @@ mvn -q -pl account-b-service spring-boot:run
 mvn -q -pl transfer-service spring-boot:run
 ```
 
-### 2.7 查询辅助 SQL
+### 2.8 查询辅助 SQL
 
-转账单、步骤日志、账户余额与流水的排查 SQL 见 [接口调试文档 §6](../api/transfer-debug-api.md#6-排查-sql)。演示时把其中的库名按需替换为 `account_a` / `account_b` 即可。
+查询转账单：
 
-### 2.8 命令辅助说明
+```bash
+docker compose exec mysql mysql -uroot -proot -e "
+SELECT transfer_id, user_id, source_account_type, target_account_type,
+       amount, transfer_mode, status, last_error_code, last_error_message
+FROM transfer.transfer_order
+ORDER BY id DESC;"
+```
+
+查询步骤日志：
+
+```bash
+docker compose exec mysql mysql -uroot -proot -e "
+SELECT transfer_id, step_name, step_status, error_message, created_at
+FROM transfer.transfer_step_log
+ORDER BY id;"
+```
+
+查询 A 账户余额和流水：
+
+```bash
+docker compose exec mysql mysql -uroot -proot -e "
+SELECT user_id, asset_code, available_amount, frozen_amount
+FROM account_a.account_balance;"
+```
+
+```bash
+docker compose exec mysql mysql -uroot -proot -e "
+SELECT transfer_id, operation_type, available_delta, frozen_delta,
+       available_after, frozen_after
+FROM account_a.finance_ledger
+ORDER BY id;"
+```
+
+查询 B 账户余额和流水：
+
+```bash
+docker compose exec mysql mysql -uroot -proot -e "
+SELECT user_id, asset_code, available_amount, frozen_amount
+FROM account_b.account_balance;"
+```
+
+```bash
+docker compose exec mysql mysql -uroot -proot -e "
+SELECT transfer_id, operation_type, available_delta, frozen_delta,
+       available_after, frozen_after
+FROM account_b.finance_ledger
+ORDER BY id;"
+```
+
+### 2.9 命令辅助说明
 
 下面的场景会使用 `jq` 从创建转账响应中提取 `transferId`：
 
@@ -313,7 +401,7 @@ curl -s http://localhost:8080/transfers/$TRANSFER_ID
 - 转账单状态为 `SUCCESS`。
 - A 账户完成冻结并最终扣减冻结金额。
 - B 账户可用金额增加。
-- 新建站内自动转账不需要调用 `/withdraw-result`。
+- 新建站内自动转账由 Workflow 自动推进，不需要旧版 `/withdraw-result` 回调。
 
 最终余额示例：
 
@@ -473,12 +561,8 @@ mvn -q -pl transfer-service -am test \
 
 ## 12. 关键讲解点
 
-现场演示时可照下表逐条点透，完整论证见对应 ADR：
-
-| 讲解点 | 一句话 | 详见 |
-| --- | --- | --- |
-| 为什么不用分布式事务 | Saga 状态机 + 幂等重试达到最终一致 | [ADR-0001](../decisions/0001-orchestrated-saga.md) |
-| 为什么冻结在源账户 | 审核/自动完成期间锁定资金，避免重复使用 | [overview §5](../design/service-implementation-overview.md#5-正常流程) |
-| 为什么每步都写流水 | 资产审计与排查需要完整轨迹 | [术语表·财务流水](../concepts/glossary.md#财务流水finance_ledger) |
-| 为什么要幂等 | 超时、重试、重复点击都不能重复扣款/入账 | [ADR-0004](../decisions/0004-idempotency-by-transferid-operationtype.md) |
-| 为什么 CREDIT_FAILED 只重试入账 | 已确认扣减，反向补偿引入新资金风险 | [ADR-0002](../decisions/0002-credit-failed-retry-no-compensation.md) |
+- 为什么不用分布式事务：基础版先用 Saga 状态机和幂等重试达到最终一致。
+- 为什么冻结在源账户：审核和站内自动完成期间锁定资金，避免用户重复使用。
+- 为什么每步都写流水：资产审计和问题排查需要完整轨迹。
+- 为什么要幂等：Feign 超时、重试、人工重复点击都不能造成重复扣款或重复入账。
+- 为什么 `CREDIT_FAILED` 只重试目标入账：源账户冻结资产已经确认扣减，反向补偿会引入新的资金风险，基础版选择重试收敛。

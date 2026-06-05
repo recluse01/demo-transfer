@@ -4,7 +4,7 @@
 
 ## 1. 项目概览
 
-基于 Spring Boot + Feign + 编排式 Saga 的跨服务、跨库账户划转基础示例。
+基于 Spring Boot + Feign + Temporal Workflow 编排 Saga 的跨服务、跨库账户划转基础示例。
 
 | 模块 | 职责 |
 | --- | --- |
@@ -12,7 +12,7 @@
 | `account-service` | 账户资产核心实现：余额、冻结、扣减、解冻、入账、流水、幂等。 |
 | `account-a-service` | A 账户启动应用，复用 `account-service`，连接 `account_a` 库。 |
 | `account-b-service` | B 账户启动应用，复用 `account-service`，连接 `account_b` 库。 |
-| `transfer-service` | 转账入口、状态机、Feign 调用、人工审核、站内自动完成、失败重试。 |
+| `transfer-service` | 转账入口、Temporal Workflow 编排、Activity 实现、状态持久化、人工审核、站内自动完成。 |
 
 技术栈：JDK 8（`source/target 1.8`）、Spring Boot 2.7.18、Spring Cloud 2021.0.9、MySQL 8、Maven 多模块。
 
@@ -37,9 +37,9 @@ cd transfer-service  && mvn spring-boot:run
 
 ## 3. 架构要点
 
-- `transfer-service` 编排 Saga 流程；A 库只由 `account-a-service` 改，B 库只由 `account-b-service` 改，跨库一致性靠转账单状态 + 幂等 + 失败重试收敛（最终一致，非强一致）。
+- `transfer-service` 通过 Temporal Workflow 编排 Saga 流程；A 库只由 `account-a-service` 改，B 库只由 `account-b-service` 改，跨库一致性靠转账单状态 + 幂等 + Temporal RetryPolicy 收敛（最终一致，非强一致）。
 - 账户操作幂等键为 `transfer_id + operation_type`；重复请求返回成功但 `applied=false`。
-- **核心原则：源账户冻结金额一旦确认扣减，目标入账失败不做反向补偿，停在 `CREDIT_FAILED` 持续重试入账。**
+- **核心原则：源账户冻结金额一旦确认扣减，目标入账失败不做反向补偿，进入 `CREDIT_FAILED` 并由 Temporal 重试入账。**
 - A/B 服务刻意共用同一份 `account-service`，避免两边资产逻辑漂移。
 - 状态机、时序图、表结构、失败恢复等细节见 `docs/design/service-implementation-overview.md`；以上各决策「为什么」的单一来源是 ADR（`docs/decisions/`）。
 

@@ -169,63 +169,7 @@ curl -s -X POST http://localhost:8080/transfers/$TRANSFER_ID/review \
 }
 ```
 
-### 2.3 兼容旧流程的提现结果回调
-
-- 方法：`POST`
-- 路径：`/transfers/{transferId}/withdraw-result`
-
-新建站内自动转账通常不需要调用该接口。该接口仅用于兼容仍停留在 `WITHDRAW_PENDING` 的历史流程。
-
-请求体：
-
-| 字段 | 类型 | 必填 | 说明 |
-| --- | --- | --- | --- |
-| `success` | `boolean` | 是 | 提现是否成功。 |
-| `message` | `string` | 否 | 回调说明。 |
-
-成功示例：
-
-```bash
-curl -s -X POST http://localhost:8080/transfers/$TRANSFER_ID/withdraw-result \
-  -H 'Content-Type: application/json' \
-  -d '{"success":true,"message":"提币成功"}'
-```
-
-失败示例：
-
-```bash
-curl -s -X POST http://localhost:8080/transfers/$TRANSFER_ID/withdraw-result \
-  -H 'Content-Type: application/json' \
-  -d '{"success":false,"message":"提币失败"}'
-```
-
-结果说明：
-
-- `success=true`：`WITHDRAW_PENDING -> DEBIT_SUCCESS -> SUCCESS`
-- `success=false`：`WITHDRAW_PENDING -> WITHDRAW_FAILED -> REJECTED`
-
-### 2.4 重试失败步骤
-
-- 方法：`POST`
-- 路径：`/transfers/{transferId}/retry`
-
-示例：
-
-```bash
-curl -s -X POST http://localhost:8080/transfers/$TRANSFER_ID/retry
-```
-
-仅以下状态会执行实际重试：
-
-| 状态 | 重试动作 |
-| --- | --- |
-| `DEBIT_FAILED` | 重试源账户 `confirm-debit`。 |
-| `CREDIT_FAILED` | 重试目标账户 `credit`。 |
-| `CANCEL_FAILED` | 重试源账户 `cancel-freeze`。 |
-
-如果当前状态不需要重试，接口仍返回成功，但 `data.status` 不会变化。
-
-### 2.5 查询转账单
+### 2.3 查询转账单
 
 - 方法：`GET`
 - 路径：`/transfers/{transferId}`
@@ -450,12 +394,13 @@ curl -s http://localhost:8080/transfers/$TRANSFER_ID
 
 | 状态 | 含义 | 调试动作 |
 | --- | --- | --- |
+| `CREATED` | 转账单已创建，Workflow 已启动。 | 若长时间不推进，检查 Temporal Worker 和 UI。 |
+| `INIT_FAILED` | Workflow 启动失败。 | 查看 `last_error_message`，确认 Temporal Server 是否可达。 |
+| `FREEZE_FAILED` | 源账户冻结失败。 | 查看账户余额与 `last_error_message`。 |
 | `WAIT_REVIEW` | 已冻结，等待审核。 | 查源账户冻结余额是否增加。 |
-| `WITHDRAW_PENDING` | 兼容旧流程：已冻结，等待提现结果。 | 新建站内自动转账通常不会进入该状态。 |
-| `DEBIT_FAILED` | 扣减冻结失败。 | 看源账户冻结金额是否不足，再调用重试接口。 |
-| `CREDIT_FAILED` | 目标账户入账失败。 | 查目标账户余额和流水，再调用重试接口。 |
-| `CANCEL_FAILED` | 解冻失败。 | 查源账户冻结金额，再调用重试接口。 |
-| `REJECTED` | 已拒绝或兼容旧提现失败后已解冻。 | 查源账户可用余额是否恢复。 |
+| `DEBIT_SUCCESS` | 源账户确认扣减成功，目标账户入账进行中。 | 若长时间不推进，检查 Workflow 历史。 |
+| `CREDIT_FAILED` | 目标账户入账失败。 | 查目标账户余额、流水和 Workflow 重试历史。 |
+| `REJECTED` | 已拒绝且冻结已取消。 | 查源账户可用余额是否恢复。 |
 | `SUCCESS` | 整笔转账完成。 | 查源账户扣减和目标账户入账是否都落账。 |
 
 ## 6. 排查 SQL
@@ -516,13 +461,9 @@ ORDER BY id DESC;
 - `transfer_order.last_error_code`
 - `transfer_order.last_error_message`
 
-### 7.2 为什么重试接口调用了但状态没变
+### 7.2 为什么状态长时间没变
 
-说明当前转账不在可重试失败态。先查询转账单状态，确认是否为：
-
-- `DEBIT_FAILED`
-- `CREDIT_FAILED`
-- `CANCEL_FAILED`
+当前版本由 Temporal Workflow 推进流程并处理重试。先查询转账单状态，再到 Temporal UI 查看对应 Workflow 的历史事件、Activity 重试和失败原因。
 
 ### 7.3 为什么重复调用账户接口没有再次扣款
 

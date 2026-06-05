@@ -2,6 +2,8 @@
 
 本文档既是**学习材料**也是**实践参考**：先讲清「为什么这样测」（理念与工具），再讲「怎么用」（运行与约定），最后带你「照着做」（端到端走读 + 从零新建）。设计决策的完整背景见 [设计规格](../superpowers/specs/2026-05-30-test-suite-best-practices-design.md) 和 [openspec 变更](../../openspec/changes/test-suite-best-practices/proposal.md)。
 
+> 当前实现已由手写 `TransferSagaService` / `TransferRetryService` / `TransferRetryScheduler` 迁移为 Temporal Workflow。本文保留 v1 的双轨测试方法论；涉及转账编排的示例应按当前代码映射到 `TransferWorkflowImpl`、`TransferActivitiesImpl`、`TransferControllerTest` 和 `TransferScenarioIntegrationTest`。
+
 ## 如何阅读本文档
 
 - **第一次接触这套测试** → 按顺序读第一部分（§1–§4），建立心智模型，再看第三部分 §12 的端到端走读。
@@ -40,10 +42,10 @@
 
 | 层 | 代表测试 | 验证什么 |
 |---|---|---|
-| 纯单元 | `AccountClientRouterTest`、`TransferRetrySchedulerTest` | 路由映射、状态分支等纯逻辑 |
+| 纯单元 | `AccountClientRouterTest`、`TransferWorkflowImplTest` | 路由映射、Workflow 分支等纯逻辑 |
 | 持久层切片 | `AccountRepositoryTest`（H2） | JPA 派生查询、实体映射的常规行为 |
 | Web 切片 | `AccountAssetControllerTest`（MockMvc） | 参数校验、HTTP 状态码、统一响应结构 |
-| 保真集成 | `TransferScenarioIT`、`AccountAmountPrecisionIT` | 真实 MySQL 行为、跨 HTTP 的 Saga 编排 |
+| 保真集成 | `TransferScenarioIntegrationTest`、`AccountAmountPrecisionIT` | 真实 MySQL 行为、Workflow/Activity 编排 |
 
 ## 2. 双轨设计：为什么 H2 与 Testcontainers 并存
 
@@ -75,11 +77,11 @@
 
 ```
                         ┌─────────────────────── transfer-service（被测主体）────────────────────────┐
-                        │  TransferController → TransferSagaService → AccountClientRouter           │
+                        │  TransferController → TransferWorkflowImpl → TransferActivitiesImpl           │
                         │                          │                        │                        │
    测试驱动 ───────────▶│                          ▼                        ▼                        │
-   (sagaService/        │                  TransferOrderRepository    AccountA/BClient (Feign, HTTP) │
-    retryService)       │                          │                        │                        │
+   (workflow/           │                  TransferOrderRepository    AccountA/BClient (Feign, HTTP) │
+    activities)         │                          │                        │                        │
                         └──────────────────────────┼────────────────────────┼────────────────────────┘
                                                     │                        │
                   ┌─────────────────────────────────┘                        └──────────────────────────┐
@@ -146,7 +148,7 @@ flowchart BT
     U[纯单元测试<br/>大量、最快<br/>JUnit 5 + Mockito] --> S[切片测试<br/>适量、较快<br/>@DataJpaTest / @WebMvcTest]
     S --> I[保真集成测试<br/>少量、慢、信心最高<br/>@SpringBootTest + MySQL + WireMock]
 
-    U -.示例.-> U1[AccountClientRouterTest<br/>TransferRetrySchedulerTest]
+    U -.示例.-> U1[AccountClientRouterTest<br/>TransferWorkflowImplTest]
     S -.示例.-> S1[AccountRepositoryTest<br/>AccountAssetControllerTest]
     I -.示例.-> I1[TransferScenarioIT<br/>AccountAmountPrecisionIT]
 ```
@@ -160,18 +162,18 @@ sequenceDiagram
     participant MySQL as Testcontainers MySQL
     participant WM as WireMock A/B
     participant Spring as Spring Context
-    participant Saga as TransferSagaService
+    participant Workflow as TransferWorkflowImpl
 
     Base->>MySQL: static 单例容器启动
     Test->>WM: @BeforeAll 启动两个 WireMockServer
     Test->>Spring: @DynamicPropertySource 注入 datasource 和 account.a/b.url
     Spring->>Spring: 启动完整上下文
-    Spring->>Saga: 装配真实 service/repository/Feign
-    Test->>Spring: @MockBean 替换 TransferRetryScheduler
+    Spring->>Workflow: 装配真实 Activity/repository/Feign
+    Test->>Workflow: 使用 TestWorkflowEnvironment 驱动 Workflow
     Test->>WM: @BeforeEach resetAll
-    Test->>Saga: 执行业务步骤
-    Saga->>MySQL: 读写真实 transfer 库
-    Saga->>WM: Feign HTTP 调用账户服务桩
+    Test->>Workflow: 执行业务步骤
+    Workflow->>MySQL: 读写真实 transfer 库
+    Workflow->>WM: Feign HTTP 调用账户服务桩
     Test->>MySQL: 断言订单状态
     Test->>WM: verify 下游请求次数
     Test->>MySQL: @AfterEach 清理测试数据
@@ -251,7 +253,7 @@ mvn test
 # 或仅跑某模块
 mvn test -pl account-service -am
 # 或仅跑一个快速轨测试类（-am 会经过无匹配测试的依赖模块，需允许无测试）
-mvn test -pl transfer-service -am -Dtest=TransferRetrySchedulerTest -DfailIfNoTests=false
+mvn test -pl transfer-service -am -Dtest=TransferWorkflowImplTest -DfailIfNoTests=false
 ```
 
 全部 `*Test` 均基于 H2 内存库 / Mockito，无外部依赖，开发机随时可跑，通常数秒完成。
@@ -298,7 +300,7 @@ Testcontainers 会自动拉取 `mysql:8.0.36` 镜像并管理容器生命周期�
 - 共享 MySQL 容器的测试类必须清理自己写入的数据；如果测试类使用 `@SpringBootTest` 且不会自动回滚，优先在 `@AfterEach` 删除 step log、order 等本测试写入的记录。
 - WireMock 每个测试前调用 `resetAll()`，防止请求记录和 stub scenario 泄漏到下一用例。
 - 不依赖测试类或测试方法执行顺序；任何顺序依赖都应改为显式初始化和清理。
-- `@SpringBootTest` 会加载完整应用配置。若测试只需要手动触发重试，使用 `@MockBean TransferRetryScheduler` 替换真实调度器，避免后台 `@Scheduled` 线程和测试步骤竞态。
+- `@SpringBootTest` 会加载完整应用配置。Temporal 相关测试优先使用 `TestWorkflowEnvironment`，避免依赖本地真实 Temporal Server，也避免后台 Worker 与测试步骤竞态。
 
 ### 7.1 容器复用（本地 opt-in 提速）
 
@@ -379,9 +381,9 @@ registry.add("feign.client.config.default.readTimeout", () -> "300");
 本测试用 WireMock Scenario（状态机）模拟「第一次入账失败、第二次成功」，并在两个关键节点断言 `cancel-freeze` 被调用 **零次**：
 
 1. 审核通过触发扣减后，入账失败 → 数据库持久化 `CREDIT_FAILED`，此时断言零次补偿；
-2. 调用 `retryService.retryOne(...)` 重试入账成功 → `SUCCESS`，再次断言零次补偿。
+2. Temporal RetryPolicy 重试入账成功 → `SUCCESS`，再次断言零次补偿。
 
-该类用 `@MockBean TransferRetryScheduler` 禁用真实定时调度。原因是 `TransferServiceApplication` 启用了 `@EnableScheduling`，完整 Spring 上下文会创建真实调度器；若不替换，慢 CI 或断点调试时后台线程可能提前扫描 `CREDIT_FAILED` 订单并触发重试，导致场景断言与手动重试产生竞态。
+该类使用 `TestWorkflowEnvironment` 驱动 Workflow 和 Activity。原因是当前实现由 Temporal 管理重试，测试应观察 Workflow 历史和 Activity 调用，而不是依赖真实 Temporal Server 或旧版定时调度器。
 
 > 这个测试是整套测试的「皇冠」——它把项目最重要的资金安全不变量（不补偿）变成一条可执行、会失败的断言。§12 会逐行走读它。
 
@@ -458,8 +460,8 @@ grep -o '<sourcefile name="[^"]*Response[^"]*"' transfer-service/target/site/jac
    → 基类 registerDatasource：把容器 host/port 注入 spring.datasource.*
    → 本类 registerWireMockUrls：把 account.a/b.url 指向 WireMock 端口
 ④ @SpringBootTest 启动完整应用上下文
-   → 真实装配 TransferSagaService / Repository / Feign 客户端
-   → @MockBean TransferRetryScheduler 替换掉真实定时调度器
+   → 真实装配 TransferActivitiesImpl / Repository / Feign 客户端
+   → 使用 TestWorkflowEnvironment 驱动 Workflow，不依赖真实 Temporal Server
 ⑤ 每个 @Test 前：@BeforeEach resetWireMock() → 清空上一个用例的 stub 和请求记录
 ⑥ 执行 @Test：配 stub → 调 service → 断言状态 + 断言 WireMock 收到的请求
 ⑦ 每个 @Test 后：@AfterEach cleanDatabase() → 删除本用例写入的 order/step log
@@ -472,7 +474,7 @@ grep -o '<sourcefile name="[^"]*Response[^"]*"' transfer-service/target/site/jac
 
 ```text
 @SpringBootTest(webEnvironment = NONE)              // 启动完整上下文，但不起 web 容器（测试直接调 service）
-class TransferScenarioIT extends AbstractMySqlIntegrationTest {  // 继承 → 拿到单例 MySQL 容器
+class TransferScenarioIntegrationTest extends AbstractMySqlIntegrationTest {  // 继承 → 拿到单例 MySQL 容器
 
     @DynamicPropertySource                          // 把 WireMock 端口注入成 Feign 的目标地址
     static void registerWireMockUrls(DynamicPropertyRegistry r) {
@@ -480,7 +482,7 @@ class TransferScenarioIT extends AbstractMySqlIntegrationTest {  // 继承 → �
         r.add("account.b.url", () -> "http://localhost:" + wireMockB.port());
     }
 
-    @MockBean private TransferRetryScheduler retryScheduler;  // 禁用后台定时重试，防竞态
+    private TestWorkflowEnvironment testWorkflowEnvironment;  // 驱动 Workflow 分支和 Activity 重试
 ```
 
 测试体（`creditFailedRetryConvergesToSuccessWithoutAnyCompensation`）的七步：

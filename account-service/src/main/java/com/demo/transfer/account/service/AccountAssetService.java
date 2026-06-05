@@ -10,6 +10,7 @@ import com.demo.transfer.common.AssetOperationRequest;
 import com.demo.transfer.common.AssetOperationResponse;
 import com.demo.transfer.common.OperationType;
 import java.math.BigDecimal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>负责执行冻结、确认扣减、取消冻结、入账四类原子操作，
  * 并同步落操作幂等记录和资金流水。
  */
+@Slf4j
 @Service
 public class AccountAssetService {
     /** 账户余额仓储，提供行级锁读取能力。 */
@@ -59,23 +61,28 @@ public class AccountAssetService {
      * 执行单个资产操作。
      *
      * <p>处理顺序：
-     * 1. 根据 transferId + operationType 做幂等检查。
-     * 2. 锁定余额记录并完成金额变更。
-     * 3. 写入资金流水和操作记录。
+     * 1. 锁定余额记录（FOR UPDATE），将并发请求串行化。
+     * 2. 在锁保护范围内做幂等检查，避免并发路径绕过幂等逻辑。
+     * 3. 完成金额变更，写入资金流水和操作记录。
      */
     private AssetOperationResponse apply(AssetOperationRequest request, OperationType operationType) {
+        log.info("开始执行账户资产操作，transferId={}, operationType={}, userId={}, assetCode={}, amount={}",
+                request.getTransferId(), operationType, request.getUserId(), request.getAssetCode(),
+                request.getAmount());
+        AccountBalance balance = balanceRepository
+                .findByUserIdAndAssetCodeForUpdate(request.getUserId(), request.getAssetCode())
+                .orElseThrow(() -> new IllegalStateException("account balance not found"));
+
+        // 加锁后再检查幂等：并发请求在此处串行化，第二个请求可见第一个已写入的幂等记录。
         AssetOperation existing = operationRepository
                 .findByTransferIdAndOperationType(request.getTransferId(), operationType)
                 .orElse(null);
         if (existing != null) {
-            // 幂等命中时不重复扣改余额，直接返回已有处理结果。
+            log.warn("账户资产操作已处理，命中幂等记录，transferId={}, operationType={}, message={}",
+                    request.getTransferId(), operationType, existing.getResponseMessage());
             return new AssetOperationResponse(request.getTransferId(), operationType, false,
                     existing.getResponseMessage());
         }
-
-        AccountBalance balance = balanceRepository
-                .findByUserIdAndAssetCodeForUpdate(request.getUserId(), request.getAssetCode())
-                .orElseThrow(() -> new IllegalStateException("account balance not found"));
 
         BalanceDelta delta = mutate(balance, operationType, request.getAmount());
         ledgerRepository.save(FinanceLedger.of(request.getTransferId(), request.getUserId(), request.getAssetCode(),
@@ -83,6 +90,8 @@ public class AccountAssetService {
                 balance.getFrozenAmount()));
         operationRepository.save(AssetOperation.success(request.getTransferId(), operationType, request.getUserId(),
                 request.getAssetCode(), request.getAmount(), operationType.name() + " success"));
+        log.info("账户资产操作执行完成，transferId={}, operationType={}, availableAmount={}, frozenAmount={}",
+                request.getTransferId(), operationType, balance.getAvailableAmount(), balance.getFrozenAmount());
         return new AssetOperationResponse(request.getTransferId(), operationType, true, operationType.name() + " success");
     }
 

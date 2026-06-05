@@ -1,0 +1,16 @@
+{
+  "change": "merge-v1-test-v2-docs-tests",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "a71793e5ff57910a44d1fd8a6dfa31743b37c5000b967b4d1e0f8e659a96d9d2",
+  "files": [
+    { "path": "openspec/changes/merge-v1-test-v2-docs-tests/proposal.md", "sha256": "ed8f818538fed1ceab87bcb13cbe6e7aa63db894c072ae5453215420b0d20984" },
+    { "path": "openspec/changes/merge-v1-test-v2-docs-tests/design.md", "sha256": "2735265045ce2e5dd0653c2e34874260f6f39a779e272577865326ad1fb6c1c7" },
+    { "path": "openspec/changes/merge-v1-test-v2-docs-tests/tasks.md", "sha256": "382782cf7cdca86e9ab9ec082dc8209594e5cdb4fddf6a30eb533d84aceb1f81" },
+    { "path": "openspec/changes/merge-v1-test-v2-docs-tests/specs/automated-testing/spec.md", "sha256": "f6d3e376f84a53ea98c104e1a15dcd2ebad82f81cc40538e73923d83dd3d1c34" },
+    { "path": "openspec/changes/merge-v1-test-v2-docs-tests/specs/branch-merge-and-baseline-sync/spec.md", "sha256": "a5f7a8cb2c5796075f777714ec41438a1f1506821c2f9c3b40691c12ea8f8322" },
+    { "path": "openspec/changes/merge-v1-test-v2-docs-tests/specs/continuous-integration/spec.md", "sha256": "3c67633d8a0505596bfb65f17f22bdbefbb591fc7ccb43a289f540d460671358" }
+  ]
+}

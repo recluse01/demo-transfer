@@ -3,139 +3,156 @@ package com.demo.transfer.transfer.web;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verifyNoInteractions;
 
-import com.demo.transfer.common.AccountType;
+import com.demo.transfer.common.ApiResponse;
 import com.demo.transfer.common.TransferDirection;
 import com.demo.transfer.common.TransferMode;
+import com.demo.transfer.common.TransferStatus;
+import com.demo.transfer.transfer.client.AccountAClient;
+import com.demo.transfer.transfer.client.AccountBClient;
 import com.demo.transfer.transfer.domain.TransferOrder;
-import com.demo.transfer.transfer.service.TransferRetryService;
-import com.demo.transfer.transfer.service.TransferSagaService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.demo.transfer.transfer.repository.TransferOrderRepository;
+import com.demo.transfer.transfer.service.AccountClientRouter;
+import com.demo.transfer.transfer.service.TransferOrderStateService;
+import com.demo.transfer.transfer.workflow.TransferActivities;
+import com.demo.transfer.transfer.workflow.TransferWorkflow;
+import com.demo.transfer.transfer.workflow.TransferWorkflowImpl;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
+import io.temporal.testing.TestWorkflowEnvironment;
+import io.temporal.worker.Worker;
 import java.math.BigDecimal;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-/**
- * {@link TransferController} 的 Web 切片测试。
- *
- * <p>覆盖 create/review/withdraw-result/retry/get 五端点的成功路径、统一 {@code ApiResponse} 结构、
- * create 的入参校验（400）、业务异常（200+success=false），以及 review 将路径转账号透传给服务层。
- */
-@WebMvcTest(TransferController.class)
+@DataJpaTest
+@ContextConfiguration(classes = TransferControllerTest.ControllerConfig.class)
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 class TransferControllerTest {
+    private static final String TASK_QUEUE = "test-transfer-controller-queue";
 
     @Autowired
-    private MockMvc mockMvc;
+    private TransferController controller;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private TransferOrderRepository orderRepository;
+
+    @Autowired
+    private TransferOrderStateService stateService;
+
+    @Autowired
+    private AccountClientRouter router;
 
     @MockBean
-    private TransferSagaService sagaService;
+    private AccountAClient accountAClient;
 
     @MockBean
-    private TransferRetryService retryService;
+    private AccountBClient accountBClient;
 
-    private TransferOrder sampleOrder(String transferId) {
-        return TransferOrder.create(transferId, "user-1", AccountType.ACCOUNT_A, AccountType.ACCOUNT_B,
-                "USDT", new BigDecimal("100.00000000"), TransferMode.MANUAL_REVIEW);
+    @MockBean
+    private WorkflowClient workflowClient;
+
+    @BeforeEach
+    void cleanOrders() {
+        orderRepository.deleteAll();
     }
 
     @Test
-    void createReturnsOkWithOrder() throws Exception {
-        given(sagaService.createTransfer(any())).willReturn(sampleOrder("t-1"));
-        CreateTransferRequest request = new CreateTransferRequest("user-1", "USDT", new BigDecimal("100"),
+    void returnsFailureAndDoesNotCreateOrderWhenOrderCreationFailsBeforePersistence() {
+        CreateTransferRequest request = request("110.00");
+        TransferOrderStateService failingStateService = mock(TransferOrderStateService.class);
+        when(failingStateService.createOrder(any())).thenThrow(new RuntimeException("模拟创建订单失败"));
+        TransferController failingController = new TransferController(
+                failingStateService, workflowClient, router, TASK_QUEUE);
+
+        ApiResponse<TransferOrder> response = failingController.create(request);
+
+        assertThat(response.isSuccess()).isFalse();
+        assertThat(response.getCode()).isEqualTo("TRANSFER_OPERATION_FAILED");
+        assertThat(response.getMessage()).contains("模拟创建订单失败");
+        assertThat(orderRepository.findAll()).isEmpty();
+        verifyNoInteractions(workflowClient);
+    }
+
+    @Test
+    void marksOrderInitFailedWhenWorkflowStartFailsAfterOrderCreated() {
+        CreateTransferRequest request = request("90.00");
+        when(workflowClient.newWorkflowStub(eq(TransferWorkflow.class), any(WorkflowOptions.class)))
+                .thenThrow(new RuntimeException("workflow发送失败"));
+
+        ApiResponse<TransferOrder> response = controller.create(request);
+
+        assertThat(response.isSuccess()).isFalse();
+        assertThat(response.getCode()).isEqualTo("TRANSFER_OPERATION_FAILED");
+        assertThat(response.getMessage()).contains("Workflow 启动失败");
+        TransferOrder order = orderRepository.findAll().get(0);
+        assertThat(order.getStatus()).isEqualTo(TransferStatus.INIT_FAILED);
+        assertThat(order.getLastErrorCode()).isEqualTo("WORKFLOW_START_FAILED");
+        assertThat(order.getLastErrorMessage()).contains("workflow发送失败");
+    }
+
+    @Test
+    void returnsSuccessWhenWorkflowStartSucceeds() {
+        TestWorkflowEnvironment testEnv = TestWorkflowEnvironment.newInstance();
+        Worker worker = testEnv.newWorker(TASK_QUEUE);
+        worker.registerWorkflowImplementationTypes(TransferWorkflowImpl.class);
+        worker.registerActivitiesImplementations(new NoopActivities());
+        testEnv.start();
+        try {
+            TransferController realWorkflowController = new TransferController(
+                    stateService, testEnv.getWorkflowClient(), router, TASK_QUEUE);
+
+            ApiResponse<TransferOrder> response = realWorkflowController.create(request("91.00"));
+
+            assertThat(response.isSuccess()).isTrue();
+            TransferOrder order = orderRepository.findAll().get(0);
+            assertThat(order.getStatus()).isEqualTo(TransferStatus.CREATED);
+            assertThat(order.getLastErrorCode()).isNull();
+            assertThat(order.getLastErrorMessage()).isNull();
+        } finally {
+            testEnv.close();
+        }
+    }
+
+    private CreateTransferRequest request(String amount) {
+        return new CreateTransferRequest("user-" + UUID.randomUUID(), "USDT", new BigDecimal(amount),
                 TransferDirection.A_TO_B, TransferMode.MANUAL_REVIEW);
-
-        mockMvc.perform(post("/transfers").contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.transferId").value("t-1"))
-                .andExpect(jsonPath("$.data.status").value("CREATED"));
     }
 
-    @Test
-    void createRejectsInvalidRequest() throws Exception {
-        // userId 空、amount 为 0、direction/mode 缺失，违反 @Valid 约束
-        CreateTransferRequest invalid = new CreateTransferRequest("", "USDT", BigDecimal.ZERO, null, null);
+    static class NoopActivities implements TransferActivities {
+        @Override
+        public void freeze(String transferId) {
+        }
 
-        mockMvc.perform(post("/transfers").contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalid)))
-                .andExpect(status().isBadRequest());
+        @Override
+        public void confirmDebit(String transferId) {
+        }
 
-        verify(sagaService, never()).createTransfer(any());
+        @Override
+        public void credit(String transferId) {
+        }
+
+        @Override
+        public void cancelFreeze(String transferId) {
+        }
     }
 
-    @Test
-    void reviewPassesPathTransferIdToService() throws Exception {
-        given(sagaService.review(any())).willReturn(sampleOrder("t-2"));
-        ReviewTransferRequest body = new ReviewTransferRequest(null, true, "人工审核通过");
-
-        mockMvc.perform(post("/transfers/t-2/review").contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true));
-
-        ArgumentCaptor<ReviewTransferRequest> captor = ArgumentCaptor.forClass(ReviewTransferRequest.class);
-        verify(sagaService).review(captor.capture());
-        assertThat(captor.getValue().getTransferId()).isEqualTo("t-2");
-        assertThat(captor.getValue().isApproved()).isTrue();
-    }
-
-    @Test
-    void withdrawResultDelegatesToService() throws Exception {
-        given(sagaService.handleWithdrawResult(eq("t-3"), eq(true), any())).willReturn(sampleOrder("t-3"));
-        WithdrawResultRequest body = new WithdrawResultRequest(true, "提币成功");
-
-        mockMvc.perform(post("/transfers/t-3/withdraw-result").contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.transferId").value("t-3"));
-
-        verify(sagaService).handleWithdrawResult(eq("t-3"), eq(true), any());
-    }
-
-    @Test
-    void retryDelegatesToRetryService() throws Exception {
-        given(retryService.retryOne("t-4")).willReturn(sampleOrder("t-4"));
-
-        mockMvc.perform(post("/transfers/t-4/retry"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.transferId").value("t-4"));
-
-        verify(retryService).retryOne("t-4");
-    }
-
-    @Test
-    void getReturnsOrder() throws Exception {
-        given(sagaService.get("t-5")).willReturn(sampleOrder("t-5"));
-
-        mockMvc.perform(get("/transfers/t-5"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.transferId").value("t-5"));
-    }
-
-    @Test
-    void businessFailureReturnsFailEnvelopeWithHttp200() throws Exception {
-        given(sagaService.get("missing")).willThrow(new IllegalArgumentException("transfer not found"));
-
-        mockMvc.perform(get("/transfers/missing"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(false))
-                .andExpect(jsonPath("$.code").value("TRANSFER_OPERATION_FAILED"))
-                .andExpect(jsonPath("$.message").value("transfer not found"));
+    @EnableJpaRepositories(basePackages = "com.demo.transfer.transfer.repository")
+    @EntityScan(basePackages = "com.demo.transfer.transfer.domain")
+    @Import({TransferController.class, TransferOrderStateService.class, AccountClientRouter.class})
+    static class ControllerConfig {
     }
 }

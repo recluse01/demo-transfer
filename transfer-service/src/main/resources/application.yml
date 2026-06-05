@@ -22,3 +22,8 @@ account:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+temporal:
+  host-port: ${TEMPORAL_HOST_PORT:localhost:7233}
+  namespace: ${TEMPORAL_NAMESPACE:default}
+  task-queue: ${TEMPORAL_TASK_QUEUE:transfer-queue}

@@ -1,0 +1,17 @@
+workflow: full
+phase: build
+build_mode: executing-plans
+build_pause: null
+isolation: branch
+verify_mode: null
+base_ref: 0c1836c79bbec65fefcad6296549742a3b3f2721
+design_doc: docs/superpowers/specs/2026-06-05-merge-v1-test-v2-docs-tests-design.md
+plan: docs/superpowers/plans/2026-06-05-merge-v1-test-v2-docs-tests.md
+verify_result: pending
+verification_report: null
+branch_status: pending
+created_at: 2026-06-05
+verified_at: null
+archived: false
+handoff_context: openspec/changes/merge-v1-test-v2-docs-tests/.comet/handoff/design-context.json
+handoff_hash: a71793e5ff57910a44d1fd8a6dfa31743b37c5000b967b4d1e0f8e659a96d9d2

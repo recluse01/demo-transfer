@@ -89,12 +89,12 @@ transfer-service 调用 A/B 账户服务的 Feign 客户端 SHALL 用 WireMock �
 - **WHEN** 给定每一种 `TransferDirection`
 - **THEN** `AccountClientRouter` 解析出正确的源/目标 `AccountType` 与对应 `AccountOperationsClient`
 
-### Requirement: 失败重试调度测试
-`TransferRetryScheduler` SHALL 有测试验证其扫描失败步骤并触发重试的行为，且不依赖真实定时触发。
+### Requirement: Temporal Workflow 重试测试
+Temporal Workflow SHALL 有测试验证 Activity 失败后按 RetryPolicy 触发重试的行为，且不依赖真实 Temporal Server。
 
-#### Scenario: 调度方法触发失败单重试
-- **WHEN** 存在处于失败态的转账单并直接调用调度方法
-- **THEN** 失败步骤被重新发起，不依赖等待 `@Scheduled` 的真实间隔
+#### Scenario: Activity 失败后由 Workflow 重试
+- **WHEN** Activity 首次执行失败且后续重试成功
+- **THEN** Workflow 最终完成，测试通过 `TestWorkflowEnvironment` 验证重试发生且不依赖真实 Temporal Server
 
 ### Requirement: 覆盖率门禁
 构建 SHALL 通过 JaCoCo 合并双轨覆盖率并在 `verify` 阶段强制门禁：整体行覆盖 ≥70%，核心业务包（`**/service/**`）行覆盖 ≥80%；DTO（`**/common/**`）、`**/config/**`、`**/*Application*`、OpenApi 配置 MUST 排除在度量之外。
