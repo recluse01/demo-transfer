@@ -1,0 +1,17 @@
+{
+  "change": "improve-project-docs-consistency",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "d8b3217fba98f45996ccc43cedb36a147acb8e8320bbd9b2a5337bbf924a4f5c",
+  "files": [
+    { "path": "openspec/changes/improve-project-docs-consistency/proposal.md", "sha256": "2dbb0ee993fe4d24f9616122fb7ba747d6b70859609a456a7294abd8022ec5fa" },
+    { "path": "openspec/changes/improve-project-docs-consistency/design.md", "sha256": "293c23db3516062a397903d263e43e202771025c85e282c5c38d9cc30dda04cc" },
+    { "path": "openspec/changes/improve-project-docs-consistency/tasks.md", "sha256": "7fa7f99c56d5043b38e3f651a6d62ca23898ddd0b6d7e3d2104003f91f0bd580" },
+    { "path": "openspec/changes/improve-project-docs-consistency/specs/automated-testing/spec.md", "sha256": "4f736a93323d8d9f20eb31e83368bde2b0e97b59221b3b1480f0c294d9129d2f" },
+    { "path": "openspec/changes/improve-project-docs-consistency/specs/continuous-integration/spec.md", "sha256": "aa9c95a942d39964a098d9b93c904ec8c6cb21b29d07c8a6268b5271b8744367" },
+    { "path": "openspec/changes/improve-project-docs-consistency/specs/project-documentation/spec.md", "sha256": "88b92310b7bc5ba55c49e0aa282fc1888efc608b73d636b9ea9a43eb39636faf" },
+    { "path": "openspec/changes/improve-project-docs-consistency/specs/temporal-workflow-orchestration/spec.md", "sha256": "835e855dc63dee9129b83786000b5e7177ee6503cad44ca5b53f67eca0f45a82" }
+  ]
+}

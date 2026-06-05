@@ -36,7 +36,7 @@ Activity 失败时 Temporal SHALL 按 RetryPolicy 自动重试（初始间隔 2s
 #### Scenario: freeze Activity 成功
 
 - **WHEN** `freeze` Activity 调用账户服务返回成功
-- **THEN** `transfer_order.status` 更新为 `FROZEN`，Workflow 继续执行下一步
+- **THEN** 人工审核模式下 `transfer_order.status` 更新为 `WAIT_REVIEW`；自动模式下不暴露单独冻结成功状态，Workflow 继续执行 `confirmDebit` 和 `credit`
 
 #### Scenario: freeze Activity 失败并自动重试
 

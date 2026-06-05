@@ -217,18 +217,23 @@ curl http://localhost:8080/transfers/{transferId}
 
 ## 验证
 
-运行全部测试：
+快速验证（无 Docker，仅运行 `*Test`）：
 
 ```bash
 mvn -q test -DfailIfNoTests=false
 ```
 
+全量验证（需 Docker，运行 `*Test` + `*IT` + JaCoCo 门禁）：
+
+```bash
+mvn -q verify -DfailIfNoTests=false
+```
+
 当前测试覆盖：
 
 - 账户冻结、确认扣减、取消冻结、入账，以及重复冻结的幂等处理
-- A -> B 人工审核通过与驳回
-- B -> A 人工审核通过
-- A -> B、B -> A 站内自动转账成功
+- Workflow 自动模式完整执行序列
+- Workflow 人工审核通过与驳回分支
 - Workflow 启动失败进入 `INIT_FAILED`
 - 冻结业务失败进入 `FREEZE_FAILED`
-- 源账户已扣减后目标入账失败进入 `CREDIT_FAILED`，由 Temporal RetryPolicy 自动重试
+- 源账户已扣减后目标入账失败进入 `CREDIT_FAILED`，由 Temporal RetryPolicy 自动重试，不做反向补偿

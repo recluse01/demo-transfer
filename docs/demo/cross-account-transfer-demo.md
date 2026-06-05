@@ -509,30 +509,27 @@ demo-idempotent-1 | FREEZE | 1
 
 ### 10.1 自动化测试演示方式
 
-当前基础版没有提供“强制让账户 B 入账失败”的管理接口。最稳定的演示方式是运行集成测试：
+当前基础版没有提供“强制让账户 B 入账失败”的管理接口。最稳定的演示方式是运行当前已启用的 Temporal 测试：
 
 ```bash
 mvn -q -pl transfer-service -am test \
-  -Dtest=TransferScenarioIntegrationTest#targetCreditFailureLeavesCreditFailedAndRetryOnlyCreditsTarget \
+  -Dtest=TransferActivitiesImplTest#creditFailureSetsCreditFailedAndThrows \
   -DfailIfNoTests=false
 ```
 
 该测试模拟：
 
-1. A 账户冻结成功。
-2. 审核通过。
-3. A 账户确认扣减成功。
-4. B 账户第一次入账返回失败。
-5. 转账单进入 `CREDIT_FAILED`。
-6. 执行重试。
-7. 重试只调用 B 账户 `credit`，不会再次调用 A 账户 `confirmDebit`。
-8. B 入账成功后转账单变为 `SUCCESS`。
+1. Workflow 已推进到目标账户入账 Activity。
+2. B 账户入账返回业务失败。
+3. `TransferActivitiesImpl` 将转账单持久化为 `CREDIT_FAILED`。
+4. Activity 抛出异常，交由 Temporal RetryPolicy 继续重试。
+5. 该路径不会调用源账户 `cancel-freeze` 做反向补偿。
 
-也可以运行站内自动转账失败重试测试，演示自动模式下同样复用 `CREDIT_FAILED` 重试能力：
+也可以运行 Workflow 重试测试，演示 Activity 失败后由 Temporal 测试环境触发重试：
 
 ```bash
 mvn -q -pl transfer-service -am test \
-  -Dtest=TransferScenarioIntegrationTest#autoWithdrawTargetCreditFailureLeavesCreditFailedAndRetryOnlyCreditsTarget \
+  -Dtest=TransferWorkflowImplTest#activityFailureTriggersRetryUntilSuccess \
   -DfailIfNoTests=false
 ```
 
@@ -541,7 +538,7 @@ mvn -q -pl transfer-service -am test \
 如果需要通过真实服务手工演示，可以临时增加一个测试开关，让 `account-b-service` 在指定 `transferId` 的 `credit` 操作上返回失败。基础版目前未内置该开关，所以不建议用停掉 B 服务的方式演示：
 
 - Feign 网络异常属于调用异常路径。
-- 当前基础版的可重试状态演示主要由集成测试覆盖。
+- 当前基础版的可重试状态演示主要由 `TransferWorkflowImplTest` 和 `TransferActivitiesImplTest` 覆盖。
 - 后续可以单独增加“演示故障注入开关”，例如 `demo.failCreditTransferIds`。
 
 ## 11. 演示顺序建议

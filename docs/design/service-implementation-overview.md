@@ -153,7 +153,7 @@ A 转 B 和 B 转 A 只差源账户、目标账户相反，路由由 `AccountCli
 - `AccountOperationIntegrationTest`：账户流水和余额结果。
 - `TransferActivitiesImplTest`：Activity DB 状态更新和异常行为。
 - `TransferWorkflowImplTest`：Workflow 流程分支和 Activity 重试。
-- `TransferScenarioIntegrationTest`：端到端业务场景（真实 Activity + H2 + TestWorkflowEnvironment）。
+- `TransferScenarioIntegrationTest` 当前整类被注释，作为待恢复端到端业务场景测试参考。
 
 ## 10. 当前限制
 

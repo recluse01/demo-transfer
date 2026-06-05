@@ -1,7 +1,7 @@
 # automated-testing Specification
 
 ## Purpose
-TBD: created by archiving change test-suite-best-practices. Update Purpose after archive.
+定义项目测试金字塔、快速轨/保真轨命名约定、真实 MySQL 保真测试、Temporal Workflow 重试测试和 JaCoCo 覆盖率门禁，确保本地与 CI 的验证口径一致。
 
 ## Requirements
 ### Requirement: 分层测试金字塔与命名约定
@@ -14,6 +14,10 @@ TBD: created by archiving change test-suite-best-practices. Update Purpose after
 #### Scenario: 保真轨在 verify 阶段运行
 - **WHEN** 在 Docker 在位的环境执行 `mvn verify`
 - **THEN** maven-failsafe-plugin 额外执行全部 `*IT`，与 surefire 的 `*Test` 互不重叠地运行
+
+#### Scenario: 文档命令区分 test 与 verify
+- **WHEN** 读者查看 README 或测试策略中的验证命令
+- **THEN** 文档清楚说明 `mvn test` 不需要 Docker 且只跑快速轨，`mvn verify` 需要 Docker 且包含保真轨和覆盖率门禁
 
 #### Scenario: 断言归轨准绳
 - **WHEN** 一条断言依赖「H2 与 MySQL 可能不一致的行为」或「跨 HTTP 调用」
@@ -70,6 +74,10 @@ TBD: created by archiving change test-suite-best-practices. Update Purpose after
 #### Scenario: 旧 Saga 测试迁移到 Temporal 语义
 - **WHEN** v1 测试引用已被 v2 删除的 Saga/Retry/Scheduler 类
 - **THEN** 测试被改写到 Temporal Workflow、Activity、Controller 或状态服务入口，且保留原业务断言
+
+#### Scenario: Temporal 重试测试说明不引用旧服务
+- **WHEN** 测试策略解释 `CREDIT_FAILED` 重试收敛
+- **THEN** 它使用 `TransferWorkflowImplTest`、`TransferActivitiesImplTest` 或已启用的 Temporal 测试入口说明，不再展示 `retryService.retryOne(...)`
 
 ### Requirement: Web 层契约测试
 每个 Controller SHALL 有 `@WebMvcTest` + MockMvc 测试，覆盖入参校验失败、成功路径、HTTP 状态码与 `ApiResponse` 结构。

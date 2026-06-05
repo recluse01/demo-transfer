@@ -22,5 +22,5 @@
 
 ## 后果
 
-- `CREDIT_FAILED` 是可重试态，由 `TransferRetryService` / `TransferRetryScheduler` 推进。
+- `CREDIT_FAILED` 是可重试态，由 Temporal Workflow 的 Activity RetryPolicy 推进。
 - 重试只调用目标 `credit`，不会再次调用源 `confirmDebit`。

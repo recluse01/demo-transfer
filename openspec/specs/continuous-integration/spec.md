@@ -1,7 +1,7 @@
 # continuous-integration Specification
 
 ## Purpose
-TBD: created by archiving change optimize-test-architecture-ci. Update Purpose after archive.
+定义 GitHub Actions 与 GitLab 镜像 CI 如何执行 Maven 全量验证、上传 JaCoCo 覆盖率报告，并保持快速轨、保真轨和覆盖率门禁的统一口径。
 
 ## Requirements
 ### Requirement: 持续集成自动执行双轨测试与门禁
@@ -18,6 +18,10 @@ TBD: created by archiving change optimize-test-architecture-ci. Update Purpose a
 #### Scenario: 门禁不达标使 CI 失败
 - **WHEN** 整体或核心业务包覆盖率低于阈值，或任一用例失败
 - **THEN** JaCoCo `check` 或 failsafe `verify` 使 `mvn verify` 非零退出，CI 标记为失败
+
+#### Scenario: 文档全量验证命令与 CI 一致
+- **WHEN** README 描述提交前或全量验证
+- **THEN** 它使用 `mvn verify` 语义，与 CI 的快速轨、保真轨、JaCoCo 门禁一致
 
 #### Scenario: v2 合并后 CI 配置与 JDK 8 门禁仍保留
 - **WHEN** 将 `claude/v2` 合并到以 `claude/v1-test` 为基线的新分支

@@ -1,0 +1,17 @@
+workflow: full
+phase: build
+build_mode: executing-plans
+build_pause: null
+isolation: branch
+verify_mode: null
+base_ref: 86c178df1cd158fceccf174b5994913e1041e97e
+design_doc: docs/superpowers/specs/2026-06-05-improve-project-docs-consistency-design.md
+plan: docs/superpowers/plans/2026-06-05-improve-project-docs-consistency.md
+verify_result: pending
+verification_report: null
+branch_status: pending
+created_at: 2026-06-05
+verified_at: null
+archived: false
+handoff_context: openspec/changes/improve-project-docs-consistency/.comet/handoff/design-context.json
+handoff_hash: d8b3217fba98f45996ccc43cedb36a147acb8e8320bbd9b2a5337bbf924a4f5c

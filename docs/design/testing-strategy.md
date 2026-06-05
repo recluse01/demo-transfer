@@ -2,7 +2,7 @@
 
 本文档既是**学习材料**也是**实践参考**：先讲清「为什么这样测」（理念与工具），再讲「怎么用」（运行与约定），最后带你「照着做」（端到端走读 + 从零新建）。设计决策的完整背景见 [设计规格](../superpowers/specs/2026-05-30-test-suite-best-practices-design.md) 和 [openspec 变更](../../openspec/changes/test-suite-best-practices/proposal.md)。
 
-> 当前实现已由手写 `TransferSagaService` / `TransferRetryService` / `TransferRetryScheduler` 迁移为 Temporal Workflow。本文保留 v1 的双轨测试方法论；涉及转账编排的示例应按当前代码映射到 `TransferWorkflowImpl`、`TransferActivitiesImpl`、`TransferControllerTest` 和 `TransferScenarioIntegrationTest`。
+> 当前实现已由手写 `TransferSagaService` / `TransferRetryService` / `TransferRetryScheduler` 迁移为 Temporal Workflow。本文保留 v1 的双轨测试方法论；涉及转账编排的示例应按当前代码映射到 `TransferWorkflowImpl`、`TransferActivitiesImpl` 和 `TransferControllerTest`。`TransferScenarioIntegrationTest` 当前整类被注释，只能作为待恢复保真场景测试参考。
 
 ## 如何阅读本文档
 
@@ -45,7 +45,7 @@
 | 纯单元 | `AccountClientRouterTest`、`TransferWorkflowImplTest` | 路由映射、Workflow 分支等纯逻辑 |
 | 持久层切片 | `AccountRepositoryTest`（H2） | JPA 派生查询、实体映射的常规行为 |
 | Web 切片 | `AccountAssetControllerTest`（MockMvc） | 参数校验、HTTP 状态码、统一响应结构 |
-| 保真集成 | `TransferScenarioIntegrationTest`、`AccountAmountPrecisionIT` | 真实 MySQL 行为、Workflow/Activity 编排 |
+| 保真集成 | `AccountAmountPrecisionIT`、`FeignClientWireMockIT` | 真实 MySQL 行为、Feign HTTP 编解码 |
 
 ## 2. 双轨设计：为什么 H2 与 Testcontainers 并存
 
@@ -150,7 +150,7 @@ flowchart BT
 
     U -.示例.-> U1[AccountClientRouterTest<br/>TransferWorkflowImplTest]
     S -.示例.-> S1[AccountRepositoryTest<br/>AccountAssetControllerTest]
-    I -.示例.-> I1[TransferScenarioIT<br/>AccountAmountPrecisionIT]
+    I -.示例.-> I1[FeignClientWireMockIT<br/>AccountAmountPrecisionIT]
 ```
 
 **一个保真 IT 的启动流程：**
@@ -179,7 +179,7 @@ sequenceDiagram
     Test->>MySQL: @AfterEach 清理测试数据
 ```
 
-**核心 Saga 测试：入账失败不补偿，只重试：**
+**核心 Saga 测试：入账失败不补偿，只重试目标入账：**
 
 ```mermaid
 flowchart TD
@@ -191,11 +191,11 @@ flowchart TD
     F --> G[订单状态 CREDIT_FAILED]
     G --> H{是否调用 cancel-freeze?}
     H -->|预期 0 次| I[证明不做反向补偿]
-    I --> J[手动触发 retryOne]
-    J --> K[目标账户 credit 第二次成功]
+    I --> J[Temporal RetryPolicy 重试 credit Activity]
+    J --> K[目标账户 credit 后续成功]
     K --> L[订单状态 SUCCESS]
     L --> M[再次断言 cancel-freeze 仍为 0 次]
-    M --> N[断言 credit 共 2 次<br/>confirm-debit 仅 1 次]
+    M --> N[断言 confirm-debit 不被重复调用]
 ```
 
 ## 4. 工具速览（每个工具解决什么问题）
@@ -206,7 +206,7 @@ flowchart TD
 | **maven-failsafe-plugin** | 跑「集成测试」的 Maven 插件，绑定 `verify` 阶段 | 执行 `*IT`，失败不立即中断、让 `post-integration-test` 有机会清理 | 保真轨入口 `mvn verify` |
 | **`@DataJpaTest`** | 只启动「JPA 持久层」的切片注解 | 不加载整个应用，只装配 Repository + 数据源，快速测数据访问 | H2 仓储测试 + 保真轨数据 IT（配 `replace=NONE`） |
 | **`@WebMvcTest`** | 只启动「Web 层」的切片注解 | 只装配指定 Controller + MVC 基建，不连数据库，快速测 HTTP 协议 | `AccountAssetControllerTest`、`TransferControllerTest` |
-| **`@SpringBootTest`** | 启动「完整应用上下文」 | 真实装配 service/repository/Feign，测端到端协作 | `TransferScenarioIT` |
+| **`@SpringBootTest`** | 启动「完整应用上下文」 | 真实装配 service/repository/Feign，测端到端协作 | 待恢复的 `TransferScenarioIntegrationTest` |
 | **Testcontainers** | 用 Docker 在测试里跑「真实中间件」的库 | 让测试连真实 MySQL，而非 H2，消除方言/精度盲区 | `AbstractMySqlIntegrationTest` 的单例 `MySQLContainer` |
 | **WireMock** | 一个「可编程的 HTTP 桩服务器」 | 在不启动下游服务的前提下，模拟其 HTTP 响应（成功/失败/延迟/状态机） | 桩代 A/B 账户服务，测 Feign 与 Saga |
 | **`@DynamicPropertySource`** | 在测试运行时「动态注入配置」的钩子 | 把容器/WireMock 启动后才知道的 host/port 注入 Spring（Boot 2.7 无 `@ServiceConnection`，故手动桥接） | 注入 datasource、`account.a/b.url`、Feign readTimeout |
@@ -374,18 +374,18 @@ registry.add("feign.client.config.default.readTimeout", () -> "300");
 
 不要写在 `application-test.yml` 中。原因：spring-cloud-openfeign 3.1.9 的 `FeignClientProperties` 以 `@ConfigurationProperties("feign.client")` 绑定，若写在 yml 的 test profile 中，因 `FeignClientProperties` 早期绑定时机可能导致 config map 为空，超时不生效。`@DynamicPropertySource` 以最高优先级注入 Environment，可靠触发绑定。
 
-## 10. 核心原则测试（`TransferScenarioIT#creditFailedRetryConvergesToSuccessWithoutAnyCompensation`）
+## 10. 核心原则测试（Temporal Workflow / Activity）
 
 > **核心原则**：源账户扣减一旦确认，目标账户入账失败不做反向补偿，停在 `CREDIT_FAILED` 持续重试入账。
 
-本测试用 WireMock Scenario（状态机）模拟「第一次入账失败、第二次成功」，并在两个关键节点断言 `cancel-freeze` 被调用 **零次**：
+当前已启用测试拆成两个层面表达这个原则：
 
-1. 审核通过触发扣减后，入账失败 → 数据库持久化 `CREDIT_FAILED`，此时断言零次补偿；
-2. Temporal RetryPolicy 重试入账成功 → `SUCCESS`，再次断言零次补偿。
+1. `TransferActivitiesImplTest#creditFailureSetsCreditFailedAndThrows`：目标入账失败时持久化 `CREDIT_FAILED` 并抛错，让 Workflow 继续按 RetryPolicy 重试；
+2. `TransferWorkflowImplTest#activityFailureTriggersRetryUntilSuccess`：Activity 第一次失败后由 Temporal 测试环境触发重试，最终继续执行后续步骤。
 
-该类使用 `TestWorkflowEnvironment` 驱动 Workflow 和 Activity。原因是当前实现由 Temporal 管理重试，测试应观察 Workflow 历史和 Activity 调用，而不是依赖真实 Temporal Server 或旧版定时调度器。
+源账户扣减后不反向补偿的约束来自当前 Workflow 顺序：`cancelFreeze` 只在人工审核拒绝分支执行，`credit` 失败不会跳到补偿分支；Activity 失败通过异常交回 Temporal RetryPolicy 收敛。
 
-> 这个测试是整套测试的「皇冠」——它把项目最重要的资金安全不变量（不补偿）变成一条可执行、会失败的断言。§12 会逐行走读它。
+> 后续恢复 `TransferScenarioIntegrationTest` 时，应继续把“不反向补偿”做成外部可观察断言，例如断言源账户 `cancel-freeze` 端点零次调用。
 
 ## 11. JaCoCo 覆盖率门控
 
@@ -445,84 +445,58 @@ grep -o '<sourcefile name="[^"]*Response[^"]*"' transfer-service/target/site/jac
 
 # 第三部分 · 动手（照着做）
 
-## 12. 端到端走读：一个保真 IT 是怎么跑起来的
+## 12. Temporal 测试走读：当前已启用的重试覆盖
 
-以 `TransferScenarioIT`（`@SpringBootTest` + Testcontainers + WireMock）为例，理解一个保真 IT 从启动到断言的完整生命周期。
+`TransferScenarioIntegrationTest` 当前整类处于注释状态，不属于 Maven 当前会执行的覆盖。本节以已启用的 `TransferWorkflowImplTest` 和 `TransferActivitiesImplTest` 说明 Temporal 重试与 `CREDIT_FAILED` 状态覆盖。
 
-### 12.1 启动时序（谁先谁后）
+### 12.1 Workflow 重试测试启动时序
 
 ```
-① 静态初始化块（基类 AbstractMySqlIntegrationTest）
-   → new MySQLContainer(...).start()         真实 MySQL 容器启动一次（单例）
-② @BeforeAll startWireMock()
-   → 两个 WireMockServer 在动态端口启动
-③ Spring 解析 @DynamicPropertySource（两个方法合并）
-   → 基类 registerDatasource：把容器 host/port 注入 spring.datasource.*
-   → 本类 registerWireMockUrls：把 account.a/b.url 指向 WireMock 端口
-④ @SpringBootTest 启动完整应用上下文
-   → 真实装配 TransferActivitiesImpl / Repository / Feign 客户端
-   → 使用 TestWorkflowEnvironment 驱动 Workflow，不依赖真实 Temporal Server
-⑤ 每个 @Test 前：@BeforeEach resetWireMock() → 清空上一个用例的 stub 和请求记录
-⑥ 执行 @Test：配 stub → 调 service → 断言状态 + 断言 WireMock 收到的请求
-⑦ 每个 @Test 后：@AfterEach cleanDatabase() → 删除本用例写入的 order/step log
-⑧ JVM 退出：Ryuk 清理容器；@AfterAll stopWireMock()
+① @BeforeEach 创建 TestWorkflowEnvironment
+② 注册 TransferWorkflowImpl 到测试 Worker
+③ 注册 StubActivities，记录 Activity 调用并可控制失败次数
+④ testEnv.start() 启动内存 Temporal 测试环境
+⑤ 执行 Workflow stub
+⑥ 断言 Activity 调用序列、重试次数和失败传播
+⑦ @AfterEach close() 关闭测试环境
 ```
 
-关键点：**容器和 Spring 上下文整套测试只建一次**（贵，所以复用）；**WireMock stub 和数据库数据每个用例重置**（便宜，所以隔离）。理解这条「贵的复用、便宜的隔离」就抓住了保真轨的设计精髓。
+关键点：这个测试不依赖真实 Temporal Server，也不依赖 Docker；它验证 Workflow 代码的分支顺序和 RetryPolicy 触发行为，属于快速轨 `*Test`。
 
 ### 12.2 核心原则用例逐段解读
 
 ```text
-@SpringBootTest(webEnvironment = NONE)              // 启动完整上下文，但不起 web 容器（测试直接调 service）
-class TransferScenarioIntegrationTest extends AbstractMySqlIntegrationTest {  // 继承 → 拿到单例 MySQL 容器
-
-    @DynamicPropertySource                          // 把 WireMock 端口注入成 Feign 的目标地址
-    static void registerWireMockUrls(DynamicPropertyRegistry r) {
-        r.add("account.a.url", () -> "http://localhost:" + wireMockA.port());
-        r.add("account.b.url", () -> "http://localhost:" + wireMockB.port());
-    }
-
-    private TestWorkflowEnvironment testWorkflowEnvironment;  // 驱动 Workflow 分支和 Activity 重试
+class TransferWorkflowImplTest {
+    private TestWorkflowEnvironment testEnv;
+    private StubActivities activities;
+}
 ```
 
-测试体（`creditFailedRetryConvergesToSuccessWithoutAnyCompensation`）的七步：
+`activityFailureTriggersRetryUntilSuccess` 覆盖 Activity 失败后由 Workflow 重试：
 
 ```text
-// A 源账户：冻结、扣减都成功；cancel-freeze 也配了桩，但预期永不被调用
-stubFreezeSuccess(wireMockA); stubConfirmDebitSuccess(wireMockA); stubCancelFreezeSuccess(wireMockA);
+activities.freezeFailTimes = 1;
 
-// B 目标账户：用 WireMock Scenario（状态机）让 /credit 第一次失败、第二次成功
-wireMockB.stubFor(post(urlEqualTo(".../credit")).inScenario("credit-retry")
-        .whenScenarioStateIs(STARTED)                 // 初始态 → 返回 success:false（HTTP 200）
-        .willReturn(... "success":false ...).willSetStateTo("CREDIT_RETRY"));
-wireMockB.stubFor(post(urlEqualTo(".../credit")).inScenario("credit-retry")
-        .whenScenarioStateIs("CREDIT_RETRY")          // 第二次 → 返回 success:true
-        .willReturn(... "success":true ...));
+execute(TransferMode.AUTO_WITHDRAW);
 
-// 步骤1：创建（人工审核模式）→ 冻结成功 → WAIT_REVIEW
-TransferOrder created = sagaService.createTransfer(createRequest(A_TO_B, MANUAL_REVIEW));
-assertThat(created.getStatus()).isEqualTo(WAIT_REVIEW);
-
-// 步骤2：审核通过 → 扣减成功 → 入账第一次失败 → CREDIT_FAILED
-TransferOrder afterApprove = sagaService.review(new ReviewTransferRequest(id, true, "审核通过"));
-assertThat(afterApprove.getStatus()).isEqualTo(CREDIT_FAILED);
-
-// 步骤3：从真实 MySQL 读回，确认状态确实持久化为 CREDIT_FAILED
-assertThat(orderRepository.findByTransferId(id).get().getStatus()).isEqualTo(CREDIT_FAILED);
-
-// 步骤4【核心断言】：入账失败后，源账户 cancel-freeze 端点零次调用 —— 证明没有反向补偿
-wireMockA.verify(0, postRequestedFor(urlEqualTo(".../cancel-freeze")));
-
-// 步骤5：重试 → 第二次入账成功 → SUCCESS
-assertThat(retryService.retryOne(id).getStatus()).isEqualTo(SUCCESS);
-
-// 步骤6&7：DB 最终为 SUCCESS；cancel-freeze 仍然零次；credit 共 2 次、confirm-debit 仅 1 次
-wireMockA.verify(0, postRequestedFor(urlEqualTo(".../cancel-freeze")));
-wireMockB.verify(2, postRequestedFor(urlEqualTo(".../credit")));
-wireMockA.verify(1, postRequestedFor(urlEqualTo(".../confirm-debit")));
+// 第一次 freeze 抛异常，Temporal 测试环境触发重试，第二次成功
+assertThat(activities.freezeAttempts).isEqualTo(2);
+assertThat(activities.calls).contains("freeze", "confirmDebit", "credit");
 ```
 
-**这个测试为什么有说服力：** 它不 mock service 内部，而是用真实 MySQL + 真实 Feign over HTTP 跑完整 Saga，再用 `wireMockA.verify(0, ...)` 从「下游收到的请求」这个外部视角证明「补偿调用从未发生」——比任何内部断言都难造假。
+`TransferActivitiesImplTest#creditFailureSetsCreditFailedAndThrows` 覆盖目标入账失败后的持久化状态：
+
+```text
+when(accountBClient.credit(any())).thenReturn(ApiResponse.fail("CREDIT_TIMEOUT", "入账超时"));
+save(order(TransferMode.AUTO_WITHDRAW));
+
+assertThatThrownBy(() -> activities.credit(TRANSFER_ID))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessageContaining("credit failed");
+assertThat(reload().getStatus()).isEqualTo(TransferStatus.CREDIT_FAILED);
+```
+
+**这个测试为什么有说服力：** Workflow 测试证明 Temporal RetryPolicy 会重试失败 Activity；Activity 测试证明目标入账失败会持久化为 `CREDIT_FAILED` 并向 Workflow 抛错，后续由 Workflow 重试同一个 Activity。源账户扣减后不反向补偿的原则体现在 Workflow 顺序中：`credit` 失败不会触发 `cancelFreeze` 分支，`cancelFreeze` 只在人工审核拒绝时执行。
 
 ## 13. 如何新建测试（速查表 + 完整示例）
 
@@ -612,7 +586,7 @@ class MyExampleIT extends AbstractMySqlIntegrationTest {                       /
 
 跑它：`mvn verify -pl account-service -am -Dit.test=MyExampleIT -DfailIfNoTests=false`（需 Docker）。
 
-> 需要测 service 编排 + Feign 的，参考 `TransferScenarioIT`：改用 `@SpringBootTest`、加两个 `WireMockServer` 并用 `@DynamicPropertySource` 把 `account.a/b.url` 指过去、`@MockBean` 掉调度器、`@AfterEach` 清库。
+> 需要恢复 service 编排 + Feign 的保真场景测试时，可基于当前注释的 `TransferScenarioIntegrationTest` 重新启用：改用 `@SpringBootTest`、加两个 `WireMockServer` 并用 `@DynamicPropertySource` 把 `account.a/b.url` 指过去、用 `TestWorkflowEnvironment` 驱动 Workflow、`@AfterEach` 清理本用例数据。
 
 ## 14. 常见故障排查
 
@@ -623,7 +597,7 @@ class MyExampleIT extends AbstractMySqlIntegrationTest {                       /
 | `Table ... doesn't exist` 或 schema 与实体不一致 | 保真轨未连真实 MySQL，或 `ddl-auto` / `@AutoConfigureTestDatabase` 配置错误 | 确认继承 `AbstractMySqlIntegrationTest`、激活 `test` profile、标注 `replace = NONE` |
 | `mvn verify -pl transfer-service` 找不到 `common` | 只构建目标模块，未构建依赖模块 | 使用 `-am`，即 `mvn verify -pl transfer-service -am` |
 | Feign 超时测试不按预期失败 | readTimeout 没被 OpenFeign 配置绑定 | 使用 `@DynamicPropertySource` 注入 `feign.client.config.default.readTimeout` |
-| 场景 IT 偶发状态已被重试 | 真实 `@Scheduled` 后台线程参与测试 | 用 `@MockBean` 替换调度器，手动调用 retry service |
+| 场景 IT 偶发状态已被重试 | Temporal Worker 或测试环境未按用例隔离 | 每个用例独立创建/关闭 `TestWorkflowEnvironment`，并用唯一 `transferId` 与显式清理隔离数据库数据 |
 | 精度断言「看起来过了」但其实没测到 MySQL | 同事务内写后直读，命中 JPA 一级缓存 | 写后 `entityManager.clear()` 再读（见 §8） |
 | service 包覆盖率门禁形同虚设 | `check` 的 `PACKAGE` includes 写成了 `**/service`（斜杠） | 改为点分隔 `**.service` / `**.service.*`（见 §11） |
 
