@@ -2,6 +2,7 @@
 change: improve-project-docs-consistency
 design-doc: docs/superpowers/specs/2026-06-05-improve-project-docs-consistency-design.md
 base-ref: 86c178df1cd158fceccf174b5994913e1041e97e
+archived-with: 2026-06-05-improve-project-docs-consistency
 ---
 
 # Improve Project Docs Consistency Implementation Plan
@@ -14,6 +15,7 @@ base-ref: 86c178df1cd158fceccf174b5994913e1041e97e
 
 **Tech Stack:** Markdown, OpenSpec, Maven, Spring Boot 2.7, Temporal Workflow.
 
+archived-with: 2026-06-05-improve-project-docs-consistency
 ---
 
 ### Task 1: Current Documentation Facts

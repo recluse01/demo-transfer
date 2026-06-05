@@ -12,6 +12,6 @@ verification_report: docs/superpowers/reports/2026-06-05-improve-project-docs-co
 branch_status: handled
 created_at: 2026-06-05
 verified_at: 2026-06-05
-archived: false
+archived: true
 handoff_context: openspec/changes/improve-project-docs-consistency/.comet/handoff/design-context.json
 handoff_hash: d8b3217fba98f45996ccc43cedb36a147acb8e8320bbd9b2a5337bbf924a4f5c

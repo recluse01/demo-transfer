@@ -2,6 +2,8 @@
 comet_change: improve-project-docs-consistency
 role: technical-design
 canonical_spec: openspec
+archived-with: 2026-06-05-improve-project-docs-consistency
+status: final
 ---
 
 # 项目文档一致性修复设计
